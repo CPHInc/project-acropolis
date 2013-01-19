@@ -29,8 +29,7 @@ public class LocationApplication extends UiApplication
 	final static String AppFG = "enter_foreground";
 	
 	static boolean BG_Icon = false;
-	static boolean PowerOFF = false;
-   	static boolean PowerON = true;
+   	static boolean PowerON = false;
    	
    	static Thread thread; 
    	static String[] app_arg = new String[10];
@@ -42,54 +41,47 @@ public class LocationApplication extends UiApplication
 		app_arg = args;
 		final LocationApplication theApp = new LocationApplication();
         
-//        if(args[0].equalsIgnoreCase(AppFG))
-//        {
 		while(PowerON==false)
+		{
         	LocationApplication.getApplication().addSystemListener(new SystemListener() {
 
-				public void batteryGood() {
-					// TODO Auto-generated method stub
-					PowerON = true;
-					try{
-						Thread.sleep(2*1000);
-					} catch(InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-				}
+				public void batteryGood() {}
 
-				public void batteryLow() {
-					// TODO Auto-generated method stub
-					
-				}
+				public void batteryLow() {}
 
 				public void batteryStatusChange(int status) {
-					// TODO Auto-generated method stub
+
+					if(status == DeviceInfo.BSTAT_NO_RADIO)
+						PowerON = false;
+					else
+						PowerON = true;
 				}
 
 				public void powerOff() {
-					// TODO Auto-generated method stub
+					PowerON = false;
 				}
 
-				public void powerUp() {
-					//thread = Thread.currentThread();
-					//thread.notifyAll();
+				public void powerUp() 
+				{
 					PowerON = true;
-					try{
-						Thread.sleep(3*1000);		//launches application 3 sec after booting up  
-					} catch(InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-					
-					if(app_arg[0].equalsIgnoreCase(AppBG))
-						theApp.enterEventDispatcher();
-					else
-						theApp.enterEventDispatcher();
 				}
-        		
         	});
+		}
         	
+		if(PowerON && app_arg[0].equalsIgnoreCase(AppBG))
+		{
+			try {
+				Thread.sleep(3*1000);		//launches application 3 sec after booting up  
+			} catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+			theApp.enterEventDispatcher();
+		}
+		else
+			theApp.enterEventDispatcher();
+		
+		PowerON = false;		//resetting PowerON value
+		
         	//        }
 //        else
 //        {
