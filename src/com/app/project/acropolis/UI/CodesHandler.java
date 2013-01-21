@@ -29,7 +29,7 @@ public class CodesHandler implements Runnable {
 	double Satellites = 0;
 	boolean Roaming = false;
 	
-	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
+	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy## */
 	public String datatobeMailed = "";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
