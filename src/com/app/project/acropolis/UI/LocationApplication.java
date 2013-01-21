@@ -41,44 +41,33 @@ public class LocationApplication extends UiApplication
 		app_arg = args;
 		final LocationApplication theApp = new LocationApplication();
         
-		while(PowerON==false)
-		{
-        	LocationApplication.getApplication().addSystemListener(new SystemListener() {
+    	LocationApplication.getApplication().addSystemListener(new SystemListener() {
 
-				public void batteryGood() {}
+			public void batteryGood() {}
 
-				public void batteryLow() {}
+			public void batteryLow() {}
 
-				public void batteryStatusChange(int status) {
-
-					if(status == DeviceInfo.BSTAT_NO_RADIO)
-						PowerON = false;
-					else
-						PowerON = true;
-				}
-
-				public void powerOff() {
+			public void batteryStatusChange(int status) {
+				if(status == DeviceInfo.BSTAT_NO_RADIO)
 					PowerON = false;
-				}
-
-				public void powerUp() 
-				{
+				else
 					PowerON = true;
-				}
-        	});
-		}
-        	
-		if(PowerON && app_arg[0].equalsIgnoreCase(AppBG))
-		{
-			try {
-				Thread.sleep(3*1000);		//launches application 3 sec after booting up  
-			} catch(InterruptedException e) {
-				e.printStackTrace();
 			}
+
+			public void powerOff() {
+				PowerON = false;
+			}
+
+			public void powerUp() 
+			{
+				PowerON = true;
+			}
+    	});
+        	
+		if(PowerON)
 			theApp.enterEventDispatcher();
-		}
-		else
-			theApp.enterEventDispatcher();
+//		else
+//			theApp.enterEventDispatcher();
 		
         	//        }
 //        else

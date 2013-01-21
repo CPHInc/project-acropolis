@@ -92,8 +92,8 @@ public class MailCode
 		    		
 		    		Transport.send(message2);
 		    		
-		    		messageID = message2.getMessageId();
-		    		DeleteSentMail(messageID, sentfolder);
+//		    		messageID = message2.getMessageId();
+//		    		DeleteSentMail(messageID, sentfolder);
 	    		} catch(AddressException e) {
 	        		e.printStackTrace();
 	        		System.err.print(e.getMessage());
@@ -108,7 +108,7 @@ public class MailCode
 	public boolean DeleteSentMail(int msgID, Folder messagefolder)
 	{
 		Message deleteMsg = Store.getMessage(msgID);
-		messagefolder.deleteMessage(deleteMsg);
+		messagefolder.deleteMessage(deleteMsg, false);
 		return true;
 	}
 	
