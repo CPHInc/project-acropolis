@@ -30,7 +30,7 @@ public class LocationCode {
 	private double speed;
 	private int interval = 1; // time in seconds to get new gps data
 	private boolean roaming;
-	
+	LocationProvider locationprovider;
 	/**
 	 * contructor
 	 * registers EventLogger for the application to view within Device Stack Trace
@@ -47,7 +47,8 @@ public class LocationCode {
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
-			LocationProvider locationprovider = LocationProvider.getInstance(null);
+//			LocationProvider locationprovider = LocationProvider.getInstance(null);
+			locationprovider = LocationProvider.getInstance(null);
 			if(locationprovider!=null) {
 				locationprovider.setLocationListener(new LocationListenerImpl(), interval, 1, 1);
 			} else { 
@@ -56,7 +57,7 @@ public class LocationCode {
 		} catch (LocationException e) {
 			System.out.println("Error: " + e.toString());
 		}
-
+		
 		return retval;
 	}
 
@@ -76,7 +77,7 @@ public class LocationCode {
 
 				// this is to get the accuracy of the GPS Cords
 				QualifiedCoordinates qc = location.getQualifiedCoordinates();
-				accuracy = qc.getHorizontalAccuracy();
+				accuracy = (qc.getHorizontalAccuracy() + qc.getVerticalAccuracy()) / 2;
 			}
 			if( ( RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING ) !=0 )
 				roaming = true; 
@@ -89,76 +90,9 @@ public class LocationCode {
 		}
 	}
 	
-	
-//	/**
-//	 * registers LocationListener, aiding to detect change in position/co-ordinates
-//	 * @throws LocationException
-//	 */
-//	public void StartScanning() 
-//	{
-//		EventLogger.logEvent(GUID, ("scanning initiated...").getBytes(), EventLogger.DEBUG_INFO);
-//		try{
-//		LocationProvider Applp = LocationProvider.getInstance(null);
-//		Applp.setLocationListener(new LocationChangeListener(), -1, -1, 1);		//Age = 10seconds
-//		} catch(LocationException e){
-//			e.printStackTrace();
-//		}
-//	}
-	
-	
-	
-//	private class LocationChangeListener implements LocationListener
-//	{
-//		
-//		public void locationUpdated(LocationProvider provider, Location location) {
-//			// TODO Auto-generated method stub
-//			if(location.isValid() && provider !=null)
-//			{
-//				QualifiedCoordinates Appcoordinates = location.getQualifiedCoordinates();
-//				if(Appcoordinates != null)
-//				{
-//					lat = Appcoordinates.getLatitude();
-//					lng = Appcoordinates.getLongitude();
-//					accuracy = ( Appcoordinates.getVerticalAccuracy() + Appcoordinates.getHorizontalAccuracy() ) / 2 ;
-//					satcount = location.getExtraInfo("satellites");
-//					if(satcount==null)
-//					{
-//						satcount = location.getExtraInfo("applicaiton/X-jsr179-location-nmea");
-//					}
-//					else
-//					{
-//						satcount = "-1";
-//					}
-//				}
-//				else
-//				{
-//					lat = -1;
-//					lng = -1;
-//					accuracy = -1;
-//				}
-//			}
-//		}
-//		
-//		public void providerStateChanged(LocationProvider provider, int newState) {
-//			// TODO Auto-generated method stub
-////			prov
-//		}
-//		
-//	}
-	
-	/*TODO ProximityListener */
-	public class LocationProximitySensor implements ProximityListener
+	public void RemoveProviders()
 	{
-		public void monitoringStateChanged(boolean isMonitoringActive) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void proximityEvent(Coordinates coordinates, Location location) {
-			// TODO Auto-generated method stub
-			
-		}
-		
+		locationprovider.reset();
 	}
 	
 	public double getLatitude()

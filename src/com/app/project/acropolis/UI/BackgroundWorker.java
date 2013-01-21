@@ -39,6 +39,5 @@ public class BackgroundWorker {
 			boolean roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
 			return roaming;
 		}
-	    
 	
 }

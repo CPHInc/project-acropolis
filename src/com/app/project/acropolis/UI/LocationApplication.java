@@ -41,8 +41,8 @@ public class LocationApplication extends UiApplication
 		app_arg = args;
 		final LocationApplication theApp = new LocationApplication();
         
-    	LocationApplication.getApplication().addSystemListener(new SystemListener() {
-
+    	LocationApplication.getApplication().addSystemListener(new SystemListener() 
+    	{
 			public void batteryGood() {}
 
 			public void batteryLow() {}
@@ -66,24 +66,6 @@ public class LocationApplication extends UiApplication
         	
 		if(PowerON)
 			theApp.enterEventDispatcher();
-//		else
-//			theApp.enterEventDispatcher();
-		
-        	//        }
-//        else
-//        {
-//	      	EventLogger.logEvent(GUID, ("Application entered Back-ground state").getBytes(), EventLogger.DEBUG_INFO);
-//	      	theApp.enterEventDispatcher();
-////      	new BackgroundWorker();
-//      	//TODO -- background thread to be executed
-//      	}
-//        else
-//        {
-//        	EventLogger.logEvent(GUID, ("Application in an undefined state").getBytes(), EventLogger.SEVERE_ERROR);
-//        	BG_Icon = false;
-//        	theApp.enterEventDispatcher();
-//        	//Application in a huge problem
-//        }
 
     }
 

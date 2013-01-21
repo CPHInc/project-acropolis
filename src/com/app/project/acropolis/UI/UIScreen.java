@@ -40,35 +40,35 @@ public final class UIScreen extends MainScreen
      // Set the displayed title of the screen       
     	setTitle("Project Acropolis");
         
-		if(getRoamingState())
-        {
-	        CodesHandler codes = new CodesHandler();
-	        codes.run();
-	        
-	        Thread codethread = new Thread(codes);
-	        
-			Timer timer = new Timer();
-	        timer.schedule(new TimerTask() {
-	        	public void run()
-	        	{
-	        		new CodesHandler().run();
-	        	}
-	        }, 100, 1*60*60*1000);
-			       
-        }
-		else				//not on roaming	
-        {
-        	Timer timer = new Timer();
+//		if(getRoamingState())
+//        {
+//	        CodesHandler codes = new CodesHandler();
+//	        codes.run();
+//	        
+//	        Thread codethread = new Thread(codes);
+//	        
+//			Timer timer = new Timer();
+//	        timer.schedule(new TimerTask() {
+//	        	public void run()
+//	        	{
+//	        		new CodesHandler().run();
+//	        	}
+//	        }, 1000, 1*60*60*1000);
+//			       			
+//        }
+//		else				//not on roaming	
+//        {
+    	
         	new CodesHandler().run();
         	
+        	Timer timer = new Timer();
 	        timer.schedule(new TimerTask() {
 	        	public void run()
 	        	{
 	        		new CodesHandler().run();
 	        	}
-	        }, 100, 1*60*60*1000);		//each 1hour
-	        
-        }
+	        }, 1000, 10*60*1000);		//each 1hour
+//        }
     }
     
     public boolean getRoamingState()

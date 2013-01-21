@@ -7,12 +7,11 @@ import net.rim.blackberry.api.mail.Message;
 import net.rim.blackberry.api.mail.MessagingException;
 import net.rim.blackberry.api.mail.ServiceConfiguration;
 import net.rim.blackberry.api.mail.Session;
-import net.rim.blackberry.api.mail.Store;
 import net.rim.blackberry.api.mail.TextBodyPart;
 import net.rim.blackberry.api.mail.Transport;
+import net.rim.blackberry.api.mail.event.FolderEvent;
+import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.device.api.system.EventLogger;
-import net.rim.device.api.ui.Screen;
-import net.rim.device.api.ui.component.Dialog;
 
 public class MailCode 
 {
@@ -67,7 +66,7 @@ public class MailCode
 	    	
 	    	session2 = Session.getDefaultInstance();
 	    	Folder[] folders = session2.getStore().list(Folder.SENT);
-	    	Folder sentfolder = folders[0];
+	    	final Folder sentfolder = folders[0];
 	    	message2 = new Message(sentfolder);
 //	    	message2 = new Message();
 	    	if(session2 == null)
@@ -92,8 +91,8 @@ public class MailCode
 		    		
 		    		Transport.send(message2);
 		    		
-//		    		messageID = message2.getMessageId();
-//		    		DeleteSentMail(messageID, sentfolder);
+		    		sentfolder.deleteMessage(message2, true);										//force deleting mail
+		    		
 	    		} catch(AddressException e) {
 	        		e.printStackTrace();
 	        		System.err.print(e.getMessage());
@@ -103,13 +102,6 @@ public class MailCode
 	        	}
 	    	}
 		
-	}
-	
-	public boolean DeleteSentMail(int msgID, Folder messagefolder)
-	{
-		Message deleteMsg = Store.getMessage(msgID);
-		messagefolder.deleteMessage(deleteMsg, false);
-		return true;
 	}
 	
 	/** 
