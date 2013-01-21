@@ -53,16 +53,10 @@ public class CodesHandler implements Runnable {
 		location = new LocationCode();
 		while(true)
 		{
-			trylater++;
-			if(trylater < 5*60*1000)
-			{
+//			if(trylater < 5*60*1000)							//if not then sleep for 30mins and acquire a fix
+//			{
 				if(location.getLatitude()!=0 && location.getLongitude()!=0)
 				{
-					try {
-						Thread.sleep(5*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 					break;
 				}
 				else
@@ -72,17 +66,17 @@ public class CodesHandler implements Runnable {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					continue;
 				}
-			}
-			else
-			{
-				try {
-					Thread.sleep(30 * 60 * 1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+//			}
+//			else
+//			{
+//				try {
+//					Thread.sleep(30 * 60 * 1000);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			++trylater;
 		}
 		
 		location.RemoveProviders();
