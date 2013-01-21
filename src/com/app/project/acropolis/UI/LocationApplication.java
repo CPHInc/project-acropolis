@@ -80,8 +80,6 @@ public class LocationApplication extends UiApplication
 		else
 			theApp.enterEventDispatcher();
 		
-		PowerON = false;		//resetting PowerON value
-		
         	//        }
 //        else
 //        {
