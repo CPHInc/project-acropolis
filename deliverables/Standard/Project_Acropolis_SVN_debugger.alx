@@ -1,0 +1,31 @@
+<loader version="1.0">
+	<application id="Project_Acropolis_SVN_debugger">
+		<name >
+			DEBUG_Project Acropolis (by CPH)
+		</name>
+		<description >
+			Advices corporate head office of the device location when on Roaming (Strictly for Enterprise users only)
+		</description>
+		<version >
+			1.0.1
+		</version>
+		<vendor >
+			Cell Phone Hospital Inc.
+		</vendor>
+		<copyright >
+			Copyright (c) 2013 Cell Phone Hospital Inc.
+		</copyright>
+		<fileset Java="1.55" _blackberryVersion="[5.0.0)">
+			<directory >
+				5.0.0
+			</directory>
+			<files >
+				Project_Acropolis_SVN_debugger.cod
+
+			</files>
+
+		</fileset>
+
+	</application>
+
+</loader>

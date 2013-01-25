@@ -3,6 +3,7 @@ package com.app.project.acropolis.UI;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.UiApplication;
@@ -25,7 +26,8 @@ public final class UIScreen extends MainScreen
 	
 	String locationdata = "";
 	
-	CodesHandler codes;
+	Timer homecountry = new Timer();
+	Timer outsidehomecountry = new Timer();
 	
     /**
      * Creates a new MyScreen object
@@ -33,48 +35,66 @@ public final class UIScreen extends MainScreen
     public UIScreen()
     {        
     	EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-        
-    	//Sends the application in background
+
+    	Application.getApplication().setAcceptEvents(false);
+    	EventLogger.logEvent(GUID, ("Application in BG").getBytes(),EventLogger.DEBUG_INFO);
+    //	Sends the application in background
         UiApplication.getUiApplication().requestBackground();
 
      // Set the displayed title of the screen       
     	setTitle("Project Acropolis");
         
-//		if(getRoamingState())
-//        {
-//	        CodesHandler codes = new CodesHandler();
-//	        codes.run();
-//	        
-//	        Thread codethread = new Thread(codes);
-//	        
-//			Timer timer = new Timer();
-//	        timer.schedule(new TimerTask() {
-//	        	public void run()
-//	        	{
-//	        		new CodesHandler().run();
-//	        	}
-//	        }, 1000, 1*60*60*1000);
-//			       			
-//        }
-//		else				//not on roaming	
-//        {
-    	
-        	new CodesHandler().run();
-        	
-        	Timer timer = new Timer();
-	        timer.schedule(new TimerTask() {
+		if(getRoamingState())
+        {
+			homecountry.cancel();
+			new CodesHandler().run();
+			outsidehomecountry = new Timer();
+			outsidehomecountry.schedule(new TimerTask() {
 	        	public void run()
 	        	{
 	        		new CodesHandler().run();
+	        		
+	        		System.gc();
 	        	}
-	        }, 1000, 10*60*1000);		//each 1hour
-//        }
+	        }, 3000, 1*60*60*1000);
+        }
+		else if(!getRoamingState())
+        {
+			outsidehomecountry.cancel();
+        	new CodesHandler().run();
+        	homecountry = new Timer();
+	        homecountry.schedule(new TimerTask() {
+	        	public void run()
+	        	{
+	        		new CodesHandler().run();
+	        		
+	        		System.gc();
+	        	}
+	        }, 3000, 1*60*60*1000);
+        }
+		
     }
     
     public boolean getRoamingState()
 	{
-		//TODO proximity listener will produce accuracy *ROAMING*
-		boolean roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
+    	boolean roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
+    	
+    	int roamInt = (roaming ? 1 : 0);
+    	
+    	switch ( roamInt )
+    	{
+    		case 1:
+    			EventLogger.logEvent(GUID, ("Device in Local Country - Not Roaming!!! ").getBytes(), EventLogger.ALWAYS_LOG);
+    			;
+    		
+    		case 0:
+    			EventLogger.logEvent(GUID, ("Device Outside HOME COUNTRY - Roaming!!! ").getBytes(), EventLogger.ALWAYS_LOG);
+    			;
+    	
+    			
+    	
+    	}
+    	
 		return roaming;
 	}
     
@@ -83,5 +103,13 @@ public final class UIScreen extends MainScreen
     	UiApplication.getUiApplication().requestBackground();
     	return false;
     }
+    
+//    /**
+//     * Disables Save Prompt dialog
+//     */
+//    public boolean onSavePrompt()
+//    {
+//    	return false;
+//    }
     
 }

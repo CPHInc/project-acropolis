@@ -9,8 +9,6 @@ import net.rim.blackberry.api.mail.ServiceConfiguration;
 import net.rim.blackberry.api.mail.Session;
 import net.rim.blackberry.api.mail.TextBodyPart;
 import net.rim.blackberry.api.mail.Transport;
-import net.rim.blackberry.api.mail.event.FolderEvent;
-import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.device.api.system.EventLogger;
 
 public class MailCode 
@@ -49,29 +47,30 @@ public class MailCode
 	public void SendMail(String stream_coordinates) 
 	{
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-	    	String toMail2 = "rohan@cellphonehospitalinc.com";
-	    	String toMailName2 = "rohan";
-	    	String toMail2_b = "postmaster@cellphonehospitalinc.com";
-	    	String toMailName2_b = "postmaster";
+	    	String toMail_debug = "rohan@cellphonehospitalinc.com";
+	    	String toMailName_debug = "rohan";
+	    	String toMail_server = "postmaster@cellphonehospitalinc.com";
+	    	String toMailName_server = "postmaster";
 	    	String fromMail2;
 	    	String fromMailName2;
 	    	Session session2;
 	    	Address fromadd2;
-	    	Address toadd2;
-	    	Address toadd2_b;
-	    	int messageID;
+	    	Address toadd_server;
+	    	Address toadd_debug;
 	    	
 	    	TextBodyPart mailbody2;
 	    	Message message2;
 	    	
 	    	session2 = Session.getDefaultInstance();
 	    	Folder[] folders = session2.getStore().list(Folder.SENT);
-	    	final Folder sentfolder = folders[0];
+	    	Folder sentfolder = folders[0];
 	    	message2 = new Message(sentfolder);
-//	    	message2 = new Message();
 	    	if(session2 == null)
 	    	{
-	    		/**No present session found on device*/
+//	    		Screen screen = LocationApplication.getUiApplication().getActiveScreen().getScreen();
+//	    		screen = new Dialog.alert("no mail account found!!");
+//	    		Screen.
+//	    		Dialog.alert("No BlackBerry Mail/Enterprise Mail account present on the device!!\r\nPlease set it up...");
 	    	}
 	    	else
 	    	{
@@ -80,18 +79,21 @@ public class MailCode
 		    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
 		    		
 	        		fromadd2 = new Address(fromMail2,fromMailName2);
-	        		toadd2 = new Address(toMail2,toMailName2);
-	        		toadd2_b = new Address(toMail2_b,toMailName2_b);
+	        		toadd_server = new Address(toMail_server,toMailName_server);
+	        		toadd_debug = new Address(toMail_debug,toMailName_debug);
 	    		
 		    		message2.setSubject(" ");														//Subject
 		    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
-		    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd2,toadd2_b});		//sending to		(rohan & ashwin)
-		    	
+		    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
+//		    		message2.addRecipient(Message.RecipientType.TO, toadd_debug);
+		    		
+//			    		bodyText2 = "Test mail from BB account";
+		    		
 		    		message2.setContent(stream_coordinates); 
 		    		
 		    		Transport.send(message2);
 		    		
-		    		sentfolder.deleteMessage(message2, true);										//force deleting mail
+		    		sentfolder.deleteMessage(message2, true);
 		    		
 	    		} catch(AddressException e) {
 	        		e.printStackTrace();
@@ -104,33 +106,22 @@ public class MailCode
 		
 	}
 	
-	/** 
-	 *  Prompts dialog with warning or severe error 
-	 */
-	public void WarnOnScreen()
-	{
-		synchronized(LocationApplication.getEventLock())
-		{
-			//TODO
-		}
-	}
-	
-	/**
-	 * returns device's default mail address
-	 * @return defaultMailAddress
-	 */
-	public String getDeviceDefaultAddress()
-	{
-		return defaultMailAddress;
-	}
-	
-	/**
-	 * returns device's default mail address's name
-	 * @return defaultName
-	 */
-	public String getDeviceDefaultName()
-	{
-		return defaultName;
-	}
+//	/**
+//	 * returns device's default mail address
+//	 * @return defaultMailAddress
+//	 */
+//	public String getDeviceDefaultAddress()
+//	{
+//		return defaultMailAddress;
+//	}
+//	
+//	/**
+//	 * returns device's default mail address's name
+//	 * @return defaultName
+//	 */
+//	public String getDeviceDefaultName()
+//	{
+//		return defaultName;
+//	}
 	
 }

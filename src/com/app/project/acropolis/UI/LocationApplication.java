@@ -1,7 +1,7 @@
 package com.app.project.acropolis.UI;
 
+import net.rim.device.api.applicationcontrol.ApplicationPermissions;
 import net.rim.device.api.system.DeviceInfo;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
 
@@ -40,21 +40,31 @@ public class LocationApplication extends UiApplication
 //		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		app_arg = args;
 		final LocationApplication theApp = new LocationApplication();
-        
-    	LocationApplication.getApplication().addSystemListener(new SystemListener() 
-    	{
+    
+//		ApplicationDescriptor appDesc = ApplicationDescriptor.currentApplicationDescriptor();
+//		
+//		new ApplicationDescriptor(appDesc , appDesc.getName() , appDesc.getArgs() , appDesc.getPosition() ,
+//									appDesc.getNameResourceBundle() , appDesc.getNameResourceId() ,
+//									4 , 		//FLAG_AUTO_RESTART
+//									appDesc.getFolderName());
+		
+		
+    	LocationApplication.getApplication().addSystemListener(new SystemListener() {
+
 			public void batteryGood() {}
 
 			public void batteryLow() {}
 
-			public void batteryStatusChange(int status) {
+			public void batteryStatusChange(int status)
+			{
 				if(status == DeviceInfo.BSTAT_NO_RADIO)
 					PowerON = false;
 				else
 					PowerON = true;
 			}
 
-			public void powerOff() {
+			public void powerOff() 
+			{
 				PowerON = false;
 			}
 
@@ -64,9 +74,11 @@ public class LocationApplication extends UiApplication
 			}
     	});
         	
-		if(PowerON)
+    	while(PowerON)
+    	{
 			theApp.enterEventDispatcher();
-
+    	}
+    	
     }
 
     /**
@@ -78,11 +90,4 @@ public class LocationApplication extends UiApplication
         pushScreen(new UIScreen());
     }
 
-//    /**
-//     * Hides the icon when in Background processing mode
-//     */
-//    public boolean acceptsForeground()
-//    {
-//    	return BG_Icon;
-//    }
 }

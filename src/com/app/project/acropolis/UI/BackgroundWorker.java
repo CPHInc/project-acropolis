@@ -1,5 +1,9 @@
 package com.app.project.acropolis.UI;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
 
@@ -9,9 +13,9 @@ import net.rim.device.api.system.RadioInfo;
  *
  */
 
-public class BackgroundWorker {
+public class BackgroundWorker implements Runnable{
 	
-	final long GUID = 0x8cac0a9b91bd97b5L;
+	final long GUID = 0x8cac0a9b91bd97b5L;	
 	final String AppName = "Project Acropolis";
 	
 	CodesHandler codes;
@@ -19,25 +23,49 @@ public class BackgroundWorker {
 	public BackgroundWorker()
 	{
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-		
-		StartWorking();
+		Application.getApplication().setAcceptEvents(false);			//not an event dispatching thread
 	}
 	
-	public void StartWorking()
+	public void run()
 	{
 		new CodesHandler().run();
 		
+		Timer timer = new Timer();
+		
 		if(getRoamingState())
 		{
-			//do nothing till the device is in roaming
+			timer.schedule(new TimerTask() 
+			{
+				public void run()
+				{
+					new CodesHandler().run();
+				}
+			}, 1000, 1*60*60*1000);
+		}
+		else
+		{
+			timer.schedule(new TimerTask() 
+			{
+				public void run()
+				{
+					new CodesHandler().run();
+				}
+			}, 1000, 1*60*60*1000);
 		}
 	}
 	
 	 public boolean getRoamingState()
 		{
-			//TODO proximity listener will produce accuracy *ROAMING*
 			boolean roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
+			
+			String homeOperatorName = "";
+	    	String currentOperatorName = "";
+	    	
+	    	currentOperatorName = RadioInfo.getCurrentNetworkName();
+			
 			return roaming;
+			
+			
 		}
 	
 }
