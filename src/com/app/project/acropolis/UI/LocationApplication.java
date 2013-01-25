@@ -2,6 +2,9 @@ package com.app.project.acropolis.UI;
 
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
 import net.rim.device.api.system.DeviceInfo;
+import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.RadioListener;
+import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
 
@@ -30,16 +33,17 @@ public class LocationApplication extends UiApplication
 	
 	static boolean BG_Icon = false;
    	static boolean PowerON = false;
+	static boolean RadioON = false;
    	
    	static Thread thread; 
    	static String[] app_arg = new String[10];
    	
+   	public static boolean Roaming = false;
    	
 	public static void main(String[] args)
     {
 //		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		app_arg = args;
-		final LocationApplication theApp = new LocationApplication();
     
 //		ApplicationDescriptor appDesc = ApplicationDescriptor.currentApplicationDescriptor();
 //		
@@ -47,7 +51,7 @@ public class LocationApplication extends UiApplication
 //									appDesc.getNameResourceBundle() , appDesc.getNameResourceId() ,
 //									4 , 		//FLAG_AUTO_RESTART
 //									appDesc.getFolderName());
-		
+		LocationApplication theApp;
 		
     	LocationApplication.getApplication().addSystemListener(new SystemListener() {
 
@@ -55,13 +59,7 @@ public class LocationApplication extends UiApplication
 
 			public void batteryLow() {}
 
-			public void batteryStatusChange(int status)
-			{
-				if(status == DeviceInfo.BSTAT_NO_RADIO)
-					PowerON = false;
-				else
-					PowerON = true;
-			}
+			public void batteryStatusChange(int status){}
 
 			public void powerOff() 
 			{
@@ -74,8 +72,51 @@ public class LocationApplication extends UiApplication
 			}
     	});
         	
-    	while(PowerON)
+    	LocationApplication.getApplication().addRadioListener((RadioListener)new RadioStatusListener()
     	{
+			public void baseStationChange() {}
+
+			public void networkScanComplete(boolean success) {}
+
+			public void networkServiceChange(int networkId, int service) 
+			{
+				// TODO Auto-generated method stub
+				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
+					Roaming = true;
+				else 
+					Roaming = false;
+			}
+
+			public void networkStarted(int networkId, int service) 
+			{
+				RadioON = true;
+				
+				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
+					Roaming = true;
+				else 
+					Roaming = false;
+				
+			}
+
+			public void networkStateChange(int state) {}
+
+			public void pdpStateChange(int apn, int state, int cause) {}
+
+			public void radioTurnedOff()
+			{
+				RadioON = false;
+			}
+
+			public void signalLevel(int level)
+			{
+				if(level == RadioInfo.LEVEL_NO_COVERAGE)
+					RadioON = false;
+			}
+    	});
+    	
+    	while(PowerON && RadioON)		//will only in EDT when device is turned ON and Radio ON 
+    	{
+    		theApp = new LocationApplication();			//initializes only if Device and Radio turns/is ON
 			theApp.enterEventDispatcher();
     	}
     	
@@ -87,7 +128,7 @@ public class LocationApplication extends UiApplication
     public LocationApplication()
     {        
         // Push a screen onto the UI stack for rendering.
-        pushScreen(new UIScreen());
+        pushScreen(new UIScreen(Roaming));
     }
 
 }

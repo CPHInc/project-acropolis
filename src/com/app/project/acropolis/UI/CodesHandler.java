@@ -8,6 +8,8 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.RadioListener;
+import net.rim.device.api.system.RadioStatusListener;
 
 
 /**
@@ -50,7 +52,6 @@ public class CodesHandler implements Runnable {
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		CollectedData();
 	}
-	
 	
 	public void CollectedData()
 	{
