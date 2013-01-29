@@ -88,7 +88,7 @@ public class CodesHandler implements Runnable {
 				datatobeMailed = 
 						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(location.getRoamingState()) + "|"
+						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
 						+ location.getLatitude() + "|" 
 						+ location.getLongitude() + "|"
 						+ location.getAccuracy() +"##";
@@ -118,7 +118,7 @@ public class CodesHandler implements Runnable {
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(this.getRoamingState()) + "|"				//CodesHandler Roaming method 
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
 							+ 67.43125 + "|" 
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"##";
@@ -138,7 +138,7 @@ public class CodesHandler implements Runnable {
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(this.getRoamingState()) + "|"				//CodesHandler Roaming method 
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
 							+ 67.43125 + "|" 
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"##";
@@ -151,7 +151,6 @@ public class CodesHandler implements Runnable {
 					break;
 				}
 			}
-			
 			else
 			{
 				try {
@@ -160,9 +159,7 @@ public class CodesHandler implements Runnable {
 					e.printStackTrace();
 				}
 			}
-			
 		}
-		
 		
 //		
 //		for(;;)			//waits for fix if not available waits for 10 seconds and trys again 
@@ -323,6 +320,25 @@ public class CodesHandler implements Runnable {
 		return roaming;
 	}
 	    
+	public boolean Check_NON_CAN_Operator()
+	{
+		boolean NON_CANOperatorCheck = true;
+   	
+		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		    	
+		String CurrentNetworkName = "";
+		    	
+		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
+		    	
+		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
+		else
+			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
+		    	
+		return NON_CANOperatorCheck;
+	 }
 	
 	/**
 	 * @return Device's formatted phone number

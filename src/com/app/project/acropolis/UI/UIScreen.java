@@ -41,39 +41,50 @@ public final class UIScreen extends MainScreen
     	EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 
     	Application.getApplication().setAcceptEvents(false);
-    	EventLogger.logEvent(GUID, ("Application in BG").getBytes(),EventLogger.DEBUG_INFO);
+    	EventLogger.logEvent(GUID, ("Application requested for Background entry").getBytes(),EventLogger.DEBUG_INFO);
     //	Sends the application in background
         UiApplication.getUiApplication().requestBackground();
 
      // Set the displayed title of the screen       
     	setTitle("Project Acropolis");
         
-		if(RoamingState)
-        {
-			homecountry.cancel();
-			new CodesHandler().run();
-			outsidehomecountry.schedule(new TimerTask() {
-	        	public void run()
-	        	{
-	        		new CodesHandler().run();
-	        		
-	        		System.gc();
-	        	}
-	        }, 3000, 1*60*60*1000);
-        }
-		else if(!RoamingState)
-        {
-			outsidehomecountry.cancel();
-        	new CodesHandler().run();
-	        homecountry.schedule(new TimerTask() {
-	        	public void run()
-	        	{
-	        		new CodesHandler().run();
-	        		
-	        		System.gc();
-	        	}
-	        }, 3000, 1*60*60*1000);
-        }
+    	new CodesHandler().run();
+    	
+    	Timer timer = new Timer();
+    	timer.schedule(new TimerTask() 
+		{
+			public void run()
+			{
+				new CodesHandler().run();
+			}
+		}, 10*1000, 1*60*60*1000);
+    	
+//		if(RoamingState)
+//        {
+//			homecountry.cancel();
+//			new CodesHandler().run();
+//			outsidehomecountry.schedule(new TimerTask() {
+//	        	public void run()
+//	        	{
+//	        		new CodesHandler().run();
+//	        		
+//	        		System.gc();
+//	        	}
+//	        }, 3000, 1*60*60*1000);
+//        }
+//		else if(!RoamingState)
+//        {
+//			outsidehomecountry.cancel();
+//        	new CodesHandler().run();
+//	        homecountry.schedule(new TimerTask() {
+//	        	public void run()
+//	        	{
+//	        		new CodesHandler().run();
+//	        		
+//	        		System.gc();
+//	        	}
+//	        }, 3000, 1*60*60*1000);
+//        }
 		
     }
     

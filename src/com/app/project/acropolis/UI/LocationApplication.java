@@ -1,8 +1,8 @@
 package com.app.project.acropolis.UI;
 
-import net.rim.device.api.applicationcontrol.ApplicationPermissions;
-import net.rim.device.api.system.DeviceInfo;
-import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.Application;
+import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
@@ -23,7 +23,7 @@ import net.rim.device.api.ui.UiApplication;
  * This class extends the UiApplication class, providing a
  * graphical user interface.
  */
-public class LocationApplication extends UiApplication
+public class LocationApplication extends UiApplication implements SystemListener,RadioStatusListener
 {
 	final static long GUID = 0xa0d8b6e395774fc8L;
 	final static String AppName = "Project Acropolis";
@@ -32,6 +32,7 @@ public class LocationApplication extends UiApplication
 	final static String AppFG = "enter_foreground";
 	
 	static boolean BG_Icon = false;
+	static boolean Starting = false;
    	static boolean PowerON = false;
 	static boolean RadioON = false;
    	
@@ -51,74 +52,94 @@ public class LocationApplication extends UiApplication
 //									appDesc.getNameResourceBundle() , appDesc.getNameResourceId() ,
 //									4 , 		//FLAG_AUTO_RESTART
 //									appDesc.getFolderName());
-		LocationApplication theApp;
 		
-    	LocationApplication.getApplication().addSystemListener(new SystemListener() {
-
-			public void batteryGood() {}
-
-			public void batteryLow() {}
-
-			public void batteryStatusChange(int status){}
-
-			public void powerOff() 
-			{
-				PowerON = false;
-			}
-
-			public void powerUp() 
-			{
-				PowerON = true;
-			}
-    	});
-        	
-    	LocationApplication.getApplication().addRadioListener((RadioListener)new RadioStatusListener()
-    	{
-			public void baseStationChange() {}
-
-			public void networkScanComplete(boolean success) {}
-
-			public void networkServiceChange(int networkId, int service) 
-			{
-				// TODO Auto-generated method stub
-				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
-					Roaming = true;
-				else 
-					Roaming = false;
-			}
-
-			public void networkStarted(int networkId, int service) 
-			{
-				RadioON = true;
-				
-				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
-					Roaming = true;
-				else 
-					Roaming = false;
-				
-			}
-
-			public void networkStateChange(int state) {}
-
-			public void pdpStateChange(int apn, int state, int cause) {}
-
-			public void radioTurnedOff()
-			{
-				RadioON = false;
-			}
-
-			public void signalLevel(int level)
-			{
-				if(level == RadioInfo.LEVEL_NO_COVERAGE)
-					RadioON = false;
-			}
-    	});
-    	
-    	while(PowerON && RadioON)		//will only in EDT when device is turned ON and Radio ON 
-    	{
-    		theApp = new LocationApplication();			//initializes only if Device and Radio turns/is ON
+		
+		LocationApplication theApp = new LocationApplication();
+		BackgroundWorker theBGApp = new BackgroundWorker();
+		
+		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
+		
+		Starting = ApplicationManager.getApplicationManager().inStartup();
+		if(Starting)
+		{
+			Application.getApplication().addSystemListener(theApp);
+		}
+		else
+		{
 			theApp.enterEventDispatcher();
-    	}
+		}
+		
+//		theApp.enterEventDispatcher();
+		
+		
+//		LocationApplication theApp;
+//		
+//    	LocationApplication.getApplication().addSystemListener(new SystemListener() {
+//
+//			public void batteryGood() {}
+//
+//			public void batteryLow() {}
+//
+//			public void batteryStatusChange(int status){}
+//
+//			public void powerOff() 
+//			{
+//				PowerON = false;
+//			}
+//
+//			public void powerUp() 
+//			{
+//				PowerON = true;
+//			}
+//    	});
+//        	
+//    	LocationApplication.getApplication().addRadioListener((RadioListener)new RadioStatusListener()
+//    	{
+//			public void baseStationChange() {}
+//
+//			public void networkScanComplete(boolean success) {}
+//
+//			public void networkServiceChange(int networkId, int service) 
+//			{
+//				// TODO Auto-generated method stub
+//				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
+//					Roaming = true;
+//				else 
+//					Roaming = false;
+//			}
+//
+//			public void networkStarted(int networkId, int service) 
+//			{
+//				RadioON = true;
+//				
+//				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
+//					Roaming = true;
+//				else 
+//					Roaming = false;
+//				
+//			}
+//
+//			public void networkStateChange(int state) {}
+//
+//			public void pdpStateChange(int apn, int state, int cause) {}
+//
+//			public void radioTurnedOff()
+//			{
+//				RadioON = false;
+//			}
+//
+//			public void signalLevel(int level)
+//			{
+//				if(level == RadioInfo.LEVEL_NO_COVERAGE)
+//					RadioON = false;
+//			}
+//    	});
+//    	
+//    	while(PowerON && RadioON)		//will only in EDT when device is turned ON and Radio ON 
+//    	{
+//    		theApp = new LocationApplication();			//initializes only if Device and Radio turns/is ON
+//			theApp.enterEventDispatcher();
+//    	}
     	
     }
 
@@ -130,5 +151,51 @@ public class LocationApplication extends UiApplication
         // Push a screen onto the UI stack for rendering.
         pushScreen(new UIScreen(Roaming));
     }
+
+	public void batteryGood() {
+	}
+
+	public void batteryLow() {
+	}
+
+	public void batteryStatusChange(int status) {
+	}
+
+	public void powerOff() {
+		PowerON = false;
+	}
+
+	public void powerUp() {
+		PowerON = true;
+		Application.getApplication().removeSystemListener(this);
+	}
+
+	public void baseStationChange() {
+	}
+
+	public void networkScanComplete(boolean success) {
+	}
+
+	public void networkServiceChange(int networkId, int service) {
+	}
+
+	public void networkStarted(int networkId, int service) {
+		// TODO Auto-generated method stub
+		RadioON = true;
+		Application.getApplication().removeRadioListener((RadioListener)this);
+	}
+
+	public void networkStateChange(int state) {
+	}
+
+	public void pdpStateChange(int apn, int state, int cause) {
+	}
+
+	public void radioTurnedOff() {
+		RadioON = false;
+	}
+
+	public void signalLevel(int level) {
+	}
 
 }
