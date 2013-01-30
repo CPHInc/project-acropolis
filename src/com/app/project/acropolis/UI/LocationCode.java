@@ -70,7 +70,7 @@ public class LocationCode implements Runnable{
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
-			EventLogger.logEvent(GUID, ("Assist scanning initiated...").getBytes(), EventLogger.DEBUG_INFO);
+			EventLogger.logEvent(GUID, ("Automous scanning initiated...").getBytes(), EventLogger.DEBUG_INFO);
 			bbcriteria = new BlackBerryCriteria();
 			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
 			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
@@ -99,7 +99,7 @@ public class LocationCode implements Runnable{
 				new MailCode().SendMail("");
 				errorstream = "#1.0.1|ErrorStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 				+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-				+ String.valueOf(this.getRoamingState()) + "|"
+				+ String.valueOf(Check_NON_CAN_Operator()) + "|"
 				+ 0.0 + "|" 
 				+ 0.0 + "|"
 				+ 0.0 +"##";
@@ -154,20 +154,6 @@ public class LocationCode implements Runnable{
 		bblocationprovider.reset();
 	}
 	
-	/*TODO ProximityListener */
-	public class LocationProximitySensor implements ProximityListener
-	{
-		public void monitoringStateChanged(boolean isMonitoringActive) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void proximityEvent(Coordinates coordinates, Location location) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
-	
 	public double getLatitude()
 	{
 		return latitude;
@@ -178,20 +164,31 @@ public class LocationCode implements Runnable{
 		return longitude;
 	}
 	
-	public boolean getRoamingState()
-	{
-		//TODO proximity listener will produce accuracy *ROAMING*
-		roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
-		return roaming;
-	}
-	
 	public double getAccuracy()
 	{
 		return accuracy;
 	}
-	
-	
-	
+
+	public boolean Check_NON_CAN_Operator()
+	{
+		boolean NON_CANOperatorCheck = true;
+   	
+		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		    	
+		String CurrentNetworkName = "";
+		int CurrentNetworkID = 0;
+		    	
+		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
+		
+		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
+		else
+			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
+		    	
+		return NON_CANOperatorCheck;
+	 }
 	
 	
 }

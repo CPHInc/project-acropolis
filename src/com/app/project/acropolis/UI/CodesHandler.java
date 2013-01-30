@@ -22,7 +22,7 @@ import net.rim.device.api.system.RadioStatusListener;
 public class CodesHandler implements Runnable {
 
 	final long GUID = 0x29ef40e6e31efd2L;
-	final String AppName = "Project Acropolis";
+	final String AppName = "Project Acropolis SVN debugger";
 	
 	LocationCode location;
 	
@@ -43,10 +43,6 @@ public class CodesHandler implements Runnable {
 	
 	int FIX_TIMER_DURATION = 6;			//16MINs == 8 cycles == 8 minutes
 	
-	
-	/**
-	 * 
-	 */
 	public void run()
 	{
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
@@ -66,21 +62,17 @@ public class CodesHandler implements Runnable {
 		int k=0;
 		/**
 		 * Standard -- 
-		 * 			fix within 6 minutes sends location for each iteration gives 20 seconds resting time to device
+		 * 			fix within 7 minutes sends location for each iteration gives 20 seconds resting time to device
 		 * 				if NOT wait for 20 minutes and repeat
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
-		//testing
-//		i = FIX_TIMER_DURATION - 3;
-		//testing
-		
 		location.run();
 		
 		for(int a=0 ; a<=14 ; a++)
 		{
 			
 			if( location.getLatitude() != 0 && location.getLongitude() != 0 )
-				// [ 0 < i < 3 ] (4 times) ++ [ 5 < i < 8 ] ++ (4 times)
+				// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 			{
 				date = new Date();
 				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
@@ -94,6 +86,10 @@ public class CodesHandler implements Runnable {
 						+ location.getAccuracy() +"##";
 				
 				new MailCode().SendMail(datatobeMailed);
+				
+				location.StopTracking();
+				location.ResetTracking();
+				
 				break;
 			}
 			
@@ -110,47 +106,26 @@ public class CodesHandler implements Runnable {
 			
 			else if(a==13)
 			{
-				if(this.getRoamingState())
-				{
-					date = new Date();
-					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device time
-					
-					datatobeMailed = 
-							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
-							+ 67.43125 + "|" 
-							+ -45.123456 + "|"											//southern Greenland
-							+ 1234.1234 +"##";
-					
-					new MailCode().SendMail(datatobeMailed);
-					
-					location.StopTracking();
-					location.ResetTracking();
-					
-					break;
-				}
-				else
-				{
-					date = new Date();
-					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
-					
-					datatobeMailed = 
-							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
-							+ 67.43125 + "|" 
-							+ -45.123456 + "|"											//southern Greenland
-							+ 1234.1234 +"##";
-					
-					new MailCode().SendMail(datatobeMailed);
-
-					location.StopTracking();
-					location.ResetTracking();
-					
-					break;
-				}
+				date = new Date();
+				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
+				
+				datatobeMailed = 
+						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+						+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
+						+ 67.43125 + "|" 
+						+ -45.123456 + "|"											//southern Greenland
+						+ 1234.1234 +"##";
+				
+				new MailCode().SendMail(datatobeMailed);
+				
+				location.StopTracking();
+				location.ResetTracking();
+				
+				break;
 			}
+			
+			
 			else
 			{
 				try {
@@ -160,152 +135,6 @@ public class CodesHandler implements Runnable {
 				}
 			}
 		}
-		
-//		
-//		for(;;)			//waits for fix if not available waits for 10 seconds and trys again 
-//		{
-//			++k;
-//			
-//			if((location.getLatitude()!=0 && location.getLongitude()!=0) && i<FIX_TIMER_DURATION)
-//			{		/*60 loops*/
-//				date = new Date();
-//				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
-//				
-//				datatobeMailed = 
-//						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-//						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//						+ String.valueOf(location.getRoamingState()) + "|"
-//						+ location.getLatitude() + "|" 
-//						+ location.getLongitude() + "|"
-//						+ location.getAccuracy() +"##";
-//				
-//				new MailCode().SendMail(datatobeMailed);
-//				break;
-//			}
-//			
-//			
-//			
-//			else if ( i>=( FIX_TIMER_DURATION + j ) )									//6mins	++ 0.25 for each iteration
-//			{
-//				/**
-//				 * Application is going in sleep so as to conserve power and processing
-//				 * */
-//				
-//				
-//				if(this.getRoamingState())
-//				{
-//					date = new Date();
-//					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device time
-//					
-//					datatobeMailed = 
-//							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-//							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//							+ String.valueOf(this.getRoamingState()) + "|"				//CodesHandler Roaming method 
-//							+ 67.43125 + "|" 
-//							+ -45.123456 + "|"											//southern Greenland
-//							+ 1234.1234 +"##";
-//					
-//					new MailCode().SendMail(datatobeMailed);
-//				}
-//				else
-//				{
-//					date = new Date();
-//					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
-//					
-//					datatobeMailed = 
-//							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-//							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//							+ String.valueOf(this.getRoamingState()) + "|"				//CodesHandler Roaming method 
-//							+ 67.43125 + "|" 
-//							+ -45.123456 + "|"											//southern Greenland
-//							+ 1234.1234 +"##";
-//					
-//					new MailCode().SendMail(datatobeMailed);
-//				}
-//				
-//				
-//				try 
-//				{
-//					location.PauseTracking( NO_FIX_SLEEP );
-//					location.ResumeTracking();
-//					Thread.sleep(NO_FIX_SLEEP);											//go to sleep for 20 minutes
-//					k+=10;
-//					i=0;
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-////				i++;	//increment of time for extra elongation
-//				
-//				
-//			}
-//			
-//			
-//			
-//			else if(k == 34)													//58 minutes
-//			{
-//				Thread locationthread = new Thread(new LocationCode());
-//				if(locationthread.isAlive())
-//				{
-//					date = new Date();
-//					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
-//					
-//					datatobeMailed = 
-//							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-//							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//							+ String.valueOf(this.getRoamingState()) + "|"				//CodesHandler Roaming method 
-//							+ 67.43125 + "|" 
-//							+ -45.123456 + "|"											//southern Greenland
-//							+ 1234.0987 +"##";											//1234.0987 TimerTask is rebooting with no proper fix
-//					
-//					new MailCode().SendMail(datatobeMailed);
-//					locationthread.interrupt();
-//					break;
-//				}
-//				else
-//				{
-//					date = new Date();
-//					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
-//					
-//					datatobeMailed = 
-//							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-//							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//							+ String.valueOf(this.getRoamingState()) + "|"				//CodesHandler Roaming method 
-//							+ 67.43125 + "|" 
-//							+ -45.123456 + "|"											//southern Greenland
-//							+ 1234.0987 +"##";											//1234.0987 TimerTask is rebooting with no proper fix
-//					
-//					new MailCode().SendMail(datatobeMailed);
-//					locationthread.interrupt();
-//					break;
-//				}
-//					
-//			}
-//			
-//			
-//			
-//			else		//trying for coordinates and now sleep definitely
-//			{
-//				try {
-//					location.PauseTracking(LOCATION_BREATHING);				//6seconds breathing
-//					location.ResumeTracking();			
-//					Thread.sleep(FIX_BREATHING);						//now sleeping for 30 seconds 
-//					//initial run trying to get the fix and 
-//																//works once if no fix available try again after 30 seconds
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				j+=0.25;								//add quarter minute for each sleep-fix loop
-//			}
-//			location.StopTracking();
-//			location.ResetTracking();
-//		}
-		
-		
-		
-//		i+=FIX_BREATHING;
-//		i++;
-		
 		
 	}
 	
@@ -339,13 +168,5 @@ public class CodesHandler implements Runnable {
 		    	
 		return NON_CANOperatorCheck;
 	 }
-	
-	/**
-	 * @return Device's formatted phone number
-	 */
-	public String getDevicePhoneNumber()
-	{
-		return Phone.getDevicePhoneNumber(true);
-	}
 	
 }

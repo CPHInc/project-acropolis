@@ -5,9 +5,6 @@ import java.util.TimerTask;
 
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.EventLogger;
-import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioListener;
-import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -24,7 +21,7 @@ import net.rim.device.api.ui.container.MainScreen;
 public final class UIScreen extends MainScreen
 {
 	final long GUID = 0xde15415aec6cfa55L;
-	final String AppName = "Project Acropolis";
+	final String AppName = "Project Acropolis SVN debugger";
 
 	
 	String locationdata = "";
@@ -36,7 +33,7 @@ public final class UIScreen extends MainScreen
     /**
      * Creates a new MyScreen object
      */
-    public UIScreen(boolean RoamingState)
+    public UIScreen()
     {        
     	EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 
@@ -46,8 +43,11 @@ public final class UIScreen extends MainScreen
         UiApplication.getUiApplication().requestBackground();
 
      // Set the displayed title of the screen       
-    	setTitle("Project Acropolis");
+    	setTitle(" ** DEBUG Version ** Project Acropolis ");
         
+    	Thread RoamThread = new Thread(new RoamingRunnable());
+    	RoamThread.start();			//monitors roaming changes, takes appropriate actions
+    	
     	new CodesHandler().run();
     	
     	Timer timer = new Timer();
@@ -59,33 +59,6 @@ public final class UIScreen extends MainScreen
 			}
 		}, 10*1000, 1*60*60*1000);
     	
-//		if(RoamingState)
-//        {
-//			homecountry.cancel();
-//			new CodesHandler().run();
-//			outsidehomecountry.schedule(new TimerTask() {
-//	        	public void run()
-//	        	{
-//	        		new CodesHandler().run();
-//	        		
-//	        		System.gc();
-//	        	}
-//	        }, 3000, 1*60*60*1000);
-//        }
-//		else if(!RoamingState)
-//        {
-//			outsidehomecountry.cancel();
-//        	new CodesHandler().run();
-//	        homecountry.schedule(new TimerTask() {
-//	        	public void run()
-//	        	{
-//	        		new CodesHandler().run();
-//	        		
-//	        		System.gc();
-//	        	}
-//	        }, 3000, 1*60*60*1000);
-//        }
-		
     }
     
     public boolean onClose()
@@ -93,13 +66,5 @@ public final class UIScreen extends MainScreen
     	UiApplication.getUiApplication().requestBackground();
     	return false;
     }
-    
-//    /**
-//     * Disables Save Prompt dialog
-//     */
-//    public boolean onSavePrompt()
-//    {
-//    	return false;
-//    }
     
 }

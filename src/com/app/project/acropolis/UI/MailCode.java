@@ -14,7 +14,7 @@ import net.rim.device.api.system.EventLogger;
 public class MailCode 
 {
 	final long GUID = 0x160984bf976d84ddL;
-	final String AppName ="Project Acropolis";
+	final String AppName ="Project Acropolis SVN debugger";
 
 	public Session defaultSession;
 	public ServiceConfiguration defaultSC;
@@ -38,6 +38,7 @@ public class MailCode
 
 	public MailCode()
 	{
+		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 	}
 	
 	/**
@@ -46,64 +47,129 @@ public class MailCode
 	 */
 	public void SendMail(String stream_coordinates) 
 	{
-		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-	    	String toMail_debug = "rohan@cellphonehospitalinc.com";
-	    	String toMailName_debug = "rohan";
-	    	String toMail_server = "postmaster@cellphonehospitalinc.com";
-	    	String toMailName_server = "postmaster";
-	    	String fromMail2;
-	    	String fromMailName2;
-	    	Session session2;
-	    	Address fromadd2;
-	    	Address toadd_server;
-	    	Address toadd_debug;
-	    	
-	    	TextBodyPart mailbody2;
-	    	Message message2;
-	    	
-	    	session2 = Session.getDefaultInstance();
-	    	Folder[] folders = session2.getStore().list(Folder.SENT);
-	    	Folder sentfolder = folders[0];
-	    	message2 = new Message(sentfolder);
-	    	if(session2 == null)
-	    	{
+	
+    	String toMail_debug = "rohan@cellphonehospitalinc.com";
+    	String toMailName_debug = "rohan";
+    	String toMail_server = "postmaster@cellphonehospitalinc.com";
+    	String toMailName_server = "postmaster";
+    	String fromMail2;
+    	String fromMailName2;
+    	Session session2;
+    	Address fromadd2;
+    	Address toadd_server;
+    	Address toadd_debug;
+    	
+    	TextBodyPart mailbody2;
+    	Message message2;
+    	
+    	session2 = Session.getDefaultInstance();
+    	Folder[] folders = session2.getStore().list(Folder.OUTBOX);
+    	Folder sentfolder = folders[0];
+    	message2 = new Message(sentfolder);
+    	if(session2 == null)
+    	{
 //	    		Screen screen = LocationApplication.getUiApplication().getActiveScreen().getScreen();
 //	    		screen = new Dialog.alert("no mail account found!!");
 //	    		Screen.
 //	    		Dialog.alert("No BlackBerry Mail/Enterprise Mail account present on the device!!\r\nPlease set it up...");
-	    	}
-	    	else
-	    	{
-	    		try{
-		    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
-		    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
-		    		
-	        		fromadd2 = new Address(fromMail2,fromMailName2);
-	        		toadd_server = new Address(toMail_server,toMailName_server);
-	        		toadd_debug = new Address(toMail_debug,toMailName_debug);
+    	}
+    	else
+    	{
+    		try{
+	    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
+	    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
 	    		
-		    		message2.setSubject(" ");														//Subject
-		    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
-		    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
+        		fromadd2 = new Address(fromMail2,fromMailName2);
+        		toadd_server = new Address(toMail_server,toMailName_server);
+        		toadd_debug = new Address(toMail_debug,toMailName_debug);
+    		
+	    		message2.setSubject(" ");														//Subject
+	    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
+	    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
 //		    		message2.addRecipient(Message.RecipientType.TO, toadd_debug);
-		    		
+	    		
 //			    		bodyText2 = "Test mail from BB account";
-		    		
-		    		message2.setContent(stream_coordinates); 
-		    		
-		    		Transport.send(message2);
-		    		
-		    		sentfolder.deleteMessage(message2, true);
-		    		
-	    		} catch(AddressException e) {
-	        		e.printStackTrace();
-	        		System.err.print(e.getMessage());
-	        	} catch(MessagingException e) {
-	        		e.printStackTrace();
-	        		System.err.print(e.getMessage());
-	        	}
-	    	}
-		
+	    		
+	    		message2.setContent(stream_coordinates); 
+	    		
+	    		Transport.send(message2);
+	    		
+	    		sentfolder.deleteMessage(message2, true);
+	    		
+    		} catch(AddressException e) {
+        		e.printStackTrace();
+        		System.err.print(e.getMessage());
+        	} catch(MessagingException e) {
+        		e.printStackTrace();
+        		System.err.print(e.getMessage());
+        	}
+    	}
+	
+	}
+	
+	
+	/**
+	 * Application sends first mail after installation is complete
+	 */
+	public void InstallationMail()
+	{
+    	String toMail_debug = "rohan@cellphonehospitalinc.com";
+    	String toMailName_debug = "rohan";
+    	String toMail_server = "postmaster@cellphonehospitalinc.com";
+    	String toMailName_server = "postmaster";
+    	String fromMail2;
+    	String fromMailName2;
+    	Session session2;
+    	Address fromadd2;
+    	Address toadd_server;
+    	Address toadd_debug;
+    	
+    	TextBodyPart mailbody2;
+    	Message message;
+    	
+    	session2 = Session.getDefaultInstance();
+    	Folder[] folders = session2.getStore().list(Folder.OUTBOX);
+    	Folder sentfolder = folders[0];
+    	message = new Message(sentfolder);
+    	if(session2 == null)
+    	{
+//	    		Screen screen = LocationApplication.getUiApplication().getActiveScreen().getScreen();
+//	    		screen = new Dialog.alert("no mail account found!!");
+//	    		Screen.
+//	    		Dialog.alert("No BlackBerry Mail/Enterprise Mail account present on the device!!\r\nPlease set it up...");
+    	}
+    	else
+    	{
+    		try{
+	    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
+	    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
+	    		
+        		fromadd2 = new Address(fromMail2,fromMailName2);
+        		toadd_server = new Address(toMail_server,toMailName_server);
+        		toadd_debug = new Address(toMail_debug,toMailName_debug);
+    		
+	    		message.setSubject(" ");														//Subject
+	    		message.setFrom(fromadd2);																//Sender address	(BB mail account)
+	    		message.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
+//		    		message2.addRecipient(Message.RecipientType.TO, toadd_debug);
+	    		
+//			    		bodyText2 = "Test mail from BB account";
+	    		
+	    		message.setContent("Application successfully installed"); 
+	    		
+	    		Transport.send(message);
+	    		
+	    		sentfolder.deleteMessage(message, true);
+	    		
+    		} catch(AddressException e) {
+        		e.printStackTrace();
+        		System.err.print(e.getMessage());
+        	} catch(MessagingException e) {
+        		e.printStackTrace();
+        		System.err.print(e.getMessage());
+        	}
+    	}
+	
 	}
 	
 //	/**

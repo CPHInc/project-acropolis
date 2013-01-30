@@ -3,6 +3,7 @@ package com.app.project.acropolis.UI;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
@@ -26,7 +27,7 @@ import net.rim.device.api.ui.UiApplication;
 public class LocationApplication extends UiApplication implements SystemListener,RadioStatusListener
 {
 	final static long GUID = 0xa0d8b6e395774fc8L;
-	final static String AppName = "Project Acropolis";
+	final static String AppName = "Project Acropolis SVN debugger";
 
 	final static String AppBG = "enter_background";
 	final static String AppFG = "enter_foreground";
@@ -43,17 +44,9 @@ public class LocationApplication extends UiApplication implements SystemListener
    	
 	public static void main(String[] args)
     {
-//		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
+		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		app_arg = args;
     
-//		ApplicationDescriptor appDesc = ApplicationDescriptor.currentApplicationDescriptor();
-//		
-//		new ApplicationDescriptor(appDesc , appDesc.getName() , appDesc.getArgs() , appDesc.getPosition() ,
-//									appDesc.getNameResourceBundle() , appDesc.getNameResourceId() ,
-//									4 , 		//FLAG_AUTO_RESTART
-//									appDesc.getFolderName());
-		
-		
 		LocationApplication theApp = new LocationApplication();
 		BackgroundWorker theBGApp = new BackgroundWorker();
 		
@@ -66,81 +59,10 @@ public class LocationApplication extends UiApplication implements SystemListener
 		}
 		else
 		{
+			new MailCode().InstallationMail();
 			theApp.enterEventDispatcher();
 		}
 		
-//		theApp.enterEventDispatcher();
-		
-		
-//		LocationApplication theApp;
-//		
-//    	LocationApplication.getApplication().addSystemListener(new SystemListener() {
-//
-//			public void batteryGood() {}
-//
-//			public void batteryLow() {}
-//
-//			public void batteryStatusChange(int status){}
-//
-//			public void powerOff() 
-//			{
-//				PowerON = false;
-//			}
-//
-//			public void powerUp() 
-//			{
-//				PowerON = true;
-//			}
-//    	});
-//        	
-//    	LocationApplication.getApplication().addRadioListener((RadioListener)new RadioStatusListener()
-//    	{
-//			public void baseStationChange() {}
-//
-//			public void networkScanComplete(boolean success) {}
-//
-//			public void networkServiceChange(int networkId, int service) 
-//			{
-//				// TODO Auto-generated method stub
-//				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
-//					Roaming = true;
-//				else 
-//					Roaming = false;
-//			}
-//
-//			public void networkStarted(int networkId, int service) 
-//			{
-//				RadioON = true;
-//				
-//				if(service == RadioInfo.NETWORK_SERVICE_ROAMING)
-//					Roaming = true;
-//				else 
-//					Roaming = false;
-//				
-//			}
-//
-//			public void networkStateChange(int state) {}
-//
-//			public void pdpStateChange(int apn, int state, int cause) {}
-//
-//			public void radioTurnedOff()
-//			{
-//				RadioON = false;
-//			}
-//
-//			public void signalLevel(int level)
-//			{
-//				if(level == RadioInfo.LEVEL_NO_COVERAGE)
-//					RadioON = false;
-//			}
-//    	});
-//    	
-//    	while(PowerON && RadioON)		//will only in EDT when device is turned ON and Radio ON 
-//    	{
-//    		theApp = new LocationApplication();			//initializes only if Device and Radio turns/is ON
-//			theApp.enterEventDispatcher();
-//    	}
-    	
     }
 
     /**
@@ -149,7 +71,7 @@ public class LocationApplication extends UiApplication implements SystemListener
     public LocationApplication()
     {        
         // Push a screen onto the UI stack for rendering.
-        pushScreen(new UIScreen(Roaming));
+        pushScreen(new UIScreen());
     }
 
 	public void batteryGood() {
