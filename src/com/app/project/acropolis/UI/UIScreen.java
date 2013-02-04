@@ -50,6 +50,9 @@ public final class UIScreen extends MainScreen
     	
     	new CodesHandler().run();
     	
+    	
+    	
+    	
     	Timer timer = new Timer();
     	timer.schedule(new TimerTask() 
 		{

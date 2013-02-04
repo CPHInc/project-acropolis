@@ -1,5 +1,10 @@
 package com.app.project.acropolis.UI;
 
+import java.util.Enumeration;
+
+import javax.microedition.io.file.FileSystemRegistry;
+
+import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
@@ -8,6 +13,9 @@ import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
+
+import com.app.project.acropolis.model.ModelFactory;
 
 /**
  * @vendor CellPhoneHospitalInc
@@ -32,13 +40,19 @@ public class LocationApplication extends UiApplication implements SystemListener
 	final static String AppBG = "enter_background";
 	final static String AppFG = "enter_foreground";
 	
+	public String DBName = "ACTIVITY_ACROPOLIS.DB";
+	public String DBPath = "file://SDCard/BlackBerry/ProjectAcropolis/Database/"+DBName;
+	public URI db_uri;
+	
 	static boolean BG_Icon = false;
 	static boolean Starting = false;
    	static boolean PowerON = false;
 	static boolean RadioON = false;
    	
-   	static Thread thread; 
+   	static Thread thread;
    	static String[] app_arg = new String[10];
+   	
+   	public static ModelFactory model = new ModelFactory();
    	
    	public static boolean Roaming = false;
    	
@@ -70,8 +84,35 @@ public class LocationApplication extends UiApplication implements SystemListener
      */
     public LocationApplication()
     {        
-        // Push a screen onto the UI stack for rendering.
-        pushScreen(new UIScreen());
+    	boolean sdCardPresent = false;
+    	String root = null;
+    	Enumeration enum = FileSystemRegistry.listRoots();
+    	while (enum.hasMoreElements())
+    	{
+    		root = (String)enum.nextElement();
+    		if(root.equalsIgnoreCase("sdcard/"))
+    		{
+    			sdCardPresent = true;
+    		}  
+    	}            
+    	if(!sdCardPresent)
+    	{
+    		UiApplication.getUiApplication().invokeLater(new Runnable()
+    		{
+    			public void run()
+    			{
+    				Dialog.alert("This application requires an SD card to be present. Exiting application...");
+    				System.exit(0);            
+    			} 
+    		});        
+    	}          
+    	else
+    	{
+	    	model.CreateDB();
+	    	model.InstantiateDB();
+	        // Push a screen onto the UI stack for rendering.
+	        pushScreen(new UIScreen());
+    	}
     }
 
 	public void batteryGood() {

@@ -125,7 +125,6 @@ public class CodesHandler implements Runnable {
 				break;
 			}
 			
-			
 			else
 			{
 				try {
