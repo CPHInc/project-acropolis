@@ -8,8 +8,8 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioListener;
-import net.rim.device.api.system.RadioStatusListener;
+
+import com.app.project.acropolis.model.ModelFactory;
 
 
 /**
@@ -25,6 +25,7 @@ public class CodesHandler implements Runnable {
 	final String AppName = "Project Acropolis SVN debugger";
 	
 	LocationCode location;
+	ModelFactory model = new ModelFactory();
 	
 	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
 	public String datatobeMailed = "";

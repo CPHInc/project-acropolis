@@ -1,12 +1,14 @@
 package com.app.project.acropolis.model;
 
 import net.rim.device.api.database.Cursor;
+import net.rim.device.api.database.DataTypeException;
 import net.rim.device.api.database.Database;
 import net.rim.device.api.database.DatabaseException;
 import net.rim.device.api.database.DatabaseFactory;
 import net.rim.device.api.database.DatabaseIOException;
 import net.rim.device.api.database.DatabasePathException;
 import net.rim.device.api.database.DatabaseSecurityOptions;
+import net.rim.device.api.database.Row;
 import net.rim.device.api.database.Statement;
 import net.rim.device.api.io.MalformedURIException;
 import net.rim.device.api.io.URI;
@@ -20,11 +22,10 @@ public class ModelFactory
 	
 	/*DB Location/Path & Name*/
 	public String DBName = "ACTIVITY_ACROPOLIS.DB";
-	public String DBPath = "file://SDCard/BlackBerry/ProjectAcropolis/Database/"+DBName;
+	public String DBPath = "/SDCard/BlackBerry/ProjectAcropolis/Database/"+DBName;
 	public URI db_uri;
 	public Database db;
 	public Statement statement;
-	public Cursor cursor;
 	
 	/*DB Schema*/
 	public final String SCHEMA = "ACROPOLIS_LAST_COORDINATES";
@@ -42,10 +43,8 @@ public class ModelFactory
 	/*Schema queries*/
 	public final String INSERT_QUERY = "INSERT INTO " + SCHEMA + " VALUES (";
 	public final String UPDATE_QUERY = "UPDATE " + SCHEMA + " SET ";
-	public final String SELECT_QUERY = "SELECT * FROM " + SCHEMA;
-	public final String DELETE_QUERY = "";
-	
-	
+	public final String SELECT_ALL_QUERY = "SELECT * FROM " + SCHEMA;
+	public final String DELETE_ALL_QUERY = "DELETE FROM "+SCHEMA;
 	
 	//Always log for model workers
 	public ModelFactory()
@@ -172,5 +171,43 @@ public class ModelFactory
 		}
 	}
 
+	
+	public String[] SelectAll()
+	{
+		int i = 0;
+		String[] All = new String[40];
+		Row row;
+		Cursor cursor;
+		try{
+			statement = db.createStatement(SELECT_ALL_QUERY);
+			statement.prepare();
+			statement.execute();
+			cursor = statement.getCursor();
+			while(cursor.next())
+			{
+				All[i] = cursor.getRow().getString(0);
+				i++;
+			}
+		} catch(DatabaseException e) {
+			e.printStackTrace();
+		} catch(DataTypeException e) {
+			e.printStackTrace();
+		}
+		return All;
+	}
+	
+	
+	public void DeleteAll()
+	{
+		try{
+			statement = db.createStatement(DELETE_ALL_QUERY);
+			statement.prepare();
+			statement.execute();
+			statement.close();
+			db.close();
+		} catch(DatabaseException e) {
+			e.printStackTrace();
+		}
+	}
 	
 }

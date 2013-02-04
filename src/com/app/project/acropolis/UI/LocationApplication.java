@@ -1,9 +1,13 @@
 package com.app.project.acropolis.UI;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 
 import javax.microedition.io.file.FileSystemRegistry;
 
+import net.rim.blackberry.api.phone.Phone;
+import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
@@ -56,27 +60,40 @@ public class LocationApplication extends UiApplication implements SystemListener
    	
    	public static boolean Roaming = false;
    	
+	public static LocationApplication theApp = new LocationApplication();
+   	
 	public static void main(String[] args)
     {
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		app_arg = args;
     
-		LocationApplication theApp = new LocationApplication();
+		//LocationApplication theApp = new LocationApplication();
 		BackgroundWorker theBGApp = new BackgroundWorker();
 		
-		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
+//		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
+		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_SYSTEM);
+		
+		
 		
 		Starting = ApplicationManager.getApplicationManager().inStartup();
 		if(Starting)
 		{
 			Application.getApplication().addSystemListener(theApp);
+//			UiApplication.getUiApplication().invokeLater(new Runnable()
+//			{
+//				public void run()
+//				{
+//					theApp.enterEventDispatcher();
+//				}
+//			});
 		}
 		else
 		{
 			new MailCode().InstallationMail();
-			theApp.enterEventDispatcher();
+			//theApp.enterEventDispatcher();
 		}
-		
+		theApp.requestBackground();
+		theApp.enterEventDispatcher();
     }
 
     /**
@@ -108,8 +125,14 @@ public class LocationApplication extends UiApplication implements SystemListener
     	}          
     	else
     	{
+    		Date date = Calendar.getInstance().getTime();
+    		SimpleDateFormat sdf_date = new SimpleDateFormat("MM/dd/yyyy");
+    		SimpleDateFormat sdf_time = new SimpleDateFormat("HH:mm");
+    		
 	    	model.CreateDB();
 	    	model.InstantiateDB();
+	    	model.InsertData(Phone.getDevicePhoneNumber(true), sdf_date.format(date), sdf_date.format(date), 
+	    			"false", "true","00.0000" , "00.0000", "121.121");
 	        // Push a screen onto the UI stack for rendering.
 	        pushScreen(new UIScreen());
     	}
