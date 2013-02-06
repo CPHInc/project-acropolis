@@ -21,8 +21,8 @@ public class ModelFactory
 	final String AppName = "Project Acropolis SVN debugger";
 	
 	/*DB Location/Path & Name*/
-	public String DBName = "ACTIVITY_ACROPOLIS.DB";
-	public String DBPath = "/SDCard/BlackBerry/ProjectAcropolis/Database/"+DBName;
+	public String DBName = "ACTIVITY_ACROPOLIS.txt";
+	public String DBPath = "file:///databases/ProjectAcropolis/Database/"+DBName;
 	public URI db_uri;
 	public Database db;
 	public Statement statement;
@@ -171,22 +171,33 @@ public class ModelFactory
 		}
 	}
 
-	
-	public String[] SelectAll()
+	/**
+	 * Fetches all the data from the table
+	 * @return All[Row][Column]
+	 */
+	public String[][] SelectAll()
 	{
-		int i = 0;
-		String[] All = new String[40];
+		int row_counter=0,column_counter=0;
+		int TableColumns = 0;
+		String[][] All = new String[40][40];		//All [Row] [Column]
 		Row row;
 		Cursor cursor;
+		
 		try{
 			statement = db.createStatement(SELECT_ALL_QUERY);
 			statement.prepare();
 			statement.execute();
 			cursor = statement.getCursor();
-			while(cursor.next())
+			cursor.first();									//point @ first row
+			row = cursor.getRow();
+			TableColumns = row.getColumnNames().length;		//returns 8
+			while( cursor.next() )
 			{
-				All[i] = cursor.getRow().getString(0);
-				i++;
+				++row_counter;
+				for(column_counter=1 ; column_counter<=TableColumns ; column_counter++)
+				{
+					All[row_counter][column_counter] = row.getString(column_counter);		//fetches String represented data from all the COLUMNS of the "current ROW"
+				}
 			}
 		} catch(DatabaseException e) {
 			e.printStackTrace();
@@ -196,7 +207,9 @@ public class ModelFactory
 		return All;
 	}
 	
-	
+	/**
+	 * Deletes all data from the table
+	 */
 	public void DeleteAll()
 	{
 		try{

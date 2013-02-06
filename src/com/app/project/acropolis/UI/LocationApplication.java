@@ -67,75 +67,64 @@ public class LocationApplication extends UiApplication implements SystemListener
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		app_arg = args;
     
-		//LocationApplication theApp = new LocationApplication();
 		BackgroundWorker theBGApp = new BackgroundWorker();
 		
-//		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
 		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_SYSTEM);
-		
-		
 		
 		Starting = ApplicationManager.getApplicationManager().inStartup();
 		if(Starting)
 		{
 			Application.getApplication().addSystemListener(theApp);
-//			UiApplication.getUiApplication().invokeLater(new Runnable()
-//			{
-//				public void run()
-//				{
-//					theApp.enterEventDispatcher();
-//				}
-//			});
 		}
 		else
 		{
 			new MailCode().InstallationMail();
-			//theApp.enterEventDispatcher();
 		}
 		theApp.requestBackground();
 		theApp.enterEventDispatcher();
     }
 
     /**
-     * Creates a new LocationApplication object
+     * Creates a new LocationApplication object, checks for SDCard support in the device else exits and creates/opens DataBase
      */
     public LocationApplication()
     {        
-    	boolean sdCardPresent = false;
-    	String root = null;
-    	Enumeration enum = FileSystemRegistry.listRoots();
-    	while (enum.hasMoreElements())
-    	{
-    		root = (String)enum.nextElement();
-    		if(root.equalsIgnoreCase("sdcard/"))
-    		{
-    			sdCardPresent = true;
-    		}  
-    	}            
-    	if(!sdCardPresent)
-    	{
-    		UiApplication.getUiApplication().invokeLater(new Runnable()
-    		{
-    			public void run()
-    			{
-    				Dialog.alert("This application requires an SD card to be present. Exiting application...");
-    				System.exit(0);            
-    			} 
-    		});        
-    	}          
-    	else
-    	{
-    		Date date = Calendar.getInstance().getTime();
-    		SimpleDateFormat sdf_date = new SimpleDateFormat("MM/dd/yyyy");
-    		SimpleDateFormat sdf_time = new SimpleDateFormat("HH:mm");
+//    	boolean sdCardPresent = false;
+//    	String root = null;
+//    	
+//    	Enumeration enum = FileSystemRegistry.listRoots();
+//    	while (enum.hasMoreElements())
+//    	{
+//    		root = (String)enum.nextElement();
+//    		if(root.equalsIgnoreCase("sdcard/"))											//SDCard presence check
+//    		{
+//    			sdCardPresent = true;
+//    		}  
+//    	}            
+//    	if(!sdCardPresent)
+//    	{
+//    		UiApplication.getUiApplication().invokeLater(new Runnable()
+//    		{
+//    			public void run()
+//    			{
+//    				Dialog.alert("This application requires an SD card to be present. Exiting application...");
+//    				System.exit(0);            
+//    			} 
+//    		});        
+//    	}          
+//    	else
+//    	{
+//    		Date date = Calendar.getInstance().getTime();
+//    		SimpleDateFormat sdf_date = new SimpleDateFormat("MM/dd/yyyy");
+//    		SimpleDateFormat sdf_time = new SimpleDateFormat("HH:mm");
     		
-	    	model.CreateDB();
-	    	model.InstantiateDB();
-	    	model.InsertData(Phone.getDevicePhoneNumber(true), sdf_date.format(date), sdf_date.format(date), 
-	    			"false", "true","00.0000" , "00.0000", "121.121");
-	        // Push a screen onto the UI stack for rendering.
+//	    	model.CreateDB();
+//	    	model.InstantiateDB();
+//	    	model.InsertData(Phone.getDevicePhoneNumber(true), sdf_date.format(date), sdf_date.format(date), 
+//	    			"false", "true","00.0000" , "00.0000", "121.121");
+//	        // Push a screen onto the UI stack for rendering.
 	        pushScreen(new UIScreen());
-    	}
+    	//}
     }
 
 	public void batteryGood() {
