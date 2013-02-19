@@ -42,33 +42,7 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 			}
 		}, 1000, 1*60*60*1000);
 		
-//		if(Check_NON_CAN_Operator())			//Roaming
-//		{
-//			timer.schedule(new TimerTask() 
-//			{
-//				public void run()
-//				{
-//					new CodesHandler().run();
-//				}
-//			}, 1000, 1*60*60*1000);
-//		}
-//		else
-//		{
-//			timer.schedule(new TimerTask() 
-//			{
-//				public void run()
-//				{
-//					new CodesHandler().run();
-//				}
-//			}, 1000, 1*60*60*1000);
-//		}
 	}
-	
-	 public boolean getRoamingState()
-	 {
-			boolean roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
-			return roaming;
-	 }
 
 	 public boolean Check_NON_CAN_Operator()
 	 {
@@ -89,8 +63,6 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 		    	
 		 return NON_CANOperatorCheck;
 	 }
-	    
-	 
 	 
 	public void batteryGood() {
 		// TODO Auto-generated method stub

@@ -30,7 +30,7 @@ import net.rim.device.api.system.RadioStatusListener;
 
 public class LocationCode implements Runnable{
 	final long GUID = 0x3c38b852369c643L;
-	final String AppName = "Project Acropolis";
+	final String AppName = "Project Acropolis SVN Debugger";
 	
 	public String errorstream;
 	private double latitude;
@@ -49,6 +49,9 @@ public class LocationCode implements Runnable{
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
 	
+	public boolean NON_CANOperatorCheck = true;
+	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+	public String CurrentNetworkName = "";
 	/**
 	 * contructor
 	 * registers EventLogger for the application to view within Device Stack Trace
@@ -70,7 +73,7 @@ public class LocationCode implements Runnable{
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
-			EventLogger.logEvent(GUID, ("Automous scanning initiated...").getBytes(), EventLogger.DEBUG_INFO);
+			EventLogger.logEvent(GUID, ("Automous scanning initiated...").getBytes(), EventLogger.ALWAYS_LOG);
 			bbcriteria = new BlackBerryCriteria();
 			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
 			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
@@ -171,13 +174,6 @@ public class LocationCode implements Runnable{
 
 	public boolean Check_NON_CAN_Operator()
 	{
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-		    	
-		String CurrentNetworkName = "";
-		int CurrentNetworkID = 0;
-		    	
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
 		
 		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 

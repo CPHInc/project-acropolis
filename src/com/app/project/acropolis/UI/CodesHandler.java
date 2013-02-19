@@ -8,6 +8,7 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.RadioStatusListener;
 
 import com.app.project.acropolis.model.ModelFactory;
 
@@ -19,7 +20,8 @@ import com.app.project.acropolis.model.ModelFactory;
  * 
  * <reason for Runnable over Thread--resusability>
  */
-public class CodesHandler implements Runnable {
+public class CodesHandler implements Runnable
+{
 
 	final long GUID = 0x29ef40e6e31efd2L;
 	final String AppName = "Project Acropolis SVN debugger";
@@ -32,6 +34,10 @@ public class CodesHandler implements Runnable {
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
 	public Calendar cal; 
+	
+	public boolean NON_CANOperatorCheck = true;
+	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+	public String CurrentNetworkName = "";
 	
 //	int NO_FIX_SLEEP = 20 *60 *1000;						//20 MINs
 //	int FIX_BREATHING = 10 *1000;							//10 SECs
@@ -54,7 +60,8 @@ public class CodesHandler implements Runnable {
 	{
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
-		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server		
+		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
+		EventLogger.logEvent(GUID, ("time -- "+gmtTimeStamp).getBytes(),EventLogger.ALWAYS_LOG);
 		
 		location = new LocationCode();
 		
@@ -151,22 +158,24 @@ public class CodesHandler implements Runnable {
 	    
 	public boolean Check_NON_CAN_Operator()
 	{
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
 		    	
-		String CurrentNetworkName = "";
-		    	
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		    	
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
+		if(CurrentNetworkName.equalsIgnoreCase(""))
+		{
+			EventLogger.logEvent(GUID, ("no network found").getBytes(),EventLogger.ALWAYS_LOG);
+		}
 		else
-			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-		    	
+		{
+			EventLogger.logEvent(GUID, ("Device registered on " + CurrentNetworkName).getBytes(),EventLogger.ALWAYS_LOG);
+			if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+			  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+			   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+				NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
+			else
+				NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
+			    
+		}
 		return NON_CANOperatorCheck;
 	 }
-	
+
 }
