@@ -4,10 +4,10 @@ import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
+import net.rim.device.api.system.SystemListener2;
 import net.rim.device.api.ui.UiApplication;
 
 import com.app.project.acropolis.model.ModelFactory;
@@ -27,10 +27,10 @@ import com.app.project.acropolis.model.ModelFactory;
  * This class extends the UiApplication class, providing a
  * graphical user interface.
  */
-public class LocationApplication extends UiApplication implements RadioStatusListener
+public class LocationApplication extends UiApplication implements RadioStatusListener,SystemListener2
 {
 	final static long GUID = 0xa0d8b6e395774fc8L;
-	final static String AppName = "Project Acropolis SVN debugger";
+	final static String AppName = "**Project Acropolis SVN debugger**";
 
 	final static String AppBG = "enter_background";
 	final static String AppFG = "enter_foreground";
@@ -46,33 +46,31 @@ public class LocationApplication extends UiApplication implements RadioStatusLis
 	public static boolean Power = false;
 	
 	static Thread codeThread = new Thread(new CodesHandler());
-   	
+   	static CodesHandler code = new CodesHandler();
+	
    	public static ModelFactory model = new ModelFactory();
-	static LocationApplication theApp = new LocationApplication();
+	static UiApplication theApp;// = new LocationApplication();
+	
 	public static void main(String[] args)
     {
-		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-		
 		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
-		Application.getApplication().invokeAndWait(new Runnable()
+	
+		if(ApplicationManager.getApplicationManager().inStartup())
 		{
-			public void run()
-			{
-				if(ApplicationManager.getApplicationManager().inStartup())
-				{
-					try {
-						Thread.sleep(1*60*1000);
-						EventLogger.logEvent(GUID, ("slept for 1min ApplicationManager...inStartup()!!").getBytes(),EventLogger.ALWAYS_LOG);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
+			try {
+				Thread.sleep(1*60*1000);
+				new Logger().LogMessage("slept for 1min ApplicationManager...inStartup()!!");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		});
-		Application.getApplication().addRadioListener((RadioListener)theApp);
-		EventLogger.logEvent(GUID, ("Listeners registered").getBytes(),EventLogger.ALWAYS_LOG);
-
-		EventLogger.logEvent(GUID, ("Application in event dispatching").getBytes(),EventLogger.ALWAYS_LOG);
+		}
+		
+		new Logger().LogMessage("Registering listeners!!!");
+		
+		theApp = new LocationApplication();
+		theApp.addRadioListener((RadioListener)theApp);
+		theApp.addSystemListener((SystemListener)theApp);
+		
 		theApp.enterEventDispatcher();
     }
 
@@ -81,89 +79,71 @@ public class LocationApplication extends UiApplication implements RadioStatusLis
      */
     public LocationApplication()
     {        
+		new Logger().LogMessage("Screen pushed");
     	// Push a screen onto the UI stack for rendering.
         pushScreen(new UIScreen());
     }
 
-    public static void AddListeners()
-    {
-    	Application.getApplication().addRadioListener((RadioListener) new RadioStatusListener()
-		{
-			public void baseStationChange() {}
+	public void baseStationChange() {}
 
-			public void networkScanComplete(boolean success) {}
+	public void networkScanComplete(boolean success) {}
 
-			public void networkServiceChange(int networkId, int service) {}
-
-			public void networkStarted(int networkId, int service) {
-			
-			}
-
-			public void networkStateChange(int state) {}
-
-			public void pdpStateChange(int apn, int state, int cause) {}
-
-			public void radioTurnedOff() {
-				
-			}
-
-			public void signalLevel(int level) {}
-			
-		});
-    }
-
-	public void baseStationChange() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void networkScanComplete(boolean success) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void networkServiceChange(int networkId, int service) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void networkServiceChange(int networkId, int service) {}
 
 	public void networkStarted(int networkId, int service) {
-		// TODO Auto-generated method stub
-		synchronized(Application.getApplication().getAppEventLock())
+		synchronized(Application.getApplication().getEventLock())
 		{
-			codeThread.notify();
-			EventLogger.logEvent(GUID, ("Radio & CodesHandler() started").getBytes(), EventLogger.ALWAYS_LOG);
+			new Logger().LogMessage("Radio & CodesHandler().notify() started");
+			code.notify();
 		}
 	}
 
-	public void networkStateChange(int state) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void networkStateChange(int state) {}
 
-	public void pdpStateChange(int apn, int state, int cause) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void pdpStateChange(int apn, int state, int cause) {}
 
 	public void radioTurnedOff() {
-		// TODO Auto-generated method stub
 		Radio = false;
-		synchronized(Application.getApplication().getAppEventLock())
+		synchronized(Application.getApplication().getEventLock())
 		{
 			try {
-				EventLogger.logEvent(GUID, ("Radio OFF Thread.wait() CodesHandler()").getBytes(),EventLogger.ALWAYS_LOG);
-				codeThread.wait();		//make the CodesHandler() wait
+				new Logger().LogMessage("Radio OFF CodesHandler().wait()");
+				code.wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
+		}	
+	}
+
+	public void signalLevel(int level) {}
+
+	public void batteryGood() {}
+
+	public void batteryLow() {}
+
+	public void batteryStatusChange(int arg0) {}
+
+	public void powerOff() {}
+
+	public void powerUp() {}
+
+	public void backlightStateChange(boolean on) {}
+
+	public void cradleMismatch(boolean mismatch) {}
+
+	public void fastReset() {
+		//System.exit(0);
+	}
+
+	public void powerOffRequested(int reason) {
+		if(reason == SystemListener2.POWER_OFF_KEY_PRESSED)
+		{
+			new Logger().LogMessage("Power off key DOWN -- shut down requested");
+			System.exit(0);
 		}
 	}
 
-	public void signalLevel(int level) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void usbConnectionStateChange(int state) {}
     
 }

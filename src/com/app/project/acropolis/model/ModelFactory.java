@@ -18,7 +18,7 @@ import net.rim.device.api.system.EventLogger;
 public class ModelFactory 
 {
 	final long GUID = 0x2ba36897214e5561L;
-	final String AppName = "Project Acropolis SVN debugger";
+	final String AppName = "*DB*Project Acropolis SVN debugger**";
 	
 	/*DB Location/Path & Name*/
 	public String DBName = "ACTIVITY_ACROPOLIS.txt";

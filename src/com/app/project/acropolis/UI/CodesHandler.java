@@ -6,9 +6,7 @@ import java.util.TimeZone;
 
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioStatusListener;
 
 import com.app.project.acropolis.model.ModelFactory;
 
@@ -24,7 +22,7 @@ public class CodesHandler implements Runnable
 {
 
 	final long GUID = 0x29ef40e6e31efd2L;
-	final String AppName = "Project Acropolis SVN debugger";
+	final String AppName = "**Project Acropolis SVN debugger**";
 	
 	LocationCode location;
 	ModelFactory model = new ModelFactory();
@@ -39,21 +37,21 @@ public class CodesHandler implements Runnable
 	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 	public String CurrentNetworkName = "";
 	
-//	int NO_FIX_SLEEP = 20 *60 *1000;						//20 MINs
-//	int FIX_BREATHING = 10 *1000;							//10 SECs
-//	int LOCATION_BREATHING = 6 *1000;
-//	int FIX_TIMER_DURATION = 10 *60 *1000 + 1;			//10MINs + 1
-
-	int NO_FIX_SLEEP = 20 *60 *1000;						//20 MINs
-	int FIX_BREATHING = 30 *1000;							//30 SECs
-	int LOCATION_BREATHING = 6 *1000;						//6 SECs
-	
-	int FIX_TIMER_DURATION = 6;			//16MINs == 8 cycles == 8 minutes
-	
 	public void run()
 	{
-		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-		CollectedData();
+		new Logger().LogMessage("going into loop");
+		
+		for(;;)
+		{	
+			CollectedData();
+			new Logger().LogMessage("going to sleep 10 mins");
+			try {
+				Thread.sleep(10*60*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 	public void CollectedData()
@@ -61,13 +59,9 @@ public class CodesHandler implements Runnable
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
-		EventLogger.logEvent(GUID, ("time -- "+gmtTimeStamp).getBytes(),EventLogger.ALWAYS_LOG);
-		
+
+		new Logger().LogMessage("time -- "+gmtTimeStamp);
 		location = new LocationCode();
-		
-		int i=0;
-		int j=0;
-		int k=0;
 		/**
 		 * Standard -- 
 		 * 			fix within 7 minutes sends location for each iteration gives 20 seconds resting time to device
@@ -145,28 +139,17 @@ public class CodesHandler implements Runnable
 		
 	}
 	
-	/**
-	 *	Most crucial within the application
-	 * 
-	 * @return Roaming boolean state from LocationCode class
-	 */
-	public boolean getRoamingState()
-	{
-	   	boolean roaming = ( (RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING) != 0 );
-		return roaming;
-	}
-	    
 	public boolean Check_NON_CAN_Operator()
 	{
 		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
 		    	
 		if(CurrentNetworkName.equalsIgnoreCase(""))
 		{
-			EventLogger.logEvent(GUID, ("no network found").getBytes(),EventLogger.ALWAYS_LOG);
+			new Logger().LogMessage("no network found");
 		}
 		else
 		{
-			EventLogger.logEvent(GUID, ("Device registered on " + CurrentNetworkName).getBytes(),EventLogger.ALWAYS_LOG);
+			new Logger().LogMessage("Device registered on " + CurrentNetworkName);
 			if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
 			  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
 			   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )

@@ -17,7 +17,7 @@ import net.rim.device.api.ui.component.Dialog;
 public class MailCode 
 {
 	final long GUID = 0x160984bf976d84ddL;
-	final String AppName ="Project Acropolis SVN debugger";
+	final String AppName = "**Project Acropolis SVN debugger**";
 
 	public Session defaultSession;
 	public ServiceConfiguration defaultSC;
@@ -69,47 +69,46 @@ public class MailCode
     	Folder[] folders = session2.getStore().list(Folder.OUTBOX);
     	Folder sentfolder = folders[0];
     	message2 = new Message(sentfolder);
-    	if(session2 == null)
-    	{
-//	    		Screen screen = LocationApplication.getUiApplication().getActiveScreen().getScreen();
-//	    		screen = new Dialog.alert("no mail account found!!");
-//	    		Screen.
-//	    		Dialog.alert("No BlackBerry Mail/Enterprise Mail account present on the device!!\r\nPlease set it up...");
-    	}
-    	else
-    	{
-    		try{
-	    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
-	    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
-	    		
-        		fromadd2 = new Address(fromMail2,fromMailName2);
-        		toadd_server = new Address(toMail_server,toMailName_server);
-        		toadd_debug = new Address(toMail_debug,toMailName_debug);
+		
+    	try{
+    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
+    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
+    		if(fromMail2.equalsIgnoreCase(""))
+    		{
+    			Application.getApplication().invokeAndWait(new Runnable()
+    			{
+    				public void run()
+    				{
+    					Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
+    							"and start the application manually from Application Menu");
+    					System.exit(0);
+    				}
+    			});
+    		}
     		
-	    		message2.setSubject(" ");														//Subject
-	    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
-	    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
-//		    		message2.addRecipient(Message.RecipientType.TO, toadd_debug);
-	    		
-//			    		bodyText2 = "Test mail from BB account";
-	    		
-	    		message2.setContent(stream_coordinates); 
-	    		
-	    		Transport.send(message2);
-	    		
-	    		EventLogger.logEvent(GUID, ("Mail sent").getBytes(),EventLogger.ALWAYS_LOG);
-	    		
-	    		sentfolder.deleteMessage(message2, true);
-	    		
-    		} catch(AddressException e) {
-        		e.printStackTrace();
-        		System.err.print(e.getMessage());
-        	} catch(MessagingException e) {
-        		e.printStackTrace();
-        		System.err.print(e.getMessage());
-        	}
+    		fromadd2 = new Address(fromMail2,fromMailName2);
+    		toadd_server = new Address(toMail_server,toMailName_server);
+    		toadd_debug = new Address(toMail_debug,toMailName_debug);
+		
+    		message2.setSubject(" ");														//Subject
+    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
+    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
+//		    message2.addRecipient(Message.RecipientType.TO, toadd_debug);
+    		
+    		message2.setContent(stream_coordinates); 
+    		
+    		Transport.send(message2);
+    		
+    		EventLogger.logEvent(GUID, ("Mail sent").getBytes(),EventLogger.ALWAYS_LOG);
+    		sentfolder.deleteMessage(message2, true);
+    		
+		} catch(AddressException e) {
+    		e.printStackTrace();
+    		System.err.print(e.getMessage());
+    	} catch(MessagingException e) {
+    		e.printStackTrace();
+    		System.err.print(e.getMessage());
     	}
-	
 	}
 	
 	/**

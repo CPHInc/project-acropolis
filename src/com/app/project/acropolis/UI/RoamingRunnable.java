@@ -6,7 +6,6 @@ import java.util.TimeZone;
 
 import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
-import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 import javax.microedition.location.QualifiedCoordinates;
@@ -16,7 +15,6 @@ import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.Application;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
@@ -24,7 +22,7 @@ import net.rim.device.api.system.RadioStatusListener;
 public class RoamingRunnable implements Runnable
 {
 	final long GUID = 0x7f7af45a49451784L;
-	final String AppName = "Project Acropolis SVN debugger";
+	final String AppName = "**Project Acropolis SVN debugger**";
 	
 	boolean isRoaming = false;
 	
@@ -51,7 +49,6 @@ public class RoamingRunnable implements Runnable
 
 	public RoamingRunnable()
 	{
-		EventLogger.register(GUID, AppName, EventLogger.ALWAYS_LOG);
 	}
 	
 	public void run() 
@@ -77,7 +74,7 @@ public class RoamingRunnable implements Runnable
 
 		public void networkServiceChange(int networkId, int service) {
 			NewNetwork = RadioInfo.getCurrentNetworkName();
-			EventLogger.logEvent(GUID, ("Network Changed:" + NewNetwork ).getBytes(), EventLogger.VIEWER_STRING);
+			new Logger().LogMessage("Network Changed:" + NewNetwork );
 			
 			/*GET THE CURRENT CHANE IN ROAMING CO-ORDINATES*/
 			CollectedData();
@@ -106,7 +103,7 @@ public class RoamingRunnable implements Runnable
 	public boolean CurrentLocation() 
 	{
 		boolean retval = true;
-		EventLogger.logEvent(GUID, ("Autonomous scanning initiated...").getBytes(), EventLogger.DEBUG_INFO);
+		new Logger().LogMessage("Autonomous scanning initiated...");
 		bbcriteria = new BlackBerryCriteria();
 		bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
 		bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);

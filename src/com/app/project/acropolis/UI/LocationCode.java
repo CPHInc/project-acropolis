@@ -4,24 +4,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.microedition.location.Coordinates;
 import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
-import javax.microedition.location.ProximityListener;
 import javax.microedition.location.QualifiedCoordinates;
 
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
-import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioListener;
-import net.rim.device.api.system.RadioStatusListener;
 
 /**
  *	@author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -30,7 +24,7 @@ import net.rim.device.api.system.RadioStatusListener;
 
 public class LocationCode implements Runnable{
 	final long GUID = 0x3c38b852369c643L;
-	final String AppName = "Project Acropolis SVN Debugger";
+	final String AppName = "**Project Acropolis SVN debugger**";
 	
 	public String errorstream;
 	private double latitude;
@@ -52,19 +46,7 @@ public class LocationCode implements Runnable{
 	public boolean NON_CANOperatorCheck = true;
 	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 	public String CurrentNetworkName = "";
-	/**
-	 * contructor
-	 * registers EventLogger for the application to view within Device Stack Trace
-	 */
-	public LocationCode()
-	{
-		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
-//		if(CurrentLocation())
-//		{
-//			//nothing to do here
-//		}
-	}
-	
+
 	public void run()
 	{
 		CurrentLocation();
@@ -73,7 +55,7 @@ public class LocationCode implements Runnable{
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
-			EventLogger.logEvent(GUID, ("Automous scanning initiated...").getBytes(), EventLogger.ALWAYS_LOG);
+			new Logger().LogMessage("Automous scanning initiated...");
 			bbcriteria = new BlackBerryCriteria();
 			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
 			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
@@ -93,6 +75,7 @@ public class LocationCode implements Runnable{
 			}
 			else
 			{
+				new Logger().LogMessage("GPS Chip missing");
 				date = new Date();
 				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device time
 				

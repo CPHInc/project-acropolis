@@ -17,7 +17,7 @@ import net.rim.device.api.system.SystemListener;
 public class BackgroundWorker implements Runnable//extends Thread implements SystemListener
 {
 	final long GUID = 0x8cac0a9b91bd97b5L;	
-	final String AppName = "Project Acropolis";
+	final String AppName = "**Project Acropolis SVN debugger**";
 
 	boolean PowerON = true;
 	
@@ -25,7 +25,6 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 
 	public BackgroundWorker()
 	{
-		EventLogger.register(GUID, AppName, EventLogger.VIEWER_STRING);
 		Application.getApplication().setAcceptEvents(false);			//not an event dispatching thread
 	}
 	
