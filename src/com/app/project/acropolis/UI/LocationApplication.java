@@ -133,14 +133,13 @@ public class LocationApplication extends UiApplication implements RadioStatusLis
 	public void cradleMismatch(boolean mismatch) {}
 
 	public void fastReset() {
-		//System.exit(0);
+		System.exit(0);
 	}
 
 	public void powerOffRequested(int reason) {
 		if(reason == SystemListener2.POWER_OFF_KEY_PRESSED)
 		{
 			new Logger().LogMessage("Power off key DOWN -- shut down requested");
-			System.exit(0);
 		}
 	}
 
