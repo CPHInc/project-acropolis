@@ -27,7 +27,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * This class extends the UiApplication class, providing a
  * graphical user interface.
  */
-public class LocationApplication extends UiApplication implements RadioStatusListener,SystemListener2
+public class LocationApplication extends UiApplication
 {
 	final static long GUID = 0xa0d8b6e395774fc8L;
 	final static String AppName = "**Project Acropolis SVN debugger**";
@@ -68,9 +68,6 @@ public class LocationApplication extends UiApplication implements RadioStatusLis
 		new Logger().LogMessage("Registering listeners!!!");
 		
 		theApp = new LocationApplication();
-		theApp.addRadioListener((RadioListener)theApp);
-		theApp.addSystemListener((SystemListener)theApp);
-		
 		theApp.enterEventDispatcher();
     }
 
@@ -83,66 +80,5 @@ public class LocationApplication extends UiApplication implements RadioStatusLis
     	// Push a screen onto the UI stack for rendering.
         pushScreen(new UIScreen());
     }
-
-	public void baseStationChange() {}
-
-	public void networkScanComplete(boolean success) {}
-
-	public void networkServiceChange(int networkId, int service) {}
-
-	public void networkStarted(int networkId, int service) {
-		synchronized(Application.getApplication().getEventLock())
-		{
-			new Logger().LogMessage("Radio & CodesHandler().notify() started");
-			code.notify();
-		}
-	}
-
-	public void networkStateChange(int state) {}
-
-	public void pdpStateChange(int apn, int state, int cause) {}
-
-	public void radioTurnedOff() {
-		Radio = false;
-		synchronized(Application.getApplication().getEventLock())
-		{
-			try {
-				new Logger().LogMessage("Radio OFF CodesHandler().wait()");
-				code.wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-		}	
-	}
-
-	public void signalLevel(int level) {}
-
-	public void batteryGood() {}
-
-	public void batteryLow() {}
-
-	public void batteryStatusChange(int arg0) {}
-
-	public void powerOff() {}
-
-	public void powerUp() {}
-
-	public void backlightStateChange(boolean on) {}
-
-	public void cradleMismatch(boolean mismatch) {}
-
-	public void fastReset() {
-		System.exit(0);
-	}
-
-	public void powerOffRequested(int reason) {
-		if(reason == SystemListener2.POWER_OFF_KEY_PRESSED)
-		{
-			new Logger().LogMessage("Power off key DOWN -- shut down requested");
-		}
-	}
-
-	public void usbConnectionStateChange(int state) {}
     
 }

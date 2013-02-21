@@ -3,6 +3,8 @@ package com.app.project.acropolis.UI;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
@@ -41,16 +43,27 @@ public class CodesHandler implements Runnable
 	{
 		new Logger().LogMessage("going into loop");
 		
-		for(;;)
-		{	
-			CollectedData();
-			new Logger().LogMessage("going to sleep 10 mins");
-			try {
-				Thread.sleep(10*60*1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		Timer handler = new Timer();
+		
+		handler.schedule(new TimerTask()
+		{
+			public void run()
+			{
+				CollectedData();
+				new Logger().LogMessage("going to sleep 10 mins");
 			}
-		}
+		}, 1000, 10*60*1000);
+		
+//		for(;;)
+//		{	
+//			CollectedData();
+//			new Logger().LogMessage("going to sleep 10 mins");
+//			try {
+//				Thread.sleep(10*60*1000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
 		
 	}
 	

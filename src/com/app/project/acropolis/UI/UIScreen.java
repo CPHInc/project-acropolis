@@ -32,19 +32,19 @@ public final class UIScreen extends MainScreen
     public UIScreen()
     {        
     	new Logger().LogMessage("Installation Mail being sent");
-    	new MailCode().InstallationMail();
     	
     	Application.getApplication().setAcceptEvents(false);
     	new Logger().LogMessage("Application requested for Background entry");
         UiApplication.getUiApplication().requestBackground();
 
-    	setTitle(" ** DEBUG Version ** Project Acropolis ");
+    	setTitle(" ** DEBUG Version ** Project Acropolis ");		//if required
         
     	Thread RoamThread = new Thread(new RoamingRunnable());
     	RoamThread.start();			//monitors roaming changes, takes appropriate actions
-    	
-    	new CodesHandler().run();
-    	
+
+    	new Logger().LogMessage("--->CodeValidator()<---");
+    	//execute CodeValidator() for checking device properties and code handling
+    	new CodeValidator();
     }
     
     public boolean onClose()
