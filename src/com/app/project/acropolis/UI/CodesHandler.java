@@ -102,6 +102,18 @@ public class CodesHandler implements Runnable
 				
 				new MailCode().SendMail(datatobeMailed);
 				
+				//data monitor addition
+				datatobeMailed = 
+						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+						+ location.getLatitude() + "|" 
+						+ location.getLongitude() + "|"
+						+ location.getAccuracy() + "|"
+						+ "Down"+ RadioInfo.getNumberOfPacketsReceived() + "|"
+						+  "Up" + RadioInfo.getNumberOfPacketsSent() + "##";
+				new MailCode().DebugMail(datatobeMailed);
+				
 				location.StopTracking();
 				location.ResetTracking();
 				
@@ -130,9 +142,19 @@ public class CodesHandler implements Runnable
 						+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
 						+ 67.43125 + "|" 
 						+ -45.123456 + "|"											//southern Greenland
-						+ 1234.1234 +"##";
-				
+						+ 1234.1234 +"|"
+						+ "Down"+ RadioInfo.getNumberOfPacketsReceived() + "|"
+						+  "Up" + RadioInfo.getNumberOfPacketsSent() + "##";
 				new MailCode().SendMail(datatobeMailed);
+				
+				datatobeMailed = 
+						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+						+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
+						+ 67.43125 + "|" 
+						+ -45.123456 + "|"											//southern Greenland
+						+ 1234.1234 +"##";
+				new MailCode().DebugMail(datatobeMailed);
 				
 				location.StopTracking();
 				location.ResetTracking();

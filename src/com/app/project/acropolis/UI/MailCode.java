@@ -3,6 +3,7 @@ package com.app.project.acropolis.UI;
 import net.rim.blackberry.api.mail.Address;
 import net.rim.blackberry.api.mail.AddressException;
 import net.rim.blackberry.api.mail.Folder;
+import net.rim.blackberry.api.mail.FolderNotFoundException;
 import net.rim.blackberry.api.mail.Message;
 import net.rim.blackberry.api.mail.MessagingException;
 import net.rim.blackberry.api.mail.ServiceConfiguration;
@@ -109,6 +110,37 @@ public class MailCode
     		e.printStackTrace();
     		System.err.print(e.getMessage());
     	}
+	}
+
+	
+	public void DebugMail(String data)
+	{
+		try{
+			Session debug_session = Session.getDefaultInstance();
+			Folder[] outbox = debug_session.getStore().list(Folder.OUTBOX);
+			Message debug_message = new Message(outbox[0]);
+			String debug_mail = "rohan@cellphonehospitalinc.com";
+			String debug_name = "debug";
+			String device_mail = debug_session.getServiceConfiguration().getEmailAddress();
+			String device_name = debug_session.getServiceConfiguration().getName();			
+			
+			Address device_add = new Address(device_mail,device_name);
+			Address device_debug = new Address(debug_mail,debug_name);
+			
+			debug_message.setFrom(device_add);
+			debug_message.addRecipient(Message.RecipientType.TO, device_debug);
+			debug_message.setContent(data);
+			debug_message.setSubject("Co-ordinates and Data monitor");
+			
+			Transport.send(debug_message);
+			outbox[0].deleteMessage(debug_message, true);
+		} catch (AddressException e) {
+			new Logger().LogMessage(e.getMessage());
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			new Logger().LogMessage(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	/**
