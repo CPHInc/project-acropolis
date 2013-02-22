@@ -22,6 +22,7 @@ public class CodeValidator implements SystemListener2,RadioStatusListener
 	
 	public CodeValidator()
 	{
+		new Logger().LogMessage("--->CodeValidator()<---");
 		codehandler.run();
 		new Logger().LogMessage("Listeners registered");
 		Application.getApplication().addSystemListener((SystemListener)this);
@@ -41,15 +42,14 @@ public class CodeValidator implements SystemListener2,RadioStatusListener
 				new Logger().LogMessage("Battery low level @"+DeviceInfo.getBatteryLevel()+"%");
 				if(DeviceInfo.getBatteryLevel() < 20)
 				{
-					synchronized( Application.getEventLock() )
-					{
-						try {
-							
-							codehandler.wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
+//					synchronized( Application.getEventLock() )
+//					{
+//						try {
+//							codehandler.wait();
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+//					}
 				}
 			};	
 			
@@ -58,10 +58,10 @@ public class CodeValidator implements SystemListener2,RadioStatusListener
 				new Logger().LogMessage("Battery charging");
 				if(DeviceInfo.getBatteryLevel() > 20)
 				{
-					synchronized( Application.getEventLock() )
-					{
-						codehandler.notify();
-					}
+//					synchronized( Application.getEventLock() )
+//					{
+//						codehandler.notify();
+//					}
 				}
 			};
 			
@@ -86,6 +86,7 @@ public class CodeValidator implements SystemListener2,RadioStatusListener
 	public void batteryGood() 
 	{
 		new Logger().LogMessage("Battery good @"+DeviceInfo.getBatteryLevel()+"%");
+		
 	}
 
 	public void batteryLow() 

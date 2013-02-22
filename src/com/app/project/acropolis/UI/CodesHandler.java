@@ -41,16 +41,19 @@ public class CodesHandler implements Runnable
 	
 	public void run()
 	{
-		new Logger().LogMessage("going into loop");
+		new Logger().LogMessage("--->CodeHandler()<---");
+
+		new Logger().LogMessage("Fetching data..");
+		CollectedData();
 		
 		Timer handler = new Timer();
-		
 		handler.schedule(new TimerTask()
 		{
 			public void run()
 			{
+				if(RadioInfo.getCurrentNetworkName().equalsIgnoreCase(""))
 				CollectedData();
-				new Logger().LogMessage("going to sleep 10 mins");
+				new Logger().LogMessage("sleeping 2 hours");
 			}
 		}, 1000, 10*60*1000);
 		
@@ -82,91 +85,105 @@ public class CodesHandler implements Runnable
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
-		
-		for(int a=0 ; a<=14 ; a++)
+		int a = 0;
+		while(a<14)
 		{
-			
-			if( location.getLatitude() != 0 && location.getLongitude() != 0 )
-				// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
+			if( RadioInfo.getCurrentNetworkName()!=null )
 			{
-				date = new Date();
-				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
+				if( location.getLatitude() != 0 && location.getLongitude() != 0 )
+					// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
+				{
+					date = new Date();
+					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
+					
+					datatobeMailed = 
+							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+							+ location.getLatitude() + "|" 
+							+ location.getLongitude() + "|"
+							+ location.getAccuracy() +"##";
+					
+					new MailCode().SendMail(datatobeMailed);
+					
+					//data monitor addition
+					datatobeMailed = 
+							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+							+ location.getLatitude() + "|" 
+							+ location.getLongitude() + "|"
+							+ location.getAccuracy() + "|"
+							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
+							+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
+					new MailCode().DebugMail(datatobeMailed);
+					new Logger().LogMessage("Downloaded and Uploaded mail sent");
+					location.StopTracking();
+					location.ResetTracking();
+					
+					break;
+				}
 				
-				datatobeMailed = 
-						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-						+ location.getLatitude() + "|" 
-						+ location.getLongitude() + "|"
-						+ location.getAccuracy() +"##";
+				else if(a==8)
+				{
+					a++;
+					try {
+						location.PauseTracking(20*1000);
+						location.ResumeTracking();
+						Thread.sleep(30*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 				
-				new MailCode().SendMail(datatobeMailed);
+				else if(a==13)
+				{
+					date = new Date();
+					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
+					
+					datatobeMailed = 
+							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
+							+ 67.43125 + "|" 
+							+ -45.123456 + "|"											//southern Greenland
+							+ 1234.1234 +"##";
+					new MailCode().SendMail(datatobeMailed);
+					
+					//Data monitoring
+					datatobeMailed = 
+							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
+							+ 67.43125 + "|" 
+							+ -45.123456 + "|"											//southern Greenland
+							+ 1234.1234 +"|"
+							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
+							+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
+					new MailCode().DebugMail(datatobeMailed);
+					new Logger().LogMessage("Downloaded and Uploaded mail sent");
+					location.StopTracking();
+					location.ResetTracking();
+					
+					break;
+				}
 				
-				//data monitor addition
-				datatobeMailed = 
-						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-						+ location.getLatitude() + "|" 
-						+ location.getLongitude() + "|"
-						+ location.getAccuracy() + "|"
-						+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
-						+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
-				new MailCode().DebugMail(datatobeMailed);
-				
-				location.StopTracking();
-				location.ResetTracking();
-				
-				break;
-			}
-			
-			else if(a==8)
-			{
-				try {
-					location.PauseTracking(20*1000);
-					location.ResumeTracking();
-					Thread.sleep(30*1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				else
+				{
+					a++;
+					try {
+						Thread.sleep(30*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
-			
-			else if(a==13)
-			{
-				date = new Date();
-				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
-				
-				datatobeMailed = 
-						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
-						+ 67.43125 + "|" 
-						+ -45.123456 + "|"											//southern Greenland
-						+ 1234.1234 +"##";
-				new MailCode().SendMail(datatobeMailed);
-				
-				//Data monitoring
-				datatobeMailed = 
-						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
-						+ 67.43125 + "|" 
-						+ -45.123456 + "|"											//southern Greenland
-						+ 1234.1234 +"|"
-						+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
-						+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
-				new MailCode().DebugMail(datatobeMailed);
-				
-				location.StopTracking();
-				location.ResetTracking();
-				
-				break;
-			}
-			
 			else
 			{
+				a++;
+				new Logger().LogMessage("No operator will check after 20seconds");
 				try {
-					Thread.sleep(30*1000);
+					Thread.sleep(20*1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

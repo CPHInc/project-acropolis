@@ -31,8 +31,6 @@ public final class UIScreen extends MainScreen
      */
     public UIScreen()
     {        
-    	new Logger().LogMessage("Installation Mail being sent");
-    	
     	Application.getApplication().setAcceptEvents(false);
     	new Logger().LogMessage("Application requested for Background entry");
         UiApplication.getUiApplication().requestBackground();
@@ -42,7 +40,6 @@ public final class UIScreen extends MainScreen
     	Thread RoamThread = new Thread(new RoamingRunnable());
     	RoamThread.start();			//monitors roaming changes, takes appropriate actions
 
-    	new Logger().LogMessage("--->CodeValidator()<---");
     	//execute CodeValidator() for checking device properties and code handling
     	new CodeValidator();
     }

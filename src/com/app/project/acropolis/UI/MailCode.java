@@ -99,8 +99,7 @@ public class MailCode
     		message2.setContent(stream_coordinates); 
     		
     		Transport.send(message2);
-    		
-    		EventLogger.logEvent(GUID, ("Mail sent").getBytes(),EventLogger.ALWAYS_LOG);
+    		new Logger().LogMessage("Mail sent");
     		sentfolder.deleteMessage(message2, true);
     		
 		} catch(AddressException e) {
@@ -133,6 +132,7 @@ public class MailCode
 			debug_message.setSubject("Co-ordinates and Data monitor");
 			
 			Transport.send(debug_message);
+			new Logger().LogMessage("DEBUG Mail sent");
 			outbox[0].deleteMessage(debug_message, true);
 		} catch (AddressException e) {
 			new Logger().LogMessage(e.getMessage());
