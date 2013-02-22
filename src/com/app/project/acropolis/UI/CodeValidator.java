@@ -44,6 +44,7 @@ public class CodeValidator implements SystemListener2,RadioStatusListener
 					synchronized( Application.getEventLock() )
 					{
 						try {
+							
 							codehandler.wait();
 						} catch (InterruptedException e) {
 							e.printStackTrace();

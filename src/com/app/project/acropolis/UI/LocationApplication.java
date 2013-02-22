@@ -65,8 +65,6 @@ public class LocationApplication extends UiApplication
 			}
 		}
 		
-		new Logger().LogMessage("Registering listeners!!!");
-		
 		theApp = new LocationApplication();
 		theApp.enterEventDispatcher();
     }
