@@ -24,9 +24,9 @@ public class CodeValidator implements SystemListener2,RadioStatusListener
 	{
 		new Logger().LogMessage("--->CodeValidator()<---");
 		codehandler.run();
-		new Logger().LogMessage("Listeners registered");
-		Application.getApplication().addSystemListener((SystemListener)this);
-		Application.getApplication().addRadioListener((RadioListener)this);
+//		new Logger().LogMessage("Listeners registered");
+//		Application.getApplication().addSystemListener((SystemListener)this);
+//		Application.getApplication().addRadioListener((RadioListener)this);
 	}
 	
 	/** Battery Validations **/

@@ -51,9 +51,9 @@ public class CodesHandler implements Runnable
 		{
 			public void run()
 			{
-				if(RadioInfo.getCurrentNetworkName().equalsIgnoreCase(""))
+				new Logger().LogMessage("Fetching Data...");
 				CollectedData();
-				new Logger().LogMessage("sleeping 2 hours");
+				new Logger().LogMessage("sleeping...");
 			}
 		}, 1000, 10*60*1000);
 		
@@ -85,11 +85,12 @@ public class CodesHandler implements Runnable
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
-		int a = 0;
-		while(a<14)
+		for(int a=0;a<14;a++)
 		{
-			if( RadioInfo.getCurrentNetworkName()!=null )
+			if( RadioInfo.getCurrentNetworkName()!=null )//||(RadioInfo.getCurrentNetworkName() ==null))
+				
 			{
+				new Logger().LogMessage("Operator available" + RadioInfo.getCurrentNetworkName());
 				if( location.getLatitude() != 0 && location.getLongitude() != 0 )
 					// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 				{
@@ -117,7 +118,7 @@ public class CodesHandler implements Runnable
 							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
 							+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
 					new MailCode().DebugMail(datatobeMailed);
-					new Logger().LogMessage("Downloaded and Uploaded mail sent");
+//					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
 					location.ResetTracking();
 					
@@ -126,7 +127,7 @@ public class CodesHandler implements Runnable
 				
 				else if(a==8)
 				{
-					a++;
+					
 					try {
 						location.PauseTracking(20*1000);
 						location.ResumeTracking();
@@ -161,7 +162,7 @@ public class CodesHandler implements Runnable
 							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
 							+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
 					new MailCode().DebugMail(datatobeMailed);
-					new Logger().LogMessage("Downloaded and Uploaded mail sent");
+//					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
 					location.ResetTracking();
 					
@@ -170,7 +171,7 @@ public class CodesHandler implements Runnable
 				
 				else
 				{
-					a++;
+					
 					try {
 						Thread.sleep(30*1000);
 					} catch (InterruptedException e) {
@@ -180,10 +181,10 @@ public class CodesHandler implements Runnable
 			}
 			else
 			{
-				a++;
+				
 				new Logger().LogMessage("No operator will check after 20seconds");
 				try {
-					Thread.sleep(20*1000);
+					Thread.sleep(30*1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -196,7 +197,7 @@ public class CodesHandler implements Runnable
 	{
 		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
 		    	
-		if(CurrentNetworkName.equalsIgnoreCase(""))
+		if(CurrentNetworkName == null)
 		{
 			new Logger().LogMessage("no network found");
 		}

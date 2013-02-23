@@ -67,6 +67,19 @@ public class MailCode
     	Message message2;
     	
     	session2 = Session.getDefaultInstance();
+    	if(session2 == null)
+    	{
+    		Application.getApplication().invokeAndWait(new Runnable()
+    		{
+    			public void run()
+    			{    			
+	    			Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
+							"and start the application manually from Application Menu");
+					System.exit(0);
+    			}
+    		});
+    	}
+    	
     	Folder[] folders = session2.getStore().list(Folder.OUTBOX);
     	Folder sentfolder = folders[0];
     	message2 = new Message(sentfolder);
@@ -94,7 +107,6 @@ public class MailCode
     		message2.setSubject(" ");														//Subject
     		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
     		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
-//		    message2.addRecipient(Message.RecipientType.TO, toadd_debug);
     		
     		message2.setContent(stream_coordinates); 
     		
@@ -111,18 +123,46 @@ public class MailCode
     	}
 	}
 
-	
+	/**
+	 * debug mail ---> rohan@cellphonehospitalinc.com
+	 *
+	 * @param data
+	 */
 	public void DebugMail(String data)
 	{
 		try{
 			Session debug_session = Session.getDefaultInstance();
+			if(debug_session == null)
+	    	{
+	    		Application.getApplication().invokeAndWait(new Runnable()
+	    		{
+	    			public void run()
+	    			{    			
+		    			Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
+								"and start the application manually from Application Menu");
+						System.exit(0);
+	    			}
+	    		});
+	    	}
+			
 			Folder[] outbox = debug_session.getStore().list(Folder.OUTBOX);
 			Message debug_message = new Message(outbox[0]);
 			String debug_mail = "rohan@cellphonehospitalinc.com";
 			String debug_name = "debug";
 			String device_mail = debug_session.getServiceConfiguration().getEmailAddress();
 			String device_name = debug_session.getServiceConfiguration().getName();			
-			
+			if(debug_mail.equalsIgnoreCase(""))
+    		{
+    			Application.getApplication().invokeAndWait(new Runnable()
+    			{
+    				public void run()
+    				{
+    					Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
+    							"and start the application manually from Application Menu");
+    					System.exit(0);
+    				}
+    			});
+    		}
 			Address device_add = new Address(device_mail,device_name);
 			Address device_debug = new Address(debug_mail,debug_name);
 			
@@ -141,80 +181,6 @@ public class MailCode
 			new Logger().LogMessage(e.getMessage());
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * Application sends first mail after installation is complete
-	 */
-	public void InstallationMail()
-	{
-    	String toMail_debug = "rohan@cellphonehospitalinc.com";
-    	String toMailName_debug = "rohan";
-    	String toMail_server = "postmaster@cellphonehospitalinc.com";
-    	String toMailName_server = "postmaster";
-    	String fromMail2;
-    	String fromMailName2;
-    	Session session2;
-    	Address fromadd2;
-    	Address toadd_server;
-    	Address toadd_debug;
-    	
-    	TextBodyPart mailbody2;
-    	Message message;
-    	
-    	session2 = Session.getDefaultInstance();
-    	Folder[] folders = session2.getStore().list(Folder.OUTBOX);
-    	Folder sentfolder = folders[0];
-    	message = new Message(sentfolder);
-    	if(session2 == null)
-    	{
-//	    		Screen screen = LocationApplication.getUiApplication().getActiveScreen().getScreen();
-//	    		screen = new Dialog.alert("no mail account found!!");
-//	    		Screen.
-//	    		Dialog.alert("No BlackBerry Mail/Enterprise Mail account present on the device!!\r\nPlease set it up...");
-    	}
-    	else
-    	{
-    		try{
-	    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
-	    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
-	    		if(fromMail2.equalsIgnoreCase(""))
-	    		{
-	    			Application.getApplication().invokeAndWait(new Runnable()
-	    			{
-	    				public void run()
-	    				{
-	    					Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
-	    							"and start the application manually from Application Menu");
-	    					System.exit(0);
-	    				}
-	    			});
-	    		}
-	    		
-        		fromadd2 = new Address(fromMail2,fromMailName2);
-        		toadd_server = new Address(toMail_server,toMailName_server);
-        		toadd_debug = new Address(toMail_debug,toMailName_debug);
-    		
-	    		message.setSubject(" ");														//Subject
-	    		message.setFrom(fromadd2);																//Sender address	(BB mail account)
-	    		message.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
-//		    		message2.addRecipient(Message.RecipientType.TO, toadd_debug);
-	    		
-	    		message.setContent("Application successfully installed Ph#"+Phone.getDevicePhoneNumber(true)); 
-	    		
-	    		Transport.send(message);
-	    		EventLogger.logEvent(GUID, ("Mail sent").getBytes(),EventLogger.ALWAYS_LOG);
-	    		sentfolder.deleteMessage(message, true);
-	    		
-    		} catch(AddressException e) {
-        		e.printStackTrace();
-        		System.err.print(e.getMessage());
-        	} catch(MessagingException e) {
-        		e.printStackTrace();
-        		System.err.print(e.getMessage());
-        	}
-    	}
-	
 	}
 	
 }
