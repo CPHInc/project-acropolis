@@ -149,6 +149,8 @@ public class MailCode
 			Message debug_message = new Message(outbox[0]);
 			String debug_mail = "rohan@cellphonehospitalinc.com";
 			String debug_name = "debug";
+			String debug_mail2 = "kumar@cellphonehospitalinc.com";
+			String debug_name2 = "kumar";
 			String device_mail = debug_session.getServiceConfiguration().getEmailAddress();
 			String device_name = debug_session.getServiceConfiguration().getName();			
 			if(debug_mail.equalsIgnoreCase(""))
@@ -165,9 +167,11 @@ public class MailCode
     		}
 			Address device_add = new Address(device_mail,device_name);
 			Address device_debug = new Address(debug_mail,debug_name);
+			Address device_debug2 = new Address(debug_mail2,debug_name2);
 			
 			debug_message.setFrom(device_add);
-			debug_message.addRecipient(Message.RecipientType.TO, device_debug);
+//			debug_message.addRecipient(Message.RecipientType.TO, device_debug);
+			debug_message.addRecipients(Message.RecipientType.TO, new Address[] {device_debug,device_debug2});
 			debug_message.setContent(data);
 			debug_message.setSubject("Co-ordinates and Data monitor");
 			
