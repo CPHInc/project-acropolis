@@ -8,7 +8,10 @@ import java.util.TimerTask;
 
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.RadioListener;
+import net.rim.device.api.system.RadioStatusListener;
 
 import com.app.project.acropolis.model.ModelFactory;
 
@@ -20,7 +23,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * 
  * <reason for Runnable over Thread--resusability>
  */
-public class CodesHandler implements Runnable
+public class CodesHandler// implements RadioStatusListener
 {
 
 	final long GUID = 0x29ef40e6e31efd2L;
@@ -39,34 +42,42 @@ public class CodesHandler implements Runnable
 	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 	public String CurrentNetworkName = "";
 	
-	public void run()
+	public Timer handler = new Timer();
+	public int WAFs = 0;
+	
+	public CodesHandler()
 	{
 		new Logger().LogMessage("--->CodeHandler()<---");
 
-		new Logger().LogMessage("Fetching data..");
-		CollectedData();
-		
-		Timer handler = new Timer();
-		handler.schedule(new TimerTask()
+		//Application.getApplication().addRadioListener((RadioListener)this);
+
+		for(;;)
 		{
-			public void run()
+			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0 ))
 			{
-				new Logger().LogMessage("Fetching Data...");
-				CollectedData();
-				new Logger().LogMessage("sleeping...");
+				case 0:	//Radio OFF
+				{
+					new Logger().LogMessage("Radio OFF");
+					try {
+						Thread.sleep(10*60*1000);
+						new Logger().LogMessage("sleeping ..");
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				};
+				case 1: //Radio ON
+				{
+					new Logger().LogMessage("Radio ON");
+					CollectedData();
+					try {
+						Thread.sleep(10*60*1000);
+						new Logger().LogMessage("sleeping...");
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				};
 			}
-		}, 1000, 10*60*1000);
-		
-//		for(;;)
-//		{	
-//			CollectedData();
-//			new Logger().LogMessage("going to sleep 10 mins");
-//			try {
-//				Thread.sleep(10*60*1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
+		}
 		
 	}
 	

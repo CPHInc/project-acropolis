@@ -30,14 +30,14 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 	
 	public void run()
 	{
-		new CodesHandler().run();
+		new CodeValidator();
 		
 		Timer timer = new Timer();
 		timer.schedule(new TimerTask() 
 		{
 			public void run()
 			{
-				new CodesHandler().run();
+				new CodeValidator();
 			}
 		}, 1000, 1*60*60*1000);
 		

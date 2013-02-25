@@ -45,9 +45,6 @@ public class LocationApplication extends UiApplication
 	public static boolean Radio = false;
 	public static boolean Power = false;
 	
-	static Thread codeThread = new Thread(new CodesHandler());
-   	static CodesHandler code = new CodesHandler();
-	
    	public static ModelFactory model = new ModelFactory();
 	static UiApplication theApp;// = new LocationApplication();
 	
