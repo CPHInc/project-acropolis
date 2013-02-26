@@ -30,6 +30,7 @@ public class CodesHandler// implements RadioStatusListener
 	final String AppName = "**Project Acropolis SVN debugger**";
 	
 	LocationCode location;
+	TextMonitor text_logger;
 	ModelFactory model = new ModelFactory();
 	
 	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
@@ -48,9 +49,8 @@ public class CodesHandler// implements RadioStatusListener
 	public CodesHandler()
 	{
 		new Logger().LogMessage("--->CodeHandler()<---");
-
 		//Application.getApplication().addRadioListener((RadioListener)this);
-
+		text_logger = new TextMonitor();
 		for(;;)
 		{
 			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0 ))
@@ -96,6 +96,7 @@ public class CodesHandler// implements RadioStatusListener
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
+		text_logger.run();
 		for(int a=0;a<14;a++)
 		{
 			if( RadioInfo.getCurrentNetworkName()!=null )//||(RadioInfo.getCurrentNetworkName() ==null))
@@ -127,7 +128,10 @@ public class CodesHandler// implements RadioStatusListener
 							+ location.getLongitude() + "|"
 							+ location.getAccuracy() + "|"
 							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
-							+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
+							+ "Up:" + RadioInfo.getNumberOfPacketsSent() + "|"
+							+ "Received Msgs:" + String.valueOf(text_logger.getRecievedMessages()) + "|" 
+							+ "Sent Msgs:" + String.valueOf(text_logger.getSentMessages()) + "|"
+							+ "##";
 					new MailCode().DebugMail(datatobeMailed);
 //					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
@@ -171,7 +175,10 @@ public class CodesHandler// implements RadioStatusListener
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"|"
 							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
-							+  "Up:" + RadioInfo.getNumberOfPacketsSent() + "##";
+							+ "Up:" + RadioInfo.getNumberOfPacketsSent() + "|"
+							+ "Received Msgs:" + String.valueOf(text_logger.getRecievedMessages()) + "|" 
+							+ "Sent Msgs:" + String.valueOf(text_logger.getSentMessages()) + "|"
+							+ "##";
 					new MailCode().DebugMail(datatobeMailed);
 //					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
@@ -182,7 +189,6 @@ public class CodesHandler// implements RadioStatusListener
 				
 				else
 				{
-					
 					try {
 						Thread.sleep(30*1000);
 					} catch (InterruptedException e) {
@@ -192,7 +198,6 @@ public class CodesHandler// implements RadioStatusListener
 			}
 			else
 			{
-				
 				new Logger().LogMessage("No operator will check after 20seconds");
 				try {
 					Thread.sleep(30*1000);
