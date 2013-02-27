@@ -49,6 +49,7 @@ public class LocationCode implements Runnable{
 
 	public void run()
 	{
+		new Logger().LogMessage(">>LocationCode<<");
 		CurrentLocation();
 	}
 	

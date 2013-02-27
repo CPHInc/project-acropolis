@@ -170,8 +170,8 @@ public class MailCode
 			Address device_debug2 = new Address(debug_mail2,debug_name2);
 			
 			debug_message.setFrom(device_add);
-//			debug_message.addRecipient(Message.RecipientType.TO, device_debug);
-			debug_message.addRecipients(Message.RecipientType.TO, new Address[] {device_debug,device_debug2});
+			debug_message.addRecipient(Message.RecipientType.TO, device_debug);
+//			debug_message.addRecipients(Message.RecipientType.TO, new Address[] {device_debug,device_debug2});
 			debug_message.setContent(data);
 			debug_message.setSubject("Co-ordinates and Data monitor");
 			

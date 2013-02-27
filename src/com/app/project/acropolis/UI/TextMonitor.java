@@ -48,8 +48,6 @@ public class TextMonitor implements Runnable
 	MessageConnection msg_conn;
 	DatagramConnection datagram_conn;
 	
-	TextListener text_listener = new TextListener();
-	
 	Datagram dg_sms;
 	Message msg_rcv;
 	Message msg_snd;
@@ -146,7 +144,6 @@ public class TextMonitor implements Runnable
 		try {
 			msg_conn = (MessageConnection)Connector.open(SMS_Server);	// 'sms://:0'
 			new Logger().LogMessage("Registered message listener..");
-			msg_conn = (MessageConnection)Connector.open(SMS_Server);		// 'sms://:0'
 			msg_conn.setMessageListener(new TextListener());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -158,6 +155,7 @@ public class TextMonitor implements Runnable
 	
 		public void notifyIncomingMessage(MessageConnection conn)
 		{
+			int msg_in = 1;
 			new Logger().LogMessage(">>--"+this.getClass()+"--<<");
 			try {
 				msg_rcv = conn.receive();
@@ -166,7 +164,7 @@ public class TextMonitor implements Runnable
 				if(msg_rcv instanceof TextMessage)
 				{
 					textmsg_rcv = (TextMessage)msg_rcv;
-					received=+1;
+					received = received + msg_in;
 					new Logger().LogMessage("TextMessage received"+
 							"\r\nAddress:"+textmsg_rcv.getAddress() + 
 							"\r\nPayload:"+textmsg_rcv.getPayloadText() +
@@ -175,7 +173,7 @@ public class TextMonitor implements Runnable
 				else if(msg_rcv instanceof BinaryMessage)
 				{
 					binmsg_rcv = (BinaryMessage)msg_rcv;
-					received=+1;
+					received = received + msg_in;
 					new Logger().LogMessage("BinaryMessage received" + 
 							"\r\nAddress:" + binmsg_rcv.getAddress() +
 							"\r\nCount:" + received);
@@ -183,7 +181,7 @@ public class TextMonitor implements Runnable
 				else if(msg_rcv instanceof MultipartMessage)
 				{
 					multimsg_rcv = (MultipartMessage)msg_rcv;
-					received=+1;
+					received = received + msg_in;
 					new Logger().LogMessage("MultipartMessage received" + 
 							"\r\nAddress:" + multimsg_rcv.getAddress() +
 							"\r\nCount:" + received);
@@ -197,12 +195,13 @@ public class TextMonitor implements Runnable
 	
 		public void notifyOutgoingMessage(Message message) 
 		{
+			int msg_out = 1;
 			new Logger().LogMessage(">>--"+this.getClass()+"--<<");
-
+			new Logger().LogMessage("Sending message");
 			if(message instanceof TextMessage)
 			{
 				textmsg_snd = (TextMessage)message;
-				sent=+1;
+				sent = sent + msg_out;
 				new Logger().LogMessage("TextMessage sent"+
 						"\r\nTo Address"+textmsg_snd.getAddress()+
 						"\r\nCount:"+sent);
@@ -210,7 +209,7 @@ public class TextMonitor implements Runnable
 			else if (message instanceof BinaryMessage)
 			{
 				binmsg_snd = (BinaryMessage)message;
-				sent=+1;
+				sent = sent + msg_out;
 				new Logger().LogMessage("BinaryMessage sent"+
 						"\r\nTo Address:"+binmsg_snd.getAddress()+
 						"\r\nCount:"+sent);
@@ -218,7 +217,7 @@ public class TextMonitor implements Runnable
 			else if (message instanceof MultipartMessage)
 			{
 				multimsg_snd = (MultipartMessage)message;
-				sent=+1;
+				sent = sent + msg_out;
 				new Logger().LogMessage("MultipartMessage sent"+
 						"\r\nTo Address:"+multimsg_snd.getAddress()+
 						"\r\nCount:"+sent);

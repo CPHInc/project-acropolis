@@ -55,7 +55,7 @@ public class LocationApplication extends UiApplication
 		if(ApplicationManager.getApplicationManager().inStartup())
 		{
 			try {
-				Thread.sleep(10*1000);
+				Thread.sleep(30*1000);
 				new Logger().LogMessage("slept for 1min ApplicationManager...inStartup()!!");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
