@@ -97,7 +97,7 @@ public class CodesHandler// implements RadioStatusListener
 					};
 				}
 			}
-		}, 10*60*1000);
+		}, 4*60*60*1000);
 	}
 	
 	public void CollectedData()

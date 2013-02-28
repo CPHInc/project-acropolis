@@ -1,11 +1,6 @@
 package com.app.project.acropolis.UI;
 
-import net.rim.device.api.system.Application;
-import net.rim.device.api.system.DeviceInfo;
-import net.rim.device.api.system.RadioListener;
-import net.rim.device.api.system.RadioStatusListener;
-import net.rim.device.api.system.SystemListener;
-import net.rim.device.api.system.SystemListener2;
+import com.app.project.acropolis.model.ModelFactory;
 
 public class CodeValidator
 {
@@ -18,9 +13,15 @@ public class CodeValidator
 	final int CHANGE_LEVEL_BATTERY = 2;
 	final int EXTERNAL_POWER = 4;
 	
+	public ModelFactory theModel;
+	
 	public CodeValidator()
 	{
 		new Logger().LogMessage("--->CodeValidator()<---");
+		
+		theModel = new ModelFactory();
+		theModel.UpdateData("received","45");
+		theModel.SelectData("received");
 		
 		new CodesHandler();
 	}
