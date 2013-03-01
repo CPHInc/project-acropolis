@@ -80,25 +80,40 @@ public class CodesHandler// implements RadioStatusListener
 			}
 		}
 		
-		new Timer().schedule(new TimerTask() {
-			public void run()
-			{
+//		new Timer().schedule(new TimerTask() {
+//			public void run()
+//			{
+		for(;;)
+		{
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
 					case 0:	//Radio OFF
 					{
 						new Logger().LogMessage("Radio OFF");
 						new Logger().LogMessage("sleeping ..");
+						try {
+							Thread.sleep(3*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						new Logger().LogMessage("woke up ..");
 					};
 					case 1: //Radio ON
 					{
 						new Logger().LogMessage("Radio ON");
 						CollectedData();
 						new Logger().LogMessage("sleeping...");
+						try {
+							Thread.sleep(3*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						} 
+						new Logger().LogMessage("woke up...");
 					};
 				}
-			}
-		}, 1*60*60*1000);
+		}
+//			}
+//		}, 1*60*60*1000);
 	}
 	
 	public void CollectedData()

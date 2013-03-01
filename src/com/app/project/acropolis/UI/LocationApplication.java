@@ -16,6 +16,7 @@ import net.rim.device.api.io.URI;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.ApplicationManagerException;
 import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.system.SystemListener;
@@ -67,8 +68,23 @@ public class LocationApplication extends UiApplication
 	
 	public static void main(String[] args)
     {
-		ApplicationManager.getApplicationManager().setCurrentPowerOnBehavior(ApplicationDescriptor.FLAG_RUN_ON_STARTUP);
+		
+		ApplicationDescriptor descriptor = new ApplicationDescriptor(
+				ApplicationDescriptor.currentApplicationDescriptor(),
+				ApplicationDescriptor.currentApplicationDescriptor().getName(),
+				ApplicationDescriptor.currentApplicationDescriptor().getArgs(),
+				ApplicationDescriptor.currentApplicationDescriptor().getPosition(),
+				ApplicationDescriptor.currentApplicationDescriptor().getNameResourceBundle(),
+				ApplicationDescriptor.currentApplicationDescriptor().getNameResourceId(),
+				ApplicationDescriptor.FLAG_SYSTEM | ApplicationDescriptor.FLAG_RUN_ON_STARTUP
+			);
 	
+		try {
+			ApplicationManager.getApplicationManager().runApplication(descriptor);
+		} catch (ApplicationManagerException e) {
+			e.printStackTrace();
+		}
+		
 		if(ApplicationManager.getApplicationManager().inStartup())
 		{
 			try {

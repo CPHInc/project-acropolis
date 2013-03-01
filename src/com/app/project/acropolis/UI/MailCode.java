@@ -3,14 +3,14 @@ package com.app.project.acropolis.UI;
 import net.rim.blackberry.api.mail.Address;
 import net.rim.blackberry.api.mail.AddressException;
 import net.rim.blackberry.api.mail.Folder;
-import net.rim.blackberry.api.mail.FolderNotFoundException;
 import net.rim.blackberry.api.mail.Message;
 import net.rim.blackberry.api.mail.MessagingException;
 import net.rim.blackberry.api.mail.ServiceConfiguration;
 import net.rim.blackberry.api.mail.Session;
 import net.rim.blackberry.api.mail.TextBodyPart;
 import net.rim.blackberry.api.mail.Transport;
-import net.rim.blackberry.api.phone.Phone;
+import net.rim.blackberry.api.mail.event.FolderEvent;
+import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.ui.component.Dialog;
@@ -184,6 +184,61 @@ public class MailCode
 		} catch (MessagingException e) {
 			new Logger().LogMessage(e.getMessage());
 			e.printStackTrace();
+		}
+	}
+	
+	String in_Mail = "rohan@cellphonehospitalinc.com";
+	String in_Name = "Rohan K Mahendroo";
+	String in_Mail_server = "postmaster@cellphonehospitalinc.com";
+	String in_Name_server = "postmaster";
+	String device_Mail = "";
+	String device_Name = "";
+	String incoming_subject = "";
+	String incoming_content = "";
+	
+	public void ReadMail()
+	{
+		try{
+			Session read_session = Session.getDefaultInstance();
+			Address in_Address = new Address(in_Mail,in_Name);
+			Folder[] read_folder = read_session.getStore().list(Folder.INBOX);
+			Folder inbox = read_folder[0];
+			Message read_message = new Message(inbox);
+			
+			device_Mail = read_session.getServiceConfiguration().getEmailAddress();
+			device_Name = read_session.getServiceConfiguration().getName();
+			inbox.addFolderListener(new FolderListener()
+			{
+				public void messagesAdded(FolderEvent e) {
+					try{
+						if(e.getType() == FolderEvent.MESSAGE_ADDED)
+						{
+							new Logger().LogMessage("new incoming mail");
+							if(e.getMessage().getFrom().getAddr().equalsIgnoreCase(in_Mail) ||  
+									e.getMessage().getFrom().getAddr().equalsIgnoreCase(in_Mail_server))
+							{
+								new Logger().LogMessage("inmail address:"+e.getMessage().getFrom().getAddr());
+								if( e.getMessage().getSubject().equalsIgnoreCase("Device Plan Details") )
+								{
+									incoming_content = e.getMessage().getBodyText();
+									new Logger().LogMessage("Content::"+incoming_content);
+								}
+							}
+						}
+					} catch(MessagingException e1) {
+						e1.printStackTrace();
+						new Logger().LogMessage("Messaging Exception:"+e1.getClass()+"::"+e1.getMessage());
+					}
+				}
+	
+				public void messagesRemoved(FolderEvent e) 
+				{
+				}
+			});
+			
+		} catch(MessagingException e) {
+			e.printStackTrace();
+			new Logger().LogMessage("Messaging Exception:"+e.getClass()+"::"+e.getMessage());
 		}
 	}
 	
