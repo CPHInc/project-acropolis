@@ -3,8 +3,10 @@ import net.rim.blackberry.api.phone.AbstractPhoneListener;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.blackberry.api.phone.PhoneCall;
 
+import com.app.project.acropolis.model.ModelFactory;
 
-public class CallMonitor implements Runnable
+
+public class CallMonitor //implements Runnable
 {
 
 	public boolean Incoming = false;
@@ -17,8 +19,11 @@ public class CallMonitor implements Runnable
 	public int IN_minutes = 0;
 	public int OUT_minutes = 0;
 	
-	public void run()
+	ModelFactory theModel;
+	
+	public CallMonitor()
 	{
+		theModel = new ModelFactory();
 		new Logger().LogMessage(">CallMonitor<");
 		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
 	}
@@ -62,15 +67,18 @@ public class CallMonitor implements Runnable
 			if(Outgoing)
 			{
 				out = call.getElapsedTime();
+				OUT_minutes = Integer.parseInt(theModel.SelectData("outgoing"));
 				new Logger().LogMessage("out minutes:"+out);
 				OUT_minutes = OUT_minutes + out;
-				
+				theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
 			}
 			else if(Incoming)
 			{
 				in = call.getElapsedTime();
+				IN_minutes = Integer.parseInt(theModel.SelectData("incoming"));
 				new Logger().LogMessage("in minutes:"+in);
 				IN_minutes = IN_minutes + in;
+				theModel.UpdateData("incoming", String.valueOf(IN_minutes));
 			}
 			
 		}

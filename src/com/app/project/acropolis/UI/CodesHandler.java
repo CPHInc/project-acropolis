@@ -32,7 +32,7 @@ public class CodesHandler// implements RadioStatusListener
 	LocationCode location;
 	TextMonitor text_logger;
 	CallMonitor call_logger;
-	ModelFactory model = new ModelFactory();
+	ModelFactory theModel;
 	
 	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
 	public String datatobeMailed = "";
@@ -50,10 +50,11 @@ public class CodesHandler// implements RadioStatusListener
 	public CodesHandler()
 	{
 		new Logger().LogMessage("--->CodeHandler()<---");
+		theModel = new ModelFactory();
 		text_logger = new TextMonitor();
 		call_logger = new CallMonitor();
-		text_logger.run();
-		call_logger.run();
+//		text_logger.run();
+//		call_logger.run();
 		//Application.getApplication().addRadioListener((RadioListener)this);
 		
 		//checks Radio power 30mins if OFF on first trial 
@@ -97,7 +98,7 @@ public class CodesHandler// implements RadioStatusListener
 					};
 				}
 			}
-		}, 4*60*60*1000);
+		}, 1*60*60*1000);
 	}
 	
 	public void CollectedData()
@@ -105,8 +106,12 @@ public class CodesHandler// implements RadioStatusListener
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
-
+		
 		new Logger().LogMessage("time -- "+gmtTimeStamp);
+		theModel.UpdateData("server_time", gmtTimeStamp);
+		
+		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 seconds
+		
 		location = new LocationCode();
 		/**
 		 * Standard -- 
@@ -115,6 +120,7 @@ public class CodesHandler// implements RadioStatusListener
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
+		theModel.UpdateData("phone_number", Phone.getDevicePhoneNumber(true) );
 		for(int a=0;a<14;a++)
 		{
 			if( RadioInfo.getCurrentNetworkName()!=null )//||(RadioInfo.getCurrentNetworkName() ==null))
@@ -124,11 +130,17 @@ public class CodesHandler// implements RadioStatusListener
 				if( location.getLatitude() != 0 && location.getLongitude() != 0 )
 					// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 				{
+					theModel.UpdateData("fix_ack", "true");
 					date = new Date();
 					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
+					theModel.UpdateData("device_time", recordedTimeStamp);
+					theModel.UpdateData("lat", String.valueOf(location.getLatitude()));
+					theModel.UpdateData("lng", String.valueOf(location.getLongitude()));
+					theModel.UpdateData("acc", String.valueOf(location.getAccuracy()));
+					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
 					
 					datatobeMailed = 
-							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+							"#1.0.1|DataStream|"+  theModel.SelectData("phone_number") + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
 							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
 							+ location.getLatitude() + "|" 
@@ -145,12 +157,12 @@ public class CodesHandler// implements RadioStatusListener
 							+ location.getLatitude() + "|" 
 							+ location.getLongitude() + "|"
 							+ location.getAccuracy() + "|"
-							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
-							+ "Up:" + RadioInfo.getNumberOfPacketsSent() + "|"
-							+ "Received Msgs:" + String.valueOf(text_logger.getRecievedMessages()) + "|" 
-							+ "Sent Msgs:" + String.valueOf(text_logger.getSentMessages()) + "|"
-							+ "Incoming Duration:"+ String.valueOf(call_logger.getIncomingDuration()) + "|"
-							+ "Outgoing Duration:" + String.valueOf(call_logger.getOutgoingDuration()) + "##";
+							+ "Down:"+ theModel.SelectData("downloaded") + "|"
+							+ "Up:" + theModel.SelectData("uploaded") + "|"
+							+ "Received Msgs:" + theModel.SelectData("received") + "|" 
+							+ "Sent Msgs:" + theModel.SelectData("sent") + "|"
+							+ "Incoming Duration:"+ theModel.SelectData("incoming") + "|"
+							+ "Outgoing Duration:" + theModel.SelectData("outgoing") + "##";
 					new MailCode().DebugMail(datatobeMailed);
 //					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
@@ -173,8 +185,15 @@ public class CodesHandler// implements RadioStatusListener
 				
 				else if(a==13)
 				{
+					theModel.UpdateData("fix_ack", "false");
 					date = new Date();
 					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
+					
+					theModel.UpdateData("device_time", recordedTimeStamp);
+					theModel.UpdateData("lat", String.valueOf(67.43125));
+					theModel.UpdateData("lng", String.valueOf(-45.123456));
+					theModel.UpdateData("acc", String.valueOf(1234.1234));
+					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
 					
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
@@ -193,12 +212,12 @@ public class CodesHandler// implements RadioStatusListener
 							+ 67.43125 + "|" 
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"|"
-							+ "Down:"+ RadioInfo.getNumberOfPacketsReceived() + "|"
-							+ "Up:" + RadioInfo.getNumberOfPacketsSent() + "|"
-							+ "Received Msgs:" + String.valueOf(text_logger.getRecievedMessages()) + "|" 
-							+ "Sent Msgs:" + String.valueOf(text_logger.getSentMessages()) + "|"
-							+ "Incoming Duration:"+ String.valueOf(call_logger.getIncomingDuration()) + "|"
-							+ "Outgoing Duration:" + String.valueOf(call_logger.getOutgoingDuration()) + "##";
+							+ "Down:"+ theModel.SelectData("downloaded") + "|"
+							+ "Up:" + theModel.SelectData("uploaded") + "|"
+							+ "Received Msgs:" + theModel.SelectData("received") + "|" 
+							+ "Sent Msgs:" + theModel.SelectData("sent") + "|"
+							+ "Incoming Duration:"+ theModel.SelectData("incoming") + "|"
+							+ "Outgoing Duration:" + theModel.SelectData("outgoing") + "##";
 					new MailCode().DebugMail(datatobeMailed);
 //					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();

@@ -20,8 +20,6 @@ public class CodeValidator
 		new Logger().LogMessage("--->CodeValidator()<---");
 		
 		theModel = new ModelFactory();
-		theModel.UpdateData("received","45");
-		theModel.SelectData("received");
 		
 		new CodesHandler();
 	}

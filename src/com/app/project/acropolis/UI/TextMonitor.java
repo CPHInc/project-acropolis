@@ -14,11 +14,13 @@ import javax.wireless.messaging.TextMessage;
 
 import net.rim.blackberry.api.sms.OutboundMessageListener;
 
+import com.app.project.acropolis.model.ModelFactory;
+
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  */
 
-public class TextMonitor implements Runnable
+public class TextMonitor //implements Runnable
 {
 	
 	/**
@@ -67,9 +69,12 @@ public class TextMonitor implements Runnable
 	public int sent = 0;
 	public int received = 0;
 
-	public void run()
+	ModelFactory theModel;
+	
+	public TextMonitor()
 	{
 		new Logger().LogMessage(">TextMonitor<");
+		theModel = new ModelFactory();
 		HandleMessageConnection();
 	}
 	
@@ -164,7 +169,9 @@ public class TextMonitor implements Runnable
 				if(msg_rcv instanceof TextMessage)
 				{
 					textmsg_rcv = (TextMessage)msg_rcv;
+					received = Integer.parseInt(theModel.SelectData("received"));
 					received = received + msg_in;
+					theModel.UpdateData("received", String.valueOf(received));
 					new Logger().LogMessage("TextMessage received"+
 							"\r\nAddress:"+textmsg_rcv.getAddress() + 
 							"\r\nPayload:"+textmsg_rcv.getPayloadText() +
@@ -173,7 +180,9 @@ public class TextMonitor implements Runnable
 				else if(msg_rcv instanceof BinaryMessage)
 				{
 					binmsg_rcv = (BinaryMessage)msg_rcv;
+					received = Integer.parseInt(theModel.SelectData("received"));
 					received = received + msg_in;
+					theModel.UpdateData("received", String.valueOf(received));
 					new Logger().LogMessage("BinaryMessage received" + 
 							"\r\nAddress:" + binmsg_rcv.getAddress() +
 							"\r\nCount:" + received);
@@ -181,7 +190,9 @@ public class TextMonitor implements Runnable
 				else if(msg_rcv instanceof MultipartMessage)
 				{
 					multimsg_rcv = (MultipartMessage)msg_rcv;
+					received = Integer.parseInt(theModel.SelectData("received"));
 					received = received + msg_in;
+					theModel.UpdateData("received", String.valueOf(received));
 					new Logger().LogMessage("MultipartMessage received" + 
 							"\r\nAddress:" + multimsg_rcv.getAddress() +
 							"\r\nCount:" + received);
@@ -201,7 +212,9 @@ public class TextMonitor implements Runnable
 			if(message instanceof TextMessage)
 			{
 				textmsg_snd = (TextMessage)message;
+				sent = Integer.parseInt(theModel.SelectData("sent"));
 				sent = sent + msg_out;
+				theModel.UpdateData("sent", String.valueOf(sent));
 				new Logger().LogMessage("TextMessage sent"+
 						"\r\nTo Address"+textmsg_snd.getAddress()+
 						"\r\nCount:"+sent);
@@ -209,7 +222,9 @@ public class TextMonitor implements Runnable
 			else if (message instanceof BinaryMessage)
 			{
 				binmsg_snd = (BinaryMessage)message;
+				sent = Integer.parseInt(theModel.SelectData("sent"));
 				sent = sent + msg_out;
+				theModel.UpdateData("sent", String.valueOf(sent));
 				new Logger().LogMessage("BinaryMessage sent"+
 						"\r\nTo Address:"+binmsg_snd.getAddress()+
 						"\r\nCount:"+sent);
@@ -217,7 +232,9 @@ public class TextMonitor implements Runnable
 			else if (message instanceof MultipartMessage)
 			{
 				multimsg_snd = (MultipartMessage)message;
+				sent = Integer.parseInt(theModel.SelectData("sent"));
 				sent = sent + msg_out;
+				theModel.UpdateData("sent", String.valueOf(sent));
 				new Logger().LogMessage("MultipartMessage sent"+
 						"\r\nTo Address:"+multimsg_snd.getAddress()+
 						"\r\nCount:"+sent);
@@ -225,15 +242,4 @@ public class TextMonitor implements Runnable
 		}
 	}
 	
-	public int getSentMessages()
-	{
-		new Logger().LogMessage("saved sent count:"+sent);
-		return sent;
-	}
-	
-	public int getRecievedMessages()
-	{
-		new Logger().LogMessage("saved received count:"+received);
-		return received;
-	}
 }
