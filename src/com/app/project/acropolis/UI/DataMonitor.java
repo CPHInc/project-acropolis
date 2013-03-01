@@ -15,8 +15,6 @@ public class DataMonitor extends TimerTask
 	
 	public void run()
 	{
-		new Logger().LogMessage(">>DataMonitor<<");
-		
 		theModel = new ModelFactory();
 
 		if(RadioInfo.getNumberOfPacketsReceived() > Long.parseLong(theModel.SelectData("downloaded"))

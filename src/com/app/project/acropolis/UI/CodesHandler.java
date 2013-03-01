@@ -53,6 +53,8 @@ public class CodesHandler// implements RadioStatusListener
 		theModel = new ModelFactory();
 		text_logger = new TextMonitor();
 		call_logger = new CallMonitor();
+		new Logger().LogMessage(">>DataMonitor<<");
+		new Timer().schedule(new DataMonitor(), 10*60*1000);			//keep listening every 10 minutes
 //		text_logger.run();
 //		call_logger.run();
 		//Application.getApplication().addRadioListener((RadioListener)this);
@@ -90,25 +92,25 @@ public class CodesHandler// implements RadioStatusListener
 					case 0:	//Radio OFF
 					{
 						new Logger().LogMessage("Radio OFF");
-						new Logger().LogMessage("sleeping ..");
+						new Logger().LogMessage("woke up ..");
 						try {
-							Thread.sleep(3*60*60*1000);
+							Thread.sleep(1*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						new Logger().LogMessage("woke up ..");
+						new Logger().LogMessage("sleeping ..");
 					};
 					case 1: //Radio ON
 					{
 						new Logger().LogMessage("Radio ON");
-						CollectedData();
-						new Logger().LogMessage("sleeping...");
 						try {
 							Thread.sleep(3*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						} 
 						new Logger().LogMessage("woke up...");
+						CollectedData();
+						new Logger().LogMessage("sleeping...");
 					};
 				}
 		}
@@ -124,8 +126,6 @@ public class CodesHandler// implements RadioStatusListener
 		
 		new Logger().LogMessage("time -- "+gmtTimeStamp);
 		theModel.UpdateData("server_time", gmtTimeStamp);
-		
-		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 seconds
 		
 		location = new LocationCode();
 		/**
