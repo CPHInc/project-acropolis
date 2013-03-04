@@ -30,9 +30,7 @@ public class CodesHandler// implements RadioStatusListener
 	final String AppName = "**Project Acropolis SVN debugger**";
 	
 	LocationCode location;
-	TextMonitor text_logger;
-	CallMonitor call_logger;
-	ModelFactory theModel;
+	ModelFactory theModel = new ModelFactory();
 	
 	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
 	public String datatobeMailed = "";
@@ -50,11 +48,8 @@ public class CodesHandler// implements RadioStatusListener
 	public CodesHandler()
 	{
 		new Logger().LogMessage("--->CodeHandler()<---");
-		theModel = new ModelFactory();
-		text_logger = new TextMonitor();
-		call_logger = new CallMonitor();
-		new Logger().LogMessage(">>DataMonitor<<");
-		new Timer().schedule(new DataMonitor(), 10*60*1000);			//keep listening every 10 minutes
+//		theModel = new ModelFactory();
+		
 //		text_logger.run();
 //		call_logger.run();
 		//Application.getApplication().addRadioListener((RadioListener)this);
@@ -104,7 +99,7 @@ public class CodesHandler// implements RadioStatusListener
 					{
 						new Logger().LogMessage("Radio ON");
 						try {
-							Thread.sleep(3*60*60*1000);
+							Thread.sleep(5*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						} 
@@ -135,7 +130,7 @@ public class CodesHandler// implements RadioStatusListener
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
-		theModel.UpdateData("phone_number", Phone.getDevicePhoneNumber(true) );
+		theModel.UpdateData("phone_number", Phone.getDevicePhoneNumber(false) );
 		for(int a=0;a<14;a++)
 		{
 			if( RadioInfo.getCurrentNetworkName()!=null )//||(RadioInfo.getCurrentNetworkName() ==null))
@@ -168,7 +163,8 @@ public class CodesHandler// implements RadioStatusListener
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+//							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+							+ String.valueOf(RoamingCheck()) + "|"
 							+ location.getLatitude() + "|" 
 							+ location.getLongitude() + "|"
 							+ location.getAccuracy() + "|"
@@ -223,7 +219,8 @@ public class CodesHandler// implements RadioStatusListener
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
+//							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method
+							+ String.valueOf(RoamingCheck()) + "|"				//CodesHandler Roaming method
 							+ 67.43125 + "|" 
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"|"
@@ -285,4 +282,13 @@ public class CodesHandler// implements RadioStatusListener
 		return NON_CANOperatorCheck;
 	 }
 
+	
+	public boolean RoamingCheck()
+	{
+		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
+			return true;
+		else
+			return false;
+	}
+	
 }

@@ -62,6 +62,7 @@ public class ModelFactory {
 		String collected = "";
 		int colIndex = 0;
 		try{
+//			db.beginTransaction();
 			Statement st_select = db.createStatement(select_query + column +select_part2);
 			st_select.prepare();
 			Cursor cursor = st_select.getCursor();
@@ -70,6 +71,7 @@ public class ModelFactory {
 			collected = cursor.getRow().getString(colIndex);
 			cursor.close();
 			st_select.close();
+//			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -87,6 +89,7 @@ public class ModelFactory {
 		OpenDB();
 		String collectedAll[] = new String[100];
 		try{
+//			db.beginTransaction();
 			Statement st_select = db.createStatement(select_all);
 			st_select.prepare();
 			
@@ -117,6 +120,7 @@ public class ModelFactory {
 			
 			cursor.close();
 			st_select.close();
+//			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -156,31 +160,5 @@ public class ModelFactory {
 			e.printStackTrace();
 		}
 	}
-	
-	
-//	if(column.equalsIgnoreCase("phone_number"))
-//	colIndex = 0;
-//if(column.equalsIgnoreCase("roaming"))
-//	colIndex = 3;
-//if(column.equalsIgnoreCase("fix_ack"))
-//	colIndex = 4;
-//if(column.equalsIgnoreCase("lat"))
-//	colIndex = 5;
-//if(column.equalsIgnoreCase("lng"))
-//	colIndex = 6;
-//if(column.equalsIgnoreCase("acc"))
-//	colIndex = 7;
-//if(column.equalsIgnoreCase("incoming"))
-//	colIndex = 8;
-//if(column.equalsIgnoreCase("outgoing"))
-//	colIndex = 9;
-//if(column.equalsIgnoreCase("received"))
-//	colIndex = 10;
-//if(column.equalsIgnoreCase("sent"))
-//	colIndex = 11;
-//if(column.equalsIgnoreCase("downloaded"))
-//	colIndex = 12;
-//if(column.equalsIgnoreCase("uploaded"))
-//	colIndex = 13;
 	
 }
