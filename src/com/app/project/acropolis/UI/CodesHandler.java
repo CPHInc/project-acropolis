@@ -48,13 +48,8 @@ public class CodesHandler// implements RadioStatusListener
 	public CodesHandler()
 	{
 		new Logger().LogMessage("--->CodeHandler()<---");
-//		theModel = new ModelFactory();
 		
-//		text_logger.run();
-//		call_logger.run();
-		//Application.getApplication().addRadioListener((RadioListener)this);
-		
-		//checks Radio power 30mins if OFF on first trial 
+		//checks Radio power 30secs if OFF on first trial 
 		for(int i=0;i<=2;i++)
 		{
 			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )

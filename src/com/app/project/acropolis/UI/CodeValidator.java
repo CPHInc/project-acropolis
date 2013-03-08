@@ -54,8 +54,7 @@ public class CodeValidator extends Thread
 		new Logger().LogMessage("Active Roaming Engine ON");
 		Thread RoamThread = new Thread(new RoamingRunnable());
     	RoamThread.start();			//monitors roaming changes, takes appropriate actions
-    	
-		new Thread(new CodesHandler()).start();
+		new CodesHandler();
 	}
 	
 }
