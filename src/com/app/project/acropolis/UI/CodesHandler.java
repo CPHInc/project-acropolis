@@ -116,11 +116,11 @@ public class CodesHandler// implements RadioStatusListener
 	public void CollectedData()
 	{
 		/*if in ROAMING detect and locate co-ordinates and send data*/
-		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		TimeZone timezone = TimeZone.getTimeZone("GMT-5");
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
 		
-		new Logger().LogMessage("time -- "+gmtTimeStamp);
-		theModel.UpdateData("server_time", gmtTimeStamp);
+//		new Logger().LogMessage("time -- "+gmtTimeStamp);
+//		theModel.UpdateData("server_time", gmtTimeStamp);
 		
 		location = new LocationCode();
 		/**

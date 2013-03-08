@@ -1,5 +1,14 @@
 package com.app.project.acropolis.model;
 
+import java.io.IOException;
+import java.util.Enumeration;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+import javax.microedition.io.file.FileSystemRegistry;
+
+import com.app.project.acropolis.UI.Logger;
+
 import net.rim.device.api.database.Cursor;
 import net.rim.device.api.database.DataTypeException;
 import net.rim.device.api.database.Database;
@@ -11,6 +20,9 @@ import net.rim.device.api.database.Statement;
 import net.rim.device.api.io.MalformedURIException;
 import net.rim.device.api.io.URI;
 import net.rim.device.api.system.ControlledAccessException;
+import net.rim.device.api.system.DeviceInfo;
+import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.Dialog;
 
 public class ModelFactory {
 
@@ -18,7 +30,11 @@ public class ModelFactory {
 	public final String SCHEMA = "activity_acropolis";
 	
 	public Database db;
-	public String path = "file:///SDCard/Acropolis/database/acropolis.db";
+	
+	public boolean SDCardMounted = false;
+	public boolean eMMCMounted = false;
+	public String SDCardPath = "file:///SDCard/Acropolis/database/acropolis.db";
+	public String eMMCPath = "file:///store/home/user/acropolis.db";
 	public URI db_URI = null;
 	
 	public String update_query = "update activity_acropolis set ";
@@ -31,6 +47,7 @@ public class ModelFactory {
 	public ModelFactory()
 	{
 		new DBLogger().LogMessage(">>-ModelFactory-<<");
+		StoragePresence();
 	}
 	
 	/**
@@ -51,6 +68,8 @@ public class ModelFactory {
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		new DBLogger().LogMessage("DB updated");
 		CloseDB();
@@ -133,12 +152,28 @@ public class ModelFactory {
 		
 	}
 	
-	
 	public void OpenDB()
 	{
 		try {
-			db_URI = URI.create(path);
-			db = DatabaseFactory.open(db_URI);
+			StoragePresence();
+			if(SDCardMounted)
+			{
+				FileConnection checksize = (FileConnection)Connector.open(SDCardPath);
+				if(checksize.fileSize()>0)
+				{
+					db_URI = URI.create(SDCardPath);
+					db = DatabaseFactory.open(db_URI);
+				}
+			}
+			else
+			{
+				FileConnection checksize = (FileConnection)Connector.open(eMMCPath);
+				if(checksize.fileSize()>0)
+				{
+					db_URI = URI.create(eMMCPath);
+					db = DatabaseFactory.open(db_URI);
+				}
+			}
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (MalformedURIException e) {
@@ -148,6 +183,8 @@ public class ModelFactory {
 		} catch (DatabaseIOException e) {
 			e.printStackTrace();
 		} catch (DatabasePathException e) {
+			e.printStackTrace();
+		} catch(IOException e){
 			e.printStackTrace();
 		}
 	}
@@ -159,6 +196,52 @@ public class ModelFactory {
 		} catch (DatabaseIOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean StoragePresence()
+	{
+    	boolean storagePresent = false;
+    	String root = null;
+    	try {
+    		if
+//				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
+				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
+			//only if device flash is above 2GB
+			{
+				storagePresent = true;
+				eMMCMounted = true;
+			}
+    		else
+    		{
+		    	Enumeration enum = FileSystemRegistry.listRoots();
+		    	while (enum.hasMoreElements())
+		    	{
+		    		root = (String)enum.nextElement();
+		    		if(root.equalsIgnoreCase("sdcard/"))											//valid SDCard check
+		    		{
+		    			storagePresent = true;
+		    			SDCardMounted = true;
+		    		}  
+		    		else
+		    		{
+		    			storagePresent = false;
+		    			UiApplication.getUiApplication().invokeAndWait(new Runnable()
+		        		{
+		        			public void run()
+		        			{
+		        				new Logger().LogMessage("SDCard & valid eMMC storage missing...");
+		        				Dialog.alert("SDCard is required for the application to operate");
+		        				System.exit(0);            
+		        			}
+		        		});   
+		    		}
+		    	}    
+    		}
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    		new Logger().LogMessage("Exception:::"+e.getMessage()+"\r\n"+e.getClass());
+    	}
+		return storagePresent;
 	}
 	
 }

@@ -16,8 +16,8 @@ public class CallMonitor //implements Runnable
 	public Phone phone=null;
 	public int callID=0;
 	
-	public int IN_minutes = 0;
-	public int OUT_minutes = 0;
+	public double IN_minutes = 0;
+	public double OUT_minutes = 0;
 	
 	ModelFactory theModel;
 	
@@ -30,7 +30,6 @@ public class CallMonitor //implements Runnable
 	
 	public class CallAbstractListner extends AbstractPhoneListener
 	{
-
 		public void callAnswered(int arg0) {
 			new Logger().LogMessage("call answered :"+arg0);
 		}
@@ -47,7 +46,8 @@ public class CallMonitor //implements Runnable
 			new Logger().LogMessage("Incoming call");
 		}
 		
-		public void callConnected(int arg0) {
+		public void callConnected(int arg0)
+		{
 			new Logger().LogMessage("Call connected!!");
 			if(Outgoing)
 			{
@@ -61,26 +61,26 @@ public class CallMonitor //implements Runnable
 			}
 		}
 
-		public void callDisconnected(int arg0) {
-			int out = 0;
-			int in = 0;
+		public void callDisconnected(int arg0) 
+		{
+			double out = 0;
+			double in = 0;
 			if(Outgoing)
 			{
-				out = call.getElapsedTime();
+				out = (double)call.getElapsedTime();
 				OUT_minutes = Integer.parseInt(theModel.SelectData("outgoing"));
-				new Logger().LogMessage("out minutes:"+out);
-				OUT_minutes = OUT_minutes + out;
+				new Logger().LogMessage("out seconds:"+out);
+				OUT_minutes = Math.floor( OUT_minutes + out );
 				theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
 			}
 			else if(Incoming)
 			{
 				in = call.getElapsedTime();
 				IN_minutes = Integer.parseInt(theModel.SelectData("incoming"));
-				new Logger().LogMessage("in minutes:"+in);
-				IN_minutes = IN_minutes + in;
+				new Logger().LogMessage("in seconds:"+in);
+				IN_minutes = Math.floor( IN_minutes + in );
 				theModel.UpdateData("incoming", String.valueOf(IN_minutes));
 			}
-			
 		}
 		
 		public void callEndedByUser(int arg0) {
@@ -141,12 +141,12 @@ public class CallMonitor //implements Runnable
 	
 	public int getOutgoingDuration()
 	{
-		return OUT_minutes;
+		return (int)OUT_minutes;
 	}
 	
 	public int getIncomingDuration()
 	{
-		return IN_minutes;
+		return (int)IN_minutes;
 	}
 	
 }

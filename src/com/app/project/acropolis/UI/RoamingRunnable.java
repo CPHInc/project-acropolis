@@ -47,58 +47,11 @@ public class RoamingRunnable implements Runnable
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
 
-	public RoamingRunnable()
-	{
-	}
-	
 	public void run() 
 	{
-		RegisterRoamingListener();
-	} 
-	
-	public void RegisterRoamingListener()
-	{
-		Application.getApplication().addRadioListener((RadioListener)new RoamingListener());
-	}
-	
-	public class RoamingListener implements RadioStatusListener
-	{
-		/**
-		 * works when Base Station (Radio Tower) has changed
-		 */
-		public void baseStationChange() {
-		}
-
-		public void networkScanComplete(boolean success) {
-		}
-
-		public void networkServiceChange(int networkId, int service) {
-			NewNetwork = RadioInfo.getCurrentNetworkName();
-			new Logger().LogMessage("Network Changed:" + NewNetwork );
-			
-			/*GET THE CURRENT CHANE IN ROAMING CO-ORDINATES*/
+		while(getRoamingState())
 			CollectedData();
-		
-//			Application.getApplication().removeRadioListener((RadioListener) new RoamingListener());
-		}
-
-		public void networkStarted(int networkId, int service) {
-		}
-
-		public void networkStateChange(int state) {
-		}
-
-		public void pdpStateChange(int apn, int state, int cause) {
-		}
-
-		public void radioTurnedOff() {
-		}
-
-		public void signalLevel(int level) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
+	} 
 	
 	public boolean CurrentLocation() 
 	{
@@ -139,7 +92,6 @@ public class RoamingRunnable implements Runnable
 
 		return retval;
 	}
-	
 	
 	public void CollectedData()
 	{
@@ -297,5 +249,12 @@ public class RoamingRunnable implements Runnable
 		return NON_CANOperatorCheck;
 	 }
 	
+	public boolean getRoamingState()
+	{
+		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
+			return true;
+		else
+			return false;
+	}
 	
 }
