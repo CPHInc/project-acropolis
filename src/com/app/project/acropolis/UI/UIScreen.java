@@ -3,6 +3,8 @@ package com.app.project.acropolis.UI;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import loggers.Logger;
+
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.DeviceInfo;
@@ -12,6 +14,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.MainScreen;
 
+import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.model.ModelFactory;
 
 /**
@@ -36,12 +39,12 @@ public final class UIScreen extends MainScreen
 	
 	ModelFactory theModel = new ModelFactory();
 	Thread validatorThread = new CodeValidator();
-	AppMap map = new AppMap();
+	ApplicationMap map = new ApplicationMap();
 	int Device_Orientation = 0;
 	final int ZOOM_MIN = 3;					//supported MAX = 15 && MIN = 0
 	final int ZOOM_MAX = 5;
- 	double Latitude= 43.641696;
-	double Longitude= -79.628044;
+ 	int Latitude= 4364169;
+	int Longitude= -7962804;
 	
 	String waitText = "waiting..";
 	String RoamingString = "Roaming :-- ";
@@ -98,11 +101,20 @@ public final class UIScreen extends MainScreen
 		add(phonenumberText);
     	add(roamText);
     	add(FixAckText);
-    	
+
     	map.setPreferredSize(Display.getWidth(),Display.getHeight()/3);
-    	map.moveTo((int)Latitude*100*1000 , (int)Longitude*100*1000);
-    	map.setZoom(ZOOM_MAX);
+    	if(theModel.SelectData("fix_ack").equals("true"))
+    	{
+    		map.moveTo( Integer.parseInt(theModel.SelectData("lat")),Integer.parseInt(theModel.SelectData("lng")) );
+    		map.setZoom(ZOOM_MIN);
+    	}
+    	else
+    	{
+	    	map.moveTo(Latitude, Longitude);
+	    	map.setZoom(ZOOM_MAX);
+    	}
     	add(map);
+    	
     	add(new RichTextField("   ",Field.NON_FOCUSABLE));
     	add(UsageDetails);
     	add(MinutesMonitor);
@@ -122,79 +134,68 @@ public final class UIScreen extends MainScreen
     	
     	TextInserter();
     	
-    	new Timer().schedule(new ScreenTextUpdater(), 20*1000 );
+    	Application.getApplication().invokeLater(new ScreenTextUpdater(), 2*60*1000, true);
+    	
+    	
+//    	new Timer().schedule(new ScreenTextUpdater(), 20*1000 );
     }
     
     public void TextInserter()
     {
 		roamText.setText(RoamingString + theModel.SelectData("roaming"));
-		if(theModel.SelectData("fix_ack").equalsIgnoreCase("true"))
-			ScreenMap(Double.parseDouble(theModel.SelectData("lat")),
-					Double.parseDouble(theModel.SelectData("lng")),ZOOM_MIN);
-		else
-			ScreenMap((int)Latitude,(int)Longitude,ZOOM_MAX);
 		
 		if(theModel.SelectData("fix_ack").equals("true"))
-			FixAckText.setText(FixString + "Successfull");
+			FixAckText.setText(FixString + "Last known location!!");
 		else
 			FixAckText.setText(FixString + "Scupper(will try later!!)");
 		
+		//Java AutoBoxing used for parsing String to int(via Integer) 
+		int incomingMin = Seconds2Minutes((Integer.valueOf(theModel.SelectData("incoming"))).intValue());
+		int outgoingMin = Seconds2Minutes((Integer.valueOf(theModel.SelectData("outgoing"))).intValue()); 
+		int totalMin = incomingMin + outgoingMin;
+		IncomingUsage.setText( IncomingString + String.valueOf(incomingMin).toString() );
+		OutgoingUsage.setText( OutgoingString + String.valueOf(outgoingMin).toString() );
+		TotalMinsUsage.setText( TotalMinString + String.valueOf(totalMin).toString() );
 		
-		int incomingInt = (int)Math.floor(Double.parseDouble(theModel.SelectData("incoming"))/60);
-		int outgoingInt = (int)Math.floor(Double.parseDouble(theModel.SelectData("outgoing"))/60); 
-	
-		if(incomingInt==0 )
-		{
-			IncomingUsage.setText(IncomingString + theModel.SelectData("incoming"));
-		}
-		else
-		{
-			incomingInt = 1 + incomingInt;
-			IncomingUsage.setText(IncomingString + String.valueOf(incomingInt));
-		}
+		int rcvMsg = (Integer.valueOf(theModel.SelectData("received"))).intValue();
+		int sntMsg = (Integer.valueOf(theModel.SelectData("sent"))).intValue();
+		int totalMsg = rcvMsg + sntMsg;
+		ReceivedMsgUsage.setText(ReceivedString + String.valueOf(rcvMsg).toString());
+		SentMsgUsage.setText(SentString + String.valueOf(sntMsg).toString() );
+		TotalMsgUsage.setText(TotalMsgString + String.valueOf(totalMsg).toString() );
 		
-		if(outgoingInt==0)
-		{
-			OutgoingUsage.setText(OutgoingString + "0" );
-		}
-		else
-		{
-			outgoingInt = 1 + outgoingInt;
-			OutgoingUsage.setText(OutgoingString + String.valueOf(outgoingInt));
-		}
-		
-		if(
-			(incomingInt==0 && outgoingInt==0)
-			)
-			{
-				TotalMinsUsage.setText(TotalMinString + "0");
-			}
-		else
-		{
-			TotalMinsUsage.setText(TotalMinString + String.valueOf(incomingInt + outgoingInt));
-		}		
-		
-		ReceivedMsgUsage.setText(ReceivedString + theModel.SelectData("received"));
-		SentMsgUsage.setText(SentString + theModel.SelectData("sent"));
-		TotalMsgUsage.setText(TotalMsgString + 
-				String.valueOf(
-						Integer.parseInt(theModel.SelectData("received")) +
-						Integer.parseInt(theModel.SelectData("sent")) 
-						));
-		
-		DownloadUsage.setText(DownloadString +
-				String.valueOf((Double.parseDouble(theModel.SelectData("downloaded"))/1000) ) );
-		UploadUsage.setText(UploadString + 
-				String.valueOf((Double.parseDouble(theModel.SelectData("uploaded"))/1000) ) );
-		TotalDataUsage.setText(TotalDataString + 
-				String.valueOf(
-						(Double.parseDouble(theModel.SelectData("downloaded")) +
-						Double.parseDouble(theModel.SelectData("uploaded")))
-						/1000) 
-						);
+		double downData = (Double.valueOf(theModel.SelectData("downloaded"))).doubleValue()/1000;
+		double upData = (Double.valueOf(theModel.SelectData("uploaded"))).doubleValue()/1000;
+		double totalData = downData + upData;
+		DownloadUsage.setText(DownloadString + String.valueOf(downData) );
+		UploadUsage.setText(UploadString + String.valueOf(upData) );
+		TotalDataUsage.setText(TotalDataString + String.valueOf(totalData).toString() );
     }
     
-    public class ScreenTextUpdater extends TimerTask
+    /**
+     * Convert seconds to minutes
+     * @param Seconds
+     * @return Minutes
+     */
+    public int Seconds2Minutes(int seconds)
+    {
+    	int minutes=0;
+    	if(seconds == 0)
+    	{
+    		minutes = 0;
+    	}
+    	else 
+    	{
+    		minutes = seconds/60 + 1;
+    	}
+    	return minutes;
+    }
+    
+    /**
+     * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+     * Updates screen text via java.util.TimerTask
+     */
+    public class ScreenTextUpdater implements Runnable//extends TimerTask
     {
     	public void run()
     	{
@@ -202,11 +203,19 @@ public final class UIScreen extends MainScreen
     		{
     			TextInserter();
     		}
-			
+    		if(theModel.SelectData("fix_ack").equalsIgnoreCase("true"))
+    		{
+    			ScreenMap(Integer.parseInt(theModel.SelectData("lat")),
+    					Integer.parseInt(theModel.SelectData("lng")),ZOOM_MIN);
+    		}
+    		else
+    		{
+    			ScreenMap(Latitude,Longitude,ZOOM_MAX);
+    		}
     	}
     }
     
-    public void ScreenMap(double latitude,double longitude,int zoom)
+    public void ScreenMap(int latitude,int longitude,int zoom)
     {
     	synchronized(Application.getEventLock())
     	{
@@ -216,19 +225,19 @@ public final class UIScreen extends MainScreen
 				case Display.ORIENTATION_SQUARE:
 				{
 					map.setPreferredSize(Display.getWidth(), Display.getHeight()/3);
-					map.moveTo((int)latitude*100*1000, (int)longitude*100*1000);
+					map.moveTo(latitude, longitude);
 			    	map.setZoom(zoom);
 				};
 				case Display.ORIENTATION_PORTRAIT:
 				{
 					map.setPreferredSize(Display.getWidth(), Display.getHeight()/3);
-					map.moveTo((int)latitude*100*1000, (int)longitude*100*1000);
+					map.moveTo(latitude, longitude);
 			    	map.setZoom(zoom);
 				};
 				case Display.ORIENTATION_LANDSCAPE:
 				{
 					map.setPreferredSize(Display.getWidth(), Display.getHeight()/3);
-					map.moveTo((int)latitude*100*1000, (int)longitude*100*1000);
+					map.moveTo(latitude, longitude);
 			    	map.setZoom(zoom);
 				};
 			}

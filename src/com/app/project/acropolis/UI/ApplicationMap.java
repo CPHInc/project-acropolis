@@ -8,7 +8,7 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.component.LabelField;
 
-public class AppMap extends MapField
+public class ApplicationMap extends MapField
 {
 	 // For cursor
     public Bitmap _cursor = Bitmap.getBitmapResource("48.png");
@@ -19,7 +19,7 @@ public class AppMap extends MapField
     public String Map_Text = "Determining location ...";
     public boolean fix = false;
     
-	public AppMap()
+	public ApplicationMap()
 	{
 		_sampleLabel = new LabelField();
         _textHeight = _sampleLabel.getPreferredHeight();        

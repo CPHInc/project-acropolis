@@ -1,4 +1,4 @@
-package com.app.project.acropolis.UI;
+package com.app.project.acropolis.engine.monitor;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -11,6 +11,8 @@ import javax.wireless.messaging.Message;
 import javax.wireless.messaging.MessageConnection;
 import javax.wireless.messaging.MultipartMessage;
 import javax.wireless.messaging.TextMessage;
+
+import loggers.Logger;
 
 import net.rim.blackberry.api.sms.OutboundMessageListener;
 

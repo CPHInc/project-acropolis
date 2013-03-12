@@ -1,4 +1,5 @@
-package com.app.project.acropolis.UI;
+package com.app.project.acropolis.engine.monitor;
+import loggers.Logger;
 import net.rim.blackberry.api.phone.AbstractPhoneListener;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.blackberry.api.phone.PhoneCall;
@@ -16,8 +17,8 @@ public class CallMonitor //implements Runnable
 	public Phone phone=null;
 	public int callID=0;
 	
-	public double IN_minutes = 0;
-	public double OUT_minutes = 0;
+	public int IN_seconds = 0;
+	public int OUT_seconds = 0;
 	
 	ModelFactory theModel;
 	
@@ -63,23 +64,23 @@ public class CallMonitor //implements Runnable
 
 		public void callDisconnected(int arg0) 
 		{
-			double out = 0;
-			double in = 0;
+			int out = 0;
+			int in = 0;
 			if(Outgoing)
 			{
-				out = (double)call.getElapsedTime();
-				OUT_minutes = Integer.parseInt(theModel.SelectData("outgoing"));
+				out = call.getElapsedTime();
+				OUT_seconds = Integer.parseInt(theModel.SelectData("outgoing"));
 				new Logger().LogMessage("out seconds:"+out);
-				OUT_minutes = Math.floor( OUT_minutes + out );
-				theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
+				OUT_seconds = OUT_seconds + out;
+				theModel.UpdateData("outgoing", String.valueOf(OUT_seconds));
 			}
 			else if(Incoming)
 			{
 				in = call.getElapsedTime();
-				IN_minutes = Integer.parseInt(theModel.SelectData("incoming"));
+				IN_seconds = Integer.parseInt(theModel.SelectData("incoming"));
 				new Logger().LogMessage("in seconds:"+in);
-				IN_minutes = Math.floor( IN_minutes + in );
-				theModel.UpdateData("incoming", String.valueOf(IN_minutes));
+				IN_seconds = IN_seconds + in;
+				theModel.UpdateData("incoming", String.valueOf(IN_seconds));
 			}
 		}
 		
@@ -141,12 +142,12 @@ public class CallMonitor //implements Runnable
 	
 	public int getOutgoingDuration()
 	{
-		return (int)OUT_minutes;
+		return OUT_seconds;
 	}
 	
 	public int getIncomingDuration()
 	{
-		return (int)IN_minutes;
+		return IN_seconds;
 	}
 	
 }

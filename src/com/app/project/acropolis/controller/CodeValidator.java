@@ -1,4 +1,4 @@
-package com.app.project.acropolis.UI;
+package com.app.project.acropolis.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,9 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
+import loggers.DBLogger;
+import loggers.Logger;
+
 import net.rim.device.api.database.Database;
 import net.rim.device.api.database.DatabaseException;
 import net.rim.device.api.database.DatabaseFactory;
@@ -20,7 +23,9 @@ import net.rim.device.api.system.Application;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-import com.app.project.acropolis.model.DBLogger;
+import com.app.project.acropolis.engine.monitor.CallMonitor;
+import com.app.project.acropolis.engine.monitor.DataMonitor;
+import com.app.project.acropolis.engine.monitor.TextMonitor;
 import com.app.project.acropolis.model.ModelFactory;
 
 public class CodeValidator extends Thread

@@ -1,10 +1,12 @@
-package com.app.project.acropolis.UI;
+package com.app.project.acropolis.controller;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import loggers.Logger;
 
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
@@ -13,6 +15,8 @@ import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.RadioListener;
 import net.rim.device.api.system.RadioStatusListener;
 
+import com.app.project.acropolis.engine.mail.MailCode;
+import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ModelFactory;
 
 
@@ -139,8 +143,8 @@ public class CodesHandler// implements RadioStatusListener
 					date = new Date();
 					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
 					theModel.UpdateData("device_time", recordedTimeStamp);
-					theModel.UpdateData("lat", String.valueOf(location.getLatitude()));
-					theModel.UpdateData("lng", String.valueOf(location.getLongitude()));
+					theModel.UpdateData("lat", String.valueOf((int)(location.getLatitude()*100*1000)));
+					theModel.UpdateData("lng", String.valueOf((int)(location.getLongitude()*100*1000)));
 					theModel.UpdateData("acc", String.valueOf(location.getAccuracy()));
 					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
 					

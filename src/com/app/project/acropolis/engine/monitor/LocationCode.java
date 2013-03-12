@@ -1,4 +1,4 @@
-package com.app.project.acropolis.UI;
+package com.app.project.acropolis.engine.monitor;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -10,6 +10,10 @@ import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationListener;
 import javax.microedition.location.LocationProvider;
 import javax.microedition.location.QualifiedCoordinates;
+
+import loggers.Logger;
+
+import com.app.project.acropolis.engine.mail.MailCode;
 
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;

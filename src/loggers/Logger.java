@@ -1,12 +1,13 @@
-package com.app.project.acropolis.model;
+package loggers;
 
 import net.rim.device.api.system.EventLogger;
 
-public class DBLogger {
-	final long GUID = 0xd5bb0c2b8039466cL;
-	final String AppName = "*DB*Project Acropolis SVN Debugger**";
+public class Logger {
+
+	final long GUID = 0x7243e9c52ed615c3L;
+	final String AppName = "**Project Acropolis SVN Debugger**";
 	
-	public DBLogger()
+	public Logger()
 	{
 		EventLogger.register(GUID, AppName,EventLogger.VIEWER_STRING);
 	}

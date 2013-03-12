@@ -1,7 +1,8 @@
-package com.app.project.acropolis.UI;
+package com.app.project.acropolis.controller;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.EventLogger;

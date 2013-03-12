@@ -9,7 +9,7 @@
     </Icons>
   </Resources>
   <KeywordResources KeywordResourceBundleName="" KeywordResourceBundleRelativePath="" KeywordResourceBundleClassName="" KeywordResourceBundleKey=""/>
-  <Compile OutputCompilerMessages="false" ConvertImages="true" CreateWarningForNoExportedRoutine="true" CompressResources="false" AliasList="">
+  <Compile OutputCompilerMessages="true" ConvertImages="true" CreateWarningForNoExportedRoutine="true" CompressResources="false" AliasList="">
     <PreprocessorDefines/>
   </Compile>
   <Packaging PreBuildStep="" PostBuildStep="" CleanStep="" OutputFileName="Project_Acropolis_SVN_debugger" OutputFolder="deliverables" GenerateALXFile="true">

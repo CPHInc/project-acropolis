@@ -3,14 +3,10 @@ package com.app.project.acropolis.model;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
 import loggers.DBLogger;
 import loggers.Logger;
-
-
 import net.rim.device.api.database.Cursor;
 import net.rim.device.api.database.DataTypeException;
 import net.rim.device.api.database.Database;
@@ -27,30 +23,42 @@ import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
-public class ModelFactory {
-
-	public final String DB_NAME = "acropolis.db";
-	public final String SCHEMA = "activity_acropolis";
-	
-	public Database db;
-	
-	public boolean SDCardMounted = false;
+public class PlanModelFactory 
+{
+	public final String DB_NAME = "acropolis_mobile_plan";
 	public boolean eMMCMounted = false;
-	public String SDCardPath = "file:///SDCard/Acropolis/database/acropolis.db";
-	public String eMMCPath = "file:///store/home/user/acropolis.db";
+	public boolean SDCardMounted = false;
+	public final String eMMCpath = "file:///store/home/user/acropolis_mobile_plan.db";
+	public final String SDCardpath = "file:///Acropolis/database/acropolis_mobile_plan.db";
 	public String dbPath = "";
-	public URI db_URI = null;
+	public static final String USAGE_DB = "acropolis.db";
+	public static final String PLAN_DB = "acropolis_mobile_plan.db";
+
+	URI plan_uri;
+	Database db;
 	
 	public String update_query = "update activity_acropolis set ";
-//	public String update_query = "update activity_acropolis set sent=\'4\'";
 	public String select_query = "select ";
 	public String select_part2 = " from activity_acropolis";
 	public String select_all = "select * from activity_acropolis";
 	
-	public ModelFactory()
+	public PlanModelFactory()
 	{
-		new DBLogger().LogMessage(">>-ModelFactory-<<");
+		new DBLogger().LogMessage(">>-PlanModelFactory-<<");
 		DBExistence();
+	}
+	
+	public void OpenDB()
+	{
+		try {
+			db = DatabaseFactory.openOrCreate(plan_uri);
+		} catch (ControlledAccessException e) {
+			e.printStackTrace();
+		} catch (DatabaseIOException e) {
+			e.printStackTrace();
+		} catch (DatabasePathException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -62,12 +70,10 @@ public class ModelFactory {
 	{
 		OpenDB();
 		try{
-//			db.beginTransaction();
 			Statement st_update = db.createStatement(update_query + column + " = \'" + data + "\'");
 			st_update.prepare();
 			st_update.execute();
 			st_update.close();
-//			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -84,7 +90,6 @@ public class ModelFactory {
 		String collected = "";
 		int colIndex = 0;
 		try{
-//			db.beginTransaction();
 			Statement st_select = db.createStatement(select_query + column +select_part2);
 			st_select.prepare();
 			Cursor cursor = st_select.getCursor();
@@ -93,7 +98,6 @@ public class ModelFactory {
 			collected = cursor.getRow().getString(colIndex);
 			cursor.close();
 			st_select.close();
-//			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -111,7 +115,6 @@ public class ModelFactory {
 		OpenDB();
 		String collectedAll[] = new String[100];
 		try{
-//			db.beginTransaction();
 			Statement st_select = db.createStatement(select_all);
 			st_select.prepare();
 			
@@ -142,7 +145,6 @@ public class ModelFactory {
 			
 			cursor.close();
 			st_select.close();
-//			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -155,24 +157,6 @@ public class ModelFactory {
 		
 	}
 	
-	public void OpenDB()
-	{
-		try {
-			db_URI = URI.create(dbPath);
-			db = DatabaseFactory.open(db_URI);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (MalformedURIException e) {
-			e.printStackTrace();
-		} catch (ControlledAccessException e) {
-			e.printStackTrace();
-		} catch (DatabaseIOException e) {
-			e.printStackTrace();
-		} catch (DatabasePathException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void CloseDB()
 	{
 		try {
@@ -181,6 +165,7 @@ public class ModelFactory {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	public boolean DBPresence()
 	{
@@ -212,7 +197,7 @@ public class ModelFactory {
 		    		UiApplication.getUiApplication().invokeAndWait(new Runnable()
 	        		{
 	        			public void run()
-	        			{ 
+	        			{
 	        				new Logger().LogMessage("SDCard & valid eMMC storage missing...");
 	        				Dialog.alert("SDCard is required for the application to operate");
 	        				System.exit(0);            
@@ -236,19 +221,20 @@ public class ModelFactory {
 				{
 					eMMCMounted = true;
 					SDCardMounted = false;
-					dbPath = eMMCPath;
+					dbPath = eMMCpath;
+					plan_uri = URI.create(dbPath);
 				}
 				else if(eMMCMounted)
 				{
-					URI usage_uri = URI.create(eMMCPath);
-					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
-					dbPath = eMMCPath;
+					new DBLogger().LogMessage("URI::"+plan_uri.toIDNAString());
+					dbPath = eMMCpath;
+					plan_uri = URI.create(dbPath);
 				}	
 				else
 				{
-					URI usage_uri = URI.create(SDCardPath);
-					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
-					dbPath = SDCardPath;
+					new DBLogger().LogMessage("URI::"+plan_uri.toIDNAString());
+					dbPath = SDCardpath;
+					plan_uri = URI.create(dbPath);
 				}
 			}
 		} catch (IllegalArgumentException e) {
@@ -257,9 +243,8 @@ public class ModelFactory {
 		} catch (MalformedURIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IDNAException e) {
+		}  catch (IDNAException e) {
 			e.printStackTrace();
 		}
 	}
-	
 }
