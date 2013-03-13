@@ -188,8 +188,8 @@ public class ModelFactory {
     	String root = null;
     	try {
     		if
-				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
-//				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
+//				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
+				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
 			//only if device flash is above 2GB
 			{
 				storagePresent = true;

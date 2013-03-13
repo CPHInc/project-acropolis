@@ -25,7 +25,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * A class extending the MainScreen class, which provides default standard
  * behavior for BlackBerry GUI applications.
  */
-public final class UIScreen extends MainScreen
+public final class CopyOfUIScreen extends MainScreen
 {
 	final long GUID = 0xde15415aec6cfa55L;
 	final String AppName = "**Project Acropolis SVN debugger**";
@@ -80,7 +80,7 @@ public final class UIScreen extends MainScreen
     /**
      * Creates a new MyScreen object
      */
-    public UIScreen()
+    public CopyOfUIScreen()
     {        
     	super(MainScreen.VERTICAL_SCROLLBAR|MainScreen.HORIZONTAL_SCROLLBAR|MainScreen.USE_ALL_WIDTH);
     	

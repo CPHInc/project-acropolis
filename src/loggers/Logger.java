@@ -4,7 +4,7 @@ import net.rim.device.api.system.EventLogger;
 
 public class Logger {
 
-	final long GUID = 0x7243e9c52ed615c3L;
+	final long GUID = 0x352293d8b09a8122L;
 	final String AppName = "**Project Acropolis SVN Debugger**";
 	
 	public Logger()

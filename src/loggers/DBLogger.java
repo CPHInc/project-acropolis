@@ -3,7 +3,7 @@ package loggers;
 import net.rim.device.api.system.EventLogger;
 
 public class DBLogger {
-	final long GUID = 0xd5bb0c2b8039466cL;
+	final long GUID = 0xc53912f4c0358187L;
 	final String AppName = "*DB*Project Acropolis SVN Debugger**";
 	
 	public DBLogger()

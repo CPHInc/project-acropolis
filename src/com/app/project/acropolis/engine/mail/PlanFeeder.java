@@ -12,6 +12,9 @@ import net.rim.blackberry.api.mail.event.FolderEvent;
 import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.blackberry.api.phone.Phone;
 
+import com.app.project.acropolis.controller.StringBreaker;
+import com.app.project.acropolis.model.PlanModelFactory;
+
 public class PlanFeeder implements Runnable
 {
 	String in_Mail = "rohan@cellphonehospitalinc.com";
@@ -22,6 +25,11 @@ public class PlanFeeder implements Runnable
 	String device_Name = "";
 	String incoming_subject = "";
 	String incoming_content = "";
+	String incomingDelimiter = "|";
+	String[] planDatabaseColumns = {"billing_date","minutes","text","data","roam_quota","roam_min","roam_msg","roam_data"};
+	String[] strPlanArray = new String[40];
+	StringBreaker strBreak = new StringBreaker();
+	PlanModelFactory thePlan;
 	
 	public void run()
 	{
@@ -54,7 +62,6 @@ public class PlanFeeder implements Runnable
 		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public void ReadMail()
@@ -81,6 +88,11 @@ public class PlanFeeder implements Runnable
 							{
 								incoming_content = e.getMessage().getBodyText();
 								new Logger().LogMessage("Content::"+incoming_content);
+								strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
+								for(int i=0;i<=strPlanArray.length;i++)
+								{
+									thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );
+								}
 							}
 						}
 					}
