@@ -25,6 +25,16 @@
 			</files>
 
 		</fileset>
+		<fileset Java="1.55" _blackberryVersion="[6.0.0,6.0.1)">
+			<directory >
+				6.0.0
+			</directory>
+			<files >
+				Project_Acropolis_SVN_debugger.cod
+
+			</files>
+
+		</fileset>
 		<fileset Java="1.55" _blackberryVersion="[7.1.0)">
 			<directory >
 				7.1.0

@@ -11,23 +11,18 @@ import javax.microedition.location.LocationProvider;
 import javax.microedition.location.QualifiedCoordinates;
 
 import loggers.Logger;
-
-import com.app.project.acropolis.engine.mail.MailCode;
-
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioListener;
-import net.rim.device.api.system.RadioStatusListener;
+
+import com.app.project.acropolis.engine.mail.MailCode;
+import com.app.project.acropolis.model.ModelFactory;
+import com.app.project.acropolis.model.PlanModelFactory;
 
 public class RoamingRunnable implements Runnable
 {
-	final long GUID = 0x7f7af45a49451784L;
-	final String AppName = "**Project Acropolis SVN debugger**";
-	
 	boolean isRoaming = false;
 	
 	String NewNetwork = "";
@@ -50,64 +45,85 @@ public class RoamingRunnable implements Runnable
 	
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
+	
+	ModelFactory theModel;
+	PlanModelFactory thePlan;
+	MailCode mailer;
+	
+	public int roamAvailMins = 0;
+	public int roamAvailData = 0;
+	public int roamAvailMsgs = 0;
+	public int roamUsedMins = 0;
+	public int roamUsedMsgs = 0;
+	public int roamUsedData = 0;
+	
+	public int UsedMins = 0;
+	public int UsedMsgs = 0;
+	public int UsedData = 0;
 
+	int computationCounter = 0;
+	
 	public void run() 
 	{
-		while(getRoamingState())
+		while(getRoamingState() || Check_NON_CAN_Operator())		//when either returns roaming "true"
+		{
 			CollectedData();
+		}
 	} 
-	
-	public boolean CurrentLocation() 
-	{
-		boolean retval = true;
-		new Logger().LogMessage("Autonomous scanning initiated...");
-		bbcriteria = new BlackBerryCriteria();
-		bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
-		bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
-//		bbcriteria.setFailoverMode(GPSInfo.GPS_MODE_CELLSITE, 2, 120);
-		bbcriteria.setCostAllowed(true);		//default "TRUE" dependent on device-cum-operator 
-		bbcriteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
-		//HIGH == autonomous
-		//MEDIUM == assist
-		//LOW == cell site
-		
-		if(bblocationprovider.getState() == BlackBerryLocationProvider.AVAILABLE)
-		{
-			bblocationprovider.setLocationListener(new LocationListenerActivity(), interval, 1, 1);
-			retval = true;
-		}
-		else
-		{
-			date = new Date();
-			String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device time
-
-			TimeZone timezone = TimeZone.getTimeZone("GMT");
-			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
-			
-			new MailCode().SendMail("");
-			errorstream = "#1.0.1|ErrorStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-			+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-			+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-			+ 0.0 + "|" 
-			+ 0.0 + "|"
-			+ 0.0 +"##";
-			retval = false;
-		}
-
-		return retval;
-	}
 	
 	public void CollectedData()
 	{
+		if(thePlan.SelectData("roam_quota").equalsIgnoreCase("true"))
+		{
+			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
+			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
+			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
+			switch (computationCounter)
+			{
+				case 0:
+				{
+					roamUsedMins = 0;
+					roamUsedMsgs = 0;
+					roamUsedData = 0;
+					
+					UsedMins = 
+							Integer.valueOf(theModel.SelectData("incoming")).intValue() +
+							Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+					UsedMsgs = 
+							Integer.valueOf(theModel.SelectData("received")).intValue() + 
+							Integer.valueOf(theModel.SelectData("sent")).intValue();
+					UsedData =
+							Integer.valueOf(theModel.SelectData("downloaded")).intValue() +
+							Integer.valueOf(theModel.SelectData("uploaded")).intValue();
+					computationCounter = 1;
+				};
+				default:
+				{
+					roamUsedMins = 
+							Integer.valueOf(theModel.SelectData("incoming")).intValue() +
+							Integer.valueOf(theModel.SelectData("outgoing")).intValue() -
+							UsedMins;
+					roamUsedMsgs = 
+							Integer.valueOf(theModel.SelectData("received")).intValue() + 
+							Integer.valueOf(theModel.SelectData("sent")).intValue() -
+							UsedMsgs;
+					roamUsedData = 
+							Integer.valueOf(theModel.SelectData("downloaded")).intValue() +
+							Integer.valueOf(theModel.SelectData("uploaded")).intValue() -
+							UsedData;
+					theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
+					theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
+					theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
+				}
+			}
+		}
+		
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server		
 		
 		CurrentLocation();
 		
-		int i=0;
-		int j=0;
-		int k=0;
 		/**
 		 * Standard -- 
 		 * 			fix within 7 minutes sends location for each iteration gives 20 seconds resting time to device
@@ -180,6 +196,45 @@ public class RoamingRunnable implements Runnable
 		
 	}
 	
+	public boolean CurrentLocation() 
+	{
+		boolean retval = true;
+		new Logger().LogMessage("Autonomous scanning initiated...");
+		bbcriteria = new BlackBerryCriteria();
+		bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
+		bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
+//		bbcriteria.setFailoverMode(GPSInfo.GPS_MODE_CELLSITE, 2, 120);
+		bbcriteria.setCostAllowed(true);		//default "TRUE" dependent on device-cum-operator 
+		bbcriteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
+		//HIGH == autonomous
+		//MEDIUM == assist
+		//LOW == cell site
+		
+		if(bblocationprovider.getState() == BlackBerryLocationProvider.AVAILABLE)
+		{
+			bblocationprovider.setLocationListener(new LocationListenerActivity(), interval, 1, 1);
+			retval = true;
+		}
+		else
+		{
+			date = new Date();
+			String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device time
+
+			TimeZone timezone = TimeZone.getTimeZone("GMT");
+			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
+			
+			new MailCode().SendMail("");
+			errorstream = "#1.0.1|ErrorStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+			+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+			+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+			+ 0.0 + "|" 
+			+ 0.0 + "|"
+			+ 0.0 +"##";
+			retval = false;
+		}
+
+		return retval;
+	}
 	public class LocationListenerActivity implements LocationListener {
 		public void locationUpdated(LocationProvider provider, Location location) {
 			if (location.isValid()) {

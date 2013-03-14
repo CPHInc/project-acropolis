@@ -1,7 +1,6 @@
 package com.app.project.acropolis.engine.mail;
 
 import loggers.Logger;
-
 import net.rim.blackberry.api.mail.Address;
 import net.rim.blackberry.api.mail.AddressException;
 import net.rim.blackberry.api.mail.Folder;
@@ -11,10 +10,7 @@ import net.rim.blackberry.api.mail.ServiceConfiguration;
 import net.rim.blackberry.api.mail.Session;
 import net.rim.blackberry.api.mail.TextBodyPart;
 import net.rim.blackberry.api.mail.Transport;
-import net.rim.blackberry.api.mail.event.FolderEvent;
-import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.device.api.system.Application;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.ui.component.Dialog;
 
 public class MailCode 

@@ -1,32 +1,14 @@
 package com.app.project.acropolis.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.Timer;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
-
-import loggers.DBLogger;
 import loggers.Logger;
-
-import net.rim.device.api.database.Database;
-import net.rim.device.api.database.DatabaseException;
-import net.rim.device.api.database.DatabaseFactory;
-import net.rim.device.api.io.IDNAException;
-import net.rim.device.api.io.MalformedURIException;
-import net.rim.device.api.io.URI;
-import net.rim.device.api.system.Application;
-import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 import com.app.project.acropolis.engine.monitor.CallMonitor;
 import com.app.project.acropolis.engine.monitor.DataMonitor;
 import com.app.project.acropolis.engine.monitor.TextMonitor;
 import com.app.project.acropolis.model.ModelFactory;
+import com.app.project.acropolis.model.PlanModelFactory;
 
 public class CodeValidator extends Thread
 {
@@ -54,7 +36,12 @@ public class CodeValidator extends Thread
 		new TextMonitor();
 		new CallMonitor();
 		new Logger().LogMessage(">>DataMonitor<<");
-		new Timer().schedule(new DataMonitor(), 10*60*1000);			//keep listening every 10 minutes
+		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 minutes
+
+		if(new PlanModelFactory().SelectData("roam_quota").toString().equalsIgnoreCase("true"))
+			new ModelFactory().UpdateData("roam_quota", "true");
+		else
+			new ModelFactory().UpdateData("roam_quota", "false");
 		
 		new Logger().LogMessage("Active Roaming Engine ON");
 		Thread RoamThread = new Thread(new RoamingRunnable());

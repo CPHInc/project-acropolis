@@ -12,13 +12,14 @@ public class CallMonitor //implements Runnable
 
 	public boolean Incoming = false;
 	public boolean Outgoing = false;
+	public boolean CallConnected = false;
 	
 	public PhoneCall call=null;
 	public Phone phone=null;
 	public int callID=0;
 	
-	public int IN_seconds = 0;
-	public int OUT_seconds = 0;
+	public int IN_minutes = 0;
+	public int OUT_minutes = 0;
 	
 	ModelFactory theModel;
 	
@@ -38,7 +39,7 @@ public class CallMonitor //implements Runnable
 		public void callInitiated(int arg0) 
 		{
 			Outgoing = true;
-			new Logger().LogMessage("Outgoing call");
+			new Logger().LogMessage("initiated call");
 		}
 		
 		public void callIncoming(int arg0) 
@@ -49,16 +50,17 @@ public class CallMonitor //implements Runnable
 		
 		public void callConnected(int arg0)
 		{
+			CallConnected = true;
 			new Logger().LogMessage("Call connected!!");
+			if(Incoming)
+			{
+				call = Phone.getCall(arg0);
+				new Logger().LogMessage("Answered Incoming call");
+			}
 			if(Outgoing)
 			{
 				call = Phone.getCall(arg0);
 				new Logger().LogMessage("Answered Outgoing call");
-			}
-			else if(Incoming)
-			{
-				call = Phone.getCall(arg0);
-				new Logger().LogMessage("Answered Incoming call");
 			}
 		}
 
@@ -66,21 +68,26 @@ public class CallMonitor //implements Runnable
 		{
 			int out = 0;
 			int in = 0;
-			if(Outgoing)
+			if(CallConnected)
 			{
-				out = call.getElapsedTime();
-				OUT_seconds = Integer.parseInt(theModel.SelectData("outgoing"));
-				new Logger().LogMessage("out seconds:"+out);
-				OUT_seconds = OUT_seconds + out;
-				theModel.UpdateData("outgoing", String.valueOf(OUT_seconds));
-			}
-			else if(Incoming)
-			{
-				in = call.getElapsedTime();
-				IN_seconds = Integer.parseInt(theModel.SelectData("incoming"));
-				new Logger().LogMessage("in seconds:"+in);
-				IN_seconds = IN_seconds + in;
-				theModel.UpdateData("incoming", String.valueOf(IN_seconds));
+				if(Incoming)
+				{
+					in = Seconds2Minutes(call.getElapsedTime());
+					new Logger().LogMessage("in minutes:"+in);
+					IN_minutes = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+					IN_minutes = IN_minutes + in;
+					theModel.UpdateData("incoming", String.valueOf(IN_minutes));
+					Incoming = false;
+				}
+				if(Outgoing)
+				{
+					out = Seconds2Minutes(call.getElapsedTime());
+					new Logger().LogMessage("out minutes:"+out);
+					OUT_minutes = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+					OUT_minutes = OUT_minutes + out;
+					theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
+					Outgoing = false;
+				}
 			}
 		}
 		
@@ -140,14 +147,33 @@ public class CallMonitor //implements Runnable
 		
 	}
 	
+	/**
+     * Convert seconds to minutes
+     * @param Seconds
+     * @return Minutes
+     */
+    public int Seconds2Minutes(int seconds)
+    {
+    	int minutes=0;
+    	if(seconds == 0)
+    	{
+    		minutes = 0;
+    	}
+    	else 
+    	{
+    		minutes = seconds/60 + 1;
+    	}
+    	return minutes;
+    }
+	
 	public int getOutgoingDuration()
 	{
-		return OUT_seconds;
+		return OUT_minutes;
 	}
 	
 	public int getIncomingDuration()
 	{
-		return IN_seconds;
+		return IN_minutes;
 	}
 	
 }

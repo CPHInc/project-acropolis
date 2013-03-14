@@ -1,16 +1,11 @@
 package com.app.project.acropolis.model;
 
-import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.file.FileSystemRegistry;
 
 import loggers.DBLogger;
 import loggers.Logger;
-
-
 import net.rim.device.api.database.Cursor;
 import net.rim.device.api.database.DataTypeException;
 import net.rim.device.api.database.Database;
@@ -46,11 +41,13 @@ public class ModelFactory {
 	public String select_query = "select ";
 	public String select_part2 = " from activity_acropolis";
 	public String select_all = "select * from activity_acropolis";
+
+	public boolean eMMCFound = false;
+	public boolean SDFound = false;
 	
 	public ModelFactory()
 	{
 		new DBLogger().LogMessage(">>-ModelFactory-<<");
-		DBExistence();
 	}
 	
 	/**
@@ -71,18 +68,18 @@ public class ModelFactory {
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-		}
-		new DBLogger().LogMessage("DB updated");
+		} 
 		CloseDB();
+		new DBLogger().LogMessage("DB updated");
 	}
 	
 	public String SelectData(String column)
 	{
-		OpenDB();
 		String collected = "";
 		int colIndex = 0;
+		OpenDB();
 		try{
 //			db.beginTransaction();
 			Statement st_select = db.createStatement(select_query + column +select_part2);
@@ -91,6 +88,7 @@ public class ModelFactory {
 			cursor.first();
 			colIndex = cursor.getColumnIndex(column);
 			collected = cursor.getRow().getString(colIndex);
+			new Logger().LogMessage("index:->"+colIndex);
 			cursor.close();
 			st_select.close();
 //			db.commitTransaction();
@@ -100,18 +98,20 @@ public class ModelFactory {
 		} catch(DataTypeException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DataTypeException:"+e.getClass()+"::"+e.getMessage());
-		}
-		new DBLogger().LogMessage("selected from ::"+column +":::" + collected);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();	
+		} 
 		CloseDB();
+		new DBLogger().LogMessage("selected from ::"+column +":::" + collected);
 		return collected;
 	}
 	
 	public String[] SelectAll()
 	{
-		OpenDB();
 		String collectedAll[] = new String[100];
+		OpenDB();
 		try{
-//			db.beginTransaction();
 			Statement st_select = db.createStatement(select_all);
 			st_select.prepare();
 			
@@ -139,127 +139,129 @@ public class ModelFactory {
 				new DBLogger().LogMessage(collectedAll[i]);
 				i++;
 			}
-			
 			cursor.close();
 			st_select.close();
-//			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
 		} catch(DataTypeException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DataTypeException:"+e.getClass()+"::"+e.getMessage());
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		CloseDB();
 		return collectedAll;
 		
 	}
 	
-	public void OpenDB()
-	{
-		try {
-			db_URI = URI.create(dbPath);
-			db = DatabaseFactory.open(db_URI);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (MalformedURIException e) {
-			e.printStackTrace();
-		} catch (ControlledAccessException e) {
-			e.printStackTrace();
-		} catch (DatabaseIOException e) {
-			e.printStackTrace();
-		} catch (DatabasePathException e) {
-			e.printStackTrace();
-		}
-	}
+	  public boolean DBPresence()
+      {
+	      boolean storagePresent = false;
+	      String root = null;
+	      try {
+		      if
+//		        ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                           //valid Flash check
+		        ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check   
+		  //only if device flash is above 2GB
+	          {
+	                  storagePresent = true;
+	                  eMMCMounted = true;
+	          }
+		      else
+		      {
+	              Enumeration enum = FileSystemRegistry.listRoots();
+	              while (enum.hasMoreElements())
+	              {
+	                      root = (String)enum.nextElement();
+	                      if(root.equalsIgnoreCase("sdcard/"))                                                                                    //valid SDCard check
+	                      {
+	                              storagePresent = true;
+	                              SDCardMounted = true;
+	                      }  
+	              }
+	              if(!SDCardMounted)
+	              {
+	                      UiApplication.getUiApplication().invokeAndWait(new Runnable()
+	                      {
+	                              public void run()
+	                              { 
+	                                      new Logger().LogMessage("SDCard & valid eMMC storage missing...");
+	                                      Dialog.alert("SDCard is required for the application to operate");
+	                                      System.exit(0);            
+	                              }
+	                      }); 
+	              }
+              }
+	      } catch(Exception e) {
+	              e.printStackTrace();
+	              new Logger().LogMessage("Exception:::"+e.getMessage()+"\r\n"+e.getClass());
+	      }
+              return storagePresent;
+      }
+      
+      public void DBExistence()
+      {
+	      try{
+	    	  if(DBPresence())
+              {
+                  if(eMMCMounted && SDCardMounted)
+                  {
+                          eMMCMounted = true;
+                          SDCardMounted = false;
+                          dbPath = eMMCPath;
+                  }
+                  else if(eMMCMounted)
+                  {
+                          URI usage_uri = URI.create(eMMCPath);
+                          new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
+                          dbPath = eMMCPath;
+                  }       
+                  else
+                  {
+                          URI usage_uri = URI.create(SDCardPath);
+                          new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
+                          dbPath = SDCardPath;
+                  }
+              }
+	      } catch (IllegalArgumentException e) {
+	              // TODO Auto-generated catch block
+	              e.printStackTrace();
+	      } catch (MalformedURIException e) {
+	              // TODO Auto-generated catch block
+	              e.printStackTrace();
+	      } catch (IDNAException e) {
+	              e.printStackTrace();
+	      }
+      }
+	
+	 public void OpenDB()
+     {
+         try {
+        	 DBExistence();
+             db_URI = URI.create(dbPath);
+             db = DatabaseFactory.open(db_URI);
+         } catch (IllegalArgumentException e) {
+                 e.printStackTrace();
+         } catch (MalformedURIException e) {
+                 e.printStackTrace();
+         } catch (ControlledAccessException e) {
+                 e.printStackTrace();
+         } catch (DatabaseIOException e) {
+                 e.printStackTrace();
+         } catch (DatabasePathException e) {
+                 e.printStackTrace();
+         }
+     }
 
-	public void CloseDB()
-	{
-		try {
-			db.close();
-		} catch (DatabaseIOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public boolean DBPresence()
-	{
-    	boolean storagePresent = false;
-    	String root = null;
-    	try {
-    		if
-//				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
-				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
-			//only if device flash is above 2GB
-			{
-				storagePresent = true;
-				eMMCMounted = true;
-			}
-    		else
-    		{
-		    	Enumeration enum = FileSystemRegistry.listRoots();
-		    	while (enum.hasMoreElements())
-		    	{
-		    		root = (String)enum.nextElement();
-		    		if(root.equalsIgnoreCase("sdcard/"))											//valid SDCard check
-		    		{
-		    			storagePresent = true;
-		    			SDCardMounted = true;
-		    		}  
-		    	}
-		    	if(!SDCardMounted)
-		    	{
-		    		UiApplication.getUiApplication().invokeAndWait(new Runnable()
-	        		{
-	        			public void run()
-	        			{ 
-	        				new Logger().LogMessage("SDCard & valid eMMC storage missing...");
-	        				Dialog.alert("SDCard is required for the application to operate");
-	        				System.exit(0);            
-	        			}
-	        		}); 
-		    	}
-    		}
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    		new Logger().LogMessage("Exception:::"+e.getMessage()+"\r\n"+e.getClass());
-    	}
-		return storagePresent;
-	}
-	
-	public void DBExistence()
-	{
-		try{
-			if(DBPresence())
-			{
-				if(eMMCMounted && SDCardMounted)
-				{
-					eMMCMounted = true;
-					SDCardMounted = false;
-					dbPath = eMMCPath;
-				}
-				else if(eMMCMounted)
-				{
-					URI usage_uri = URI.create(eMMCPath);
-					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
-					dbPath = eMMCPath;
-				}	
-				else
-				{
-					URI usage_uri = URI.create(SDCardPath);
-					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
-					dbPath = SDCardPath;
-				}
-			}
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedURIException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IDNAException e) {
-			e.printStackTrace();
-		}
-	}
+     public void CloseDB()
+     {
+         try {
+                 db.close();
+         } catch (DatabaseIOException e) {
+                 e.printStackTrace();
+         }
+     }
 	
 }

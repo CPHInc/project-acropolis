@@ -20,11 +20,8 @@ import net.rim.device.api.io.URI;
 import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
-import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.ApplicationManager;
-import net.rim.device.api.system.ApplicationManagerException;
 import net.rim.device.api.system.DeviceInfo;
-import net.rim.device.api.system.RuntimeStore;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
@@ -121,8 +118,10 @@ public class ApplicationEntry extends UiApplication
 					path = eMMCpath;
 					URI usage_uri = URI.create(path + USAGE_DB);
 					Database usage_db = DatabaseFactory.openOrCreate(usage_uri);
+					usage_db.close();
 					URI plan_uri = URI.create(path + PLAN_DB);
 					Database plan_db = DatabaseFactory.openOrCreate(plan_uri);
+					plan_db.close();
 				}
 				else if(eMMCMounted)
 				{
@@ -139,7 +138,7 @@ public class ApplicationEntry extends UiApplication
 					plan_db_check.close();
 					path = eMMCpath;
 				}	
-				else
+				else if(SDCardMounted)
 				{
 					URI usage_uri = URI.create(SDCardpath + USAGE_DB);
 					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
@@ -155,7 +154,6 @@ public class ApplicationEntry extends UiApplication
 					
 					path = SDCardpath;
 				}
-				
 				
 				FileConnection fileConnection_plan = (FileConnection) Connector.open(path + PLAN_DB);
 				if(fileConnection_plan.exists())
@@ -210,7 +208,6 @@ public class ApplicationEntry extends UiApplication
 					{
 						new Logger().LogMessage("Monitor DB exists...");
 					}
-					
 				}
 				else
 				{
@@ -256,7 +253,7 @@ public class ApplicationEntry extends UiApplication
     	try {
     		if
 //				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
-				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
+				( DeviceInfo.getTotalFlashSizeEx() > 1*1024*1024*1024 )			//for OS 6+ valid Flash check 	
 			//only if device flash is above 2GB
 			{
 				storagePresent = true;

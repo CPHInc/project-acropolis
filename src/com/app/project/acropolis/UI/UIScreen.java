@@ -1,6 +1,7 @@
 package com.app.project.acropolis.UI;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -103,7 +104,8 @@ public final class UIScreen extends MainScreen
     	map.setPreferredSize(Display.getWidth(),Display.getHeight()/3);
     	if(theModel.SelectData("fix_ack").equals("true"))
     	{
-    		map.moveTo( Integer.parseInt(theModel.SelectData("lat")),Integer.parseInt(theModel.SelectData("lng")) );
+    		map.moveTo( Integer.valueOf(theModel.SelectData("lat")).intValue(),
+    				Integer.valueOf(theModel.SelectData("lng")).intValue() );
     		map.setZoom(ZOOM_MIN);
     	}
     	else
@@ -132,9 +134,19 @@ public final class UIScreen extends MainScreen
     	
     	TextInserter();
     	
-    	Application.getApplication().invokeLater(new ScreenTextUpdater(), 2*60*1000, true);
+    	Application.getApplication().invokeLater(new ScreenTextUpdater(),5*60*1000, true);
     	
-    	
+    	//new Timer().schedule(new ScreenTextUpdater(), 1000, 10*1000);
+//    	for(;;)
+//    	{
+//    		new ScreenTextUpdater();
+//    		try {
+//				Thread.sleep(60*1000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//    	}
 //    	new Timer().schedule(new ScreenTextUpdater(), 20*1000 );
     }
     
@@ -148,8 +160,8 @@ public final class UIScreen extends MainScreen
 			FixAckText.setText(FixString + "Scupper(will try later!!)");
 		
 		//Java AutoBoxing used for parsing String to int(via Integer) 
-		int incomingMin = Seconds2Minutes((Integer.valueOf(theModel.SelectData("incoming"))).intValue());
-		int outgoingMin = Seconds2Minutes((Integer.valueOf(theModel.SelectData("outgoing"))).intValue()); 
+		int incomingMin = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+		int outgoingMin = Integer.valueOf(theModel.SelectData("outgoing")).intValue(); 
 		int totalMin = incomingMin + outgoingMin;
 		IncomingUsage.setText( IncomingString + String.valueOf(incomingMin).toString() );
 		OutgoingUsage.setText( OutgoingString + String.valueOf(outgoingMin).toString() );
@@ -202,19 +214,20 @@ public final class UIScreen extends MainScreen
     public class ScreenTextUpdater implements Runnable//extends TimerTask
     {
     	public void run()
+//    	public ScreenTextUpdater()
     	{
     		synchronized(Application.getEventLock())
     		{
     			TextInserter();
-    		}
-    		if(theModel.SelectData("fix_ack").equalsIgnoreCase("true"))
-    		{
-    			ScreenMap(Integer.parseInt(theModel.SelectData("lat")),
-    					Integer.parseInt(theModel.SelectData("lng")),ZOOM_MIN);
-    		}
-    		else
-    		{
-    			ScreenMap(Latitude,Longitude,ZOOM_MAX);
+    			if(theModel.SelectData("fix_ack").equalsIgnoreCase("true"))
+        		{
+        			ScreenMap(Integer.parseInt(theModel.SelectData("lat")),
+        					Integer.parseInt(theModel.SelectData("lng")),ZOOM_MIN);
+        		}
+        		else
+        		{
+        			ScreenMap(Latitude,Longitude,ZOOM_MAX);
+        		}
     		}
     	}
     }

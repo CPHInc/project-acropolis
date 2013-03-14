@@ -1,10 +1,7 @@
 package com.app.project.acropolis.UI;
 
-import javax.microedition.location.Coordinates;
-
 import net.rim.device.api.lbs.MapField;
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.component.LabelField;
 

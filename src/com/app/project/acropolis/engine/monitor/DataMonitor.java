@@ -17,29 +17,11 @@ public class DataMonitor extends TimerTask
 	{
 		theModel = new ModelFactory();
 
-		if(RadioInfo.getNumberOfPacketsReceived() > Long.parseLong(theModel.SelectData("downloaded"))
-				&& RadioInfo.getNumberOfPacketsSent() > Long.parseLong(theModel.SelectData("uploaded")))
-		{
-			download = RadioInfo.getNumberOfPacketsReceived();
-			upload = RadioInfo.getNumberOfPacketsSent();
-			download = download + Long.parseLong( theModel.SelectData("downloaded") );
-			upload = upload + Long.parseLong( theModel.SelectData("uploaded") );
-			
-			theModel.UpdateData("downloaded", String.valueOf(download));
-			theModel.UpdateData("uploaded", String.valueOf(upload));
-		}
-		else
-		{
-			download = RadioInfo.getNumberOfPacketsReceived();
-			upload = RadioInfo.getNumberOfPacketsSent();
-			
-			download = download + Long.parseLong( theModel.SelectData("downloaded") );
-			upload = upload + Long.parseLong( theModel.SelectData("uploaded") );
-			
-			theModel.UpdateData("downloaded", String.valueOf(download));
-			theModel.UpdateData("uploaded", String.valueOf(upload));
-		}
+		download = RadioInfo.getNumberOfPacketsReceived();
+		upload = RadioInfo.getNumberOfPacketsSent();
 		
+		theModel.UpdateData("downloaded", String.valueOf(download).toString());
+		theModel.UpdateData("uploaded", String.valueOf(upload).toString());
 	}
 	
 }

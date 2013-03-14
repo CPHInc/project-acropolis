@@ -3,11 +3,8 @@ package com.app.project.acropolis.controller;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
 import net.rim.device.api.system.Application;
-import net.rim.device.api.system.EventLogger;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.SystemListener;
 
 /**
  * 

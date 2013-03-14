@@ -13,7 +13,6 @@ import javax.wireless.messaging.MultipartMessage;
 import javax.wireless.messaging.TextMessage;
 
 import loggers.Logger;
-
 import net.rim.blackberry.api.sms.OutboundMessageListener;
 
 import com.app.project.acropolis.model.ModelFactory;

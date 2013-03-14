@@ -4,16 +4,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import loggers.Logger;
-
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioListener;
-import net.rim.device.api.system.RadioStatusListener;
 
 import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.engine.monitor.LocationCode;
@@ -98,7 +93,7 @@ public class CodesHandler// implements RadioStatusListener
 					{
 						new Logger().LogMessage("Radio ON");
 						try {
-							Thread.sleep(5*60*60*1000);
+							Thread.sleep(10*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						} 
