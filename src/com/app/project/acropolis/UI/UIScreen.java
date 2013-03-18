@@ -184,8 +184,8 @@ public final class UIScreen extends MainScreen
 		String totalData = String.valueOf( 
 				( Long.parseLong(downData) + Long.parseLong(upData) ));
 		DownloadUsage.setText(DownloadString + strBreak.split(downData, ".")[0] );
-		new Logger().LogMessage(this.getClass() + " Uploaded::"+ strBreak.split(downData, ".")[0] + strBreak.split(downData, ".")[1]);
-		UploadUsage.setText(UploadString + strBreak.split(upData, ".")[0] + " " + strBreak.split(upData, ".")[1]);
+		new Logger().LogMessage(this.getClass() + " Uploaded::"+ strBreak.split(downData, ".")[0] );//+ strBreak.split(downData, ".")[1]);
+		UploadUsage.setText(UploadString + strBreak.split(upData, ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
 		new Logger().LogMessage(this.getClass() + " Uploaded::"+ strBreak.split(upData, ".")[0]);
 		TotalDataUsage.setText(TotalDataString + strBreak.split(totalData,".")[0]);
     }
