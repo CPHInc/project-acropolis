@@ -50,7 +50,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 			MDS_upload = RadioInfo.getNumberOfPacketsSent() - wifi_up;
 			//new Logger().LogMessage("MDS active");
 			/*Download check*/
-			if(RadioInfo.getNumberOfPacketsReceived() >= db_down)
+			if(MDS_download >= db_down)
 			{
 				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
 				MDS_download = RadioInfo.getNumberOfPacketsReceived();
@@ -59,11 +59,11 @@ public class DataMonitor implements Runnable//extends TimerTask
 			else
 			{
 				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
-				MDS_download = db_down + RadioInfo.getNumberOfPacketsReceived();
+				MDS_download = db_down + MDS_download;
 				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
 			}
 			/*Upload check*/
-			if(RadioInfo.getNumberOfPacketsSent() >= db_up)
+			if(MDS_upload >= db_up)
 			{
 				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
 				MDS_upload = RadioInfo.getNumberOfPacketsSent();
@@ -72,7 +72,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 			else
 			{
 				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
-				MDS_upload = db_up + RadioInfo.getNumberOfPacketsSent();
+				MDS_upload = db_up + MDS_upload;
 				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
 			}
 		}
