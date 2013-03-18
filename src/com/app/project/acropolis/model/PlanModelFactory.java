@@ -30,7 +30,6 @@ public class PlanModelFactory
 	public final String eMMCPath = "file:///store/home/user/acropolis_mobile_plan.db";
 	public final String SDCardPath = "file:///Acropolis/database/acropolis_mobile_plan.db";
 	public String dbPath = "";
-	public static final String USAGE_DB = "acropolis.db";
 	public static final String PLAN_DB = "acropolis_mobile_plan.db";
 
 	URI plan_uri = null;
@@ -38,7 +37,7 @@ public class PlanModelFactory
 	
 	public String update_query = "update acropolis_mobile_plan set ";
 	public String select_query = "select ";
-	public String select_part2 = " from activity_acropolis";
+	public String select_part2 = " from acropolis_mobile_plan";
 	public String select_all = "select * from acropolis_mobile_plan";
 	
 	public boolean eMMCFound = false;
@@ -80,7 +79,7 @@ public class PlanModelFactory
 		String collected = "";
 		int colIndex = 0;
 		try{
-			Statement st_select = db.createStatement(select_query + column +select_part2);
+			Statement st_select = db.createStatement(select_query + column + select_part2);
 			st_select.prepare();
 			Cursor cursor = st_select.getCursor();
 			cursor.first();
@@ -161,8 +160,8 @@ public class PlanModelFactory
 	     String root = null;
 	     try {
              if
-//                 ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                           //valid Flash check
-               ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check   
+             ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                           //valid Flash check
+//               ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check   
                  //only if device flash is above 2GB
 	         {
 	             storagePresent = true;

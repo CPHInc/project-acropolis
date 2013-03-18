@@ -2,6 +2,8 @@ package com.app.project.acropolis.controller;
 
 import java.util.Timer;
 
+import net.rim.device.api.system.Application;
+
 import loggers.Logger;
 
 import com.app.project.acropolis.engine.monitor.CallMonitor;
@@ -27,6 +29,8 @@ public class CodeValidator extends Thread
 		new Logger().LogMessage("--->CodeValidator()<---");
 		/**
 		 * TODO - USB sync and detection for safety of database & application
+		 * In process
+		 * 
 		 */
 	}
 	
@@ -36,7 +40,8 @@ public class CodeValidator extends Thread
 		new TextMonitor();
 		new CallMonitor();
 		new Logger().LogMessage(">>DataMonitor<<");
-		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 minutes
+		Application.getApplication().invokeLater(new DataMonitor(), 60*1000 , true);
+//		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 minutes
 
 		if(new PlanModelFactory().SelectData("roam_quota").toString().equalsIgnoreCase("true"))
 			new ModelFactory().UpdateData("roam_quota", "true");

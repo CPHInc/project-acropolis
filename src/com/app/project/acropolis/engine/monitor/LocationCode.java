@@ -15,6 +15,7 @@ import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
+import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.RadioInfo;
 
@@ -60,7 +61,7 @@ public class LocationCode implements Runnable{
 		boolean retval = true;
 		try {
 			new Logger().LogMessage("Automous scanning initiated...");
-			bbcriteria = new BlackBerryCriteria();
+			bbcriteria = new BlackBerryCriteria(GPSInfo.getDefaultGPSMode());
 			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
 			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
 //			bbcriteria.setFailoverMode(GPSInfo.GPS_MODE_CELLSITE, 2, 120);

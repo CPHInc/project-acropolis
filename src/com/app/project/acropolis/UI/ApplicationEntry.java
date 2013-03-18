@@ -22,11 +22,11 @@ import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.DeviceInfo;
+import net.rim.device.api.system.SystemListener2;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.app.project.acropolis.engine.mail.PlanFeeder;
-
 
 /**
  * @vendor CellPhoneHospitalInc
@@ -38,11 +38,6 @@ import com.app.project.acropolis.engine.mail.PlanFeeder;
  * 		location when on Roaming (Strictly for Enterprise users only)
  */
 
-
-/**
- * This class extends the UiApplication class, providing a
- * graphical user interface.
- */
 public class ApplicationEntry extends UiApplication
 {
 	final static long GUID = 0x5c4288d815f58838L;
@@ -83,7 +78,7 @@ public class ApplicationEntry extends UiApplication
 		
 		ApplicationEntry theApp = new ApplicationEntry();
 		
-		feeder.run();
+		new Thread(feeder).start();
 		theApp.enterEventDispatcher();
     }
 
@@ -94,6 +89,7 @@ public class ApplicationEntry extends UiApplication
     {        
     	new Logger().LogMessage("SyncEventListener registered");
     	SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+    	Application.getApplication().addSystemListener(new USBStateListener());
 		new Logger().LogMessage("Database start-up checking..");
     	StartUP_Check();
 		new Logger().LogMessage("Screen pushed");
@@ -113,47 +109,25 @@ public class ApplicationEntry extends UiApplication
 				String path = "";
 				if(eMMCMounted && SDCardMounted)
 				{
-					eMMCMounted = true;
-					SDCardMounted = false;
 					path = eMMCpath;
-					URI usage_uri = URI.create(path + USAGE_DB);
-					Database usage_db = DatabaseFactory.openOrCreate(usage_uri);
-					usage_db.close();
-					URI plan_uri = URI.create(path + PLAN_DB);
-					Database plan_db = DatabaseFactory.openOrCreate(plan_uri);
-					plan_db.close();
 				}
 				else if(eMMCMounted)
 				{
-					URI usage_uri = URI.create(eMMCpath + USAGE_DB);
-					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
-					
-					Database usage_db_check = DatabaseFactory.openOrCreate(usage_uri);
-					usage_db_check.close();
-					
-					URI plan_uri = URI.create(eMMCpath + PLAN_DB);
-					new DBLogger().LogMessage("URI::"+plan_uri.toIDNAString());
-					
-					Database plan_db_check = DatabaseFactory.openOrCreate(plan_uri);
-					plan_db_check.close();
 					path = eMMCpath;
 				}	
 				else if(SDCardMounted)
 				{
-					URI usage_uri = URI.create(SDCardpath + USAGE_DB);
-					new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
-					
-					Database usage_db_check = DatabaseFactory.openOrCreate(usage_uri);
-					usage_db_check.close();
-					
-					URI plan_uri = URI.create(SDCardpath + PLAN_DB);
-					new DBLogger().LogMessage("URI::"+plan_uri.toIDNAString());
-					
-					Database plan_db_check = DatabaseFactory.openOrCreate(plan_uri);
-					plan_db_check.close();
-					
 					path = SDCardpath;
 				}
+				
+				URI usage_uri = URI.create(path + USAGE_DB);
+				new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
+				Database usage_db = DatabaseFactory.openOrCreate(usage_uri);
+				usage_db.close();
+				URI plan_uri = URI.create(path + PLAN_DB);
+				new DBLogger().LogMessage("URI::"+plan_uri.toIDNAString());
+				Database plan_db = DatabaseFactory.openOrCreate(plan_uri);
+				plan_db.close();
 				
 				FileConnection fileConnection_plan = (FileConnection) Connector.open(path + PLAN_DB);
 				if(fileConnection_plan.exists())
@@ -252,8 +226,8 @@ public class ApplicationEntry extends UiApplication
     	String root = null;
     	try {
     		if
-//				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
-				( DeviceInfo.getTotalFlashSizeEx() > 1*1024*1024*1024 )			//for OS 6+ valid Flash check 	
+				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
+//				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
 			//only if device flash is above 2GB
 			{
 				storagePresent = true;
@@ -334,6 +308,33 @@ public class ApplicationEntry extends UiApplication
 		}
 	}
     
+	
+	private class USBStateListener implements SystemListener2 {
+
+		public void usbConnectionStateChange(int state) {
+			new Logger().LogMessage("USB State::" + state);
+		}
+		
+		public void batteryGood() {}
+
+		public void batteryLow() {}
+
+		public void batteryStatusChange(int status) {}
+
+		public void powerOff() {}
+
+		public void powerUp() {}
+
+		public void backlightStateChange(boolean on) {}
+
+		public void cradleMismatch(boolean mismatch) {}
+
+		public void fastReset() {}
+
+		public void powerOffRequested(int reason) {}
+		
+	}
+	
 	private class RestoreEventListener implements SyncEventListener {
 		public boolean syncStarted = false;
 

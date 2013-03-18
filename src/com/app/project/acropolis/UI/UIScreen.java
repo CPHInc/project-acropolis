@@ -176,16 +176,18 @@ public final class UIScreen extends MainScreen
 		
 		StringBreaker strBreak = new StringBreaker();
 		String downData = String.valueOf(
-				(Double.valueOf(
-						theModel.SelectData("downloaded"))).doubleValue()/(1000*1000));
+				(Long.parseLong(
+						theModel.SelectData("downloaded")))/(1024*1024));
 		String upData = String.valueOf(
-				(Double.valueOf(
-						theModel.SelectData("uploaded"))).doubleValue()/(1000*1000));
+				(Long.parseLong(
+						theModel.SelectData("uploaded")))/(1024*1024));
 		String totalData = String.valueOf( 
-				( Double.valueOf(downData).doubleValue() + Double.valueOf(upData).doubleValue() ));
+				( Long.parseLong(downData) + Long.parseLong(upData) ));
 		DownloadUsage.setText(DownloadString + strBreak.split(downData, ".")[0] );
-		UploadUsage.setText(UploadString + strBreak.split(upData, ".")[0] );
-		TotalDataUsage.setText(TotalDataString + strBreak.split(totalData,".")[0] );
+		new Logger().LogMessage(this.getClass() + " Uploaded::"+ strBreak.split(downData, ".")[0] + strBreak.split(downData, ".")[1]);
+		UploadUsage.setText(UploadString + strBreak.split(upData, ".")[0] + " " + strBreak.split(upData, ".")[1]);
+		new Logger().LogMessage(this.getClass() + " Uploaded::"+ strBreak.split(upData, ".")[0]);
+		TotalDataUsage.setText(TotalDataString + strBreak.split(totalData,".")[0]);
     }
     
     /**

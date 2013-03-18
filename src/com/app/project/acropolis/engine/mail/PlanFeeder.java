@@ -23,6 +23,7 @@ public class PlanFeeder implements Runnable
 //	String in_Name_server = "postmaster";
 	String device_Mail = "";
 	String device_Name = "";
+	int incoming_serverMail = 0;
 	String incoming_subject = "";
 	String incoming_content = "";
 	String incomingDelimiter = "|";
@@ -66,6 +67,7 @@ public class PlanFeeder implements Runnable
 	
 	public void ReadMail()
 	{
+		incoming_serverMail = 0;
 		Session read_session = Session.getDefaultInstance();
 		Folder[] read_folder = read_session.getStore().list(Folder.INBOX);
 		Folder inbox = read_folder[0];
@@ -84,6 +86,8 @@ public class PlanFeeder implements Runnable
 						{
 							new Logger().LogMessage("Mobile Plan received!!");
 							new Logger().LogMessage("inmail address:"+e.getMessage().getFrom().getAddr());
+							incoming_serverMail = 1;
+							incoming_subject = e.getMessage().getSubject();
 							if( e.getMessage().getSubject().equalsIgnoreCase("Device Plan Details") )
 							{
 								incoming_content = e.getMessage().getBodyText();
@@ -105,5 +109,20 @@ public class PlanFeeder implements Runnable
 			public void messagesRemoved(FolderEvent e) 
 			{}
 		});
+	}
+	
+	public int getIncomingServerMailAlert()
+	{
+		return incoming_serverMail;
+	}
+	
+	public String getIncomingServerMailSubject()
+	{
+		return incoming_subject;
+	}
+	
+	public String getIncomingServerMailContent()
+	{
+		return incoming_content;
 	}
 }
