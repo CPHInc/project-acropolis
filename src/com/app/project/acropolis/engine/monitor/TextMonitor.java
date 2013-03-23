@@ -170,7 +170,7 @@ public class TextMonitor //implements Runnable
 				if(msg_rcv instanceof TextMessage)
 				{
 					textmsg_rcv = (TextMessage)msg_rcv;
-					received = Integer.parseInt(theModel.SelectData("received"));
+					received = Integer.valueOf(theModel.SelectData("received")).intValue();
 					received = received + msg_in;
 					theModel.UpdateData("received", String.valueOf(received));
 					new Logger().LogMessage("TextMessage received"+
@@ -181,7 +181,7 @@ public class TextMonitor //implements Runnable
 				else if(msg_rcv instanceof BinaryMessage)
 				{
 					binmsg_rcv = (BinaryMessage)msg_rcv;
-					received = Integer.parseInt(theModel.SelectData("received"));
+					received = Integer.valueOf(theModel.SelectData("received")).intValue();
 					received = received + msg_in;
 					theModel.UpdateData("received", String.valueOf(received));
 					new Logger().LogMessage("BinaryMessage received" + 
@@ -191,7 +191,7 @@ public class TextMonitor //implements Runnable
 				else if(msg_rcv instanceof MultipartMessage)
 				{
 					multimsg_rcv = (MultipartMessage)msg_rcv;
-					received = Integer.parseInt(theModel.SelectData("received"));
+					received = Integer.valueOf(theModel.SelectData("received")).intValue();
 					received = received + msg_in;
 					theModel.UpdateData("received", String.valueOf(received));
 					new Logger().LogMessage("MultipartMessage received" + 
@@ -213,7 +213,7 @@ public class TextMonitor //implements Runnable
 			if(message instanceof TextMessage)
 			{
 				textmsg_snd = (TextMessage)message;
-				sent = Integer.parseInt(theModel.SelectData("sent"));
+				sent = Integer.valueOf(theModel.SelectData("sent")).intValue();
 				sent = sent + msg_out;
 				theModel.UpdateData("sent", String.valueOf(sent));
 				new Logger().LogMessage("TextMessage sent"+
@@ -223,7 +223,7 @@ public class TextMonitor //implements Runnable
 			else if (message instanceof BinaryMessage)
 			{
 				binmsg_snd = (BinaryMessage)message;
-				sent = Integer.parseInt(theModel.SelectData("sent"));
+				sent = Integer.valueOf(theModel.SelectData("sent")).intValue();
 				sent = sent + msg_out;
 				theModel.UpdateData("sent", String.valueOf(sent));
 				new Logger().LogMessage("BinaryMessage sent"+
@@ -233,7 +233,7 @@ public class TextMonitor //implements Runnable
 			else if (message instanceof MultipartMessage)
 			{
 				multimsg_snd = (MultipartMessage)message;
-				sent = Integer.parseInt(theModel.SelectData("sent"));
+				sent = Integer.valueOf(theModel.SelectData("sent")).intValue();
 				sent = sent + msg_out;
 				theModel.UpdateData("sent", String.valueOf(sent));
 				new Logger().LogMessage("MultipartMessage sent"+

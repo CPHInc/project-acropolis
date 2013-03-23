@@ -17,6 +17,7 @@ import net.rim.device.api.database.Statement;
 import net.rim.device.api.io.IDNAException;
 import net.rim.device.api.io.MalformedURIException;
 import net.rim.device.api.io.URI;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.UiApplication;
@@ -87,7 +88,6 @@ public class PlanModelFactory
 			collected = cursor.getRow().getString(colIndex);
 			cursor.close();
 			st_select.close();
-			db.close();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -99,8 +99,30 @@ public class PlanModelFactory
 			e.printStackTrace();
 		} 
 		CloseDB();
+		String temp = column;
+		if(collected == null)
+		{
+			for(int i=0;i<2;i++)
+			{
+				collected = SelectData(temp);
+				if(collected!=null)
+				{
+					break;
+				}
+				else
+				{
+					synchronized(Application.getApplication().getAppEventLock())
+					{
+						try {
+							new Thread().wait(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
 		new DBLogger().LogMessage("selected from ::"+column +":::" + collected);
-		
 		return collected;
 	}
 	

@@ -40,8 +40,7 @@ import com.app.project.acropolis.engine.mail.PlanFeeder;
 
 public class ApplicationEntry extends UiApplication
 {
-	final static long GUID = 0x5c4288d815f58838L;
-	
+	final static int PLAN_RECEIVED = 1;
 	public boolean SDCardMounted = false;
 	public boolean eMMCMounted = false;
 	public static String SDCardpath = "file:///SDCard/Acropolis/database/";
@@ -79,6 +78,10 @@ public class ApplicationEntry extends UiApplication
 		ApplicationEntry theApp = new ApplicationEntry();
 		
 		new Thread(feeder).start();
+		if(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED)
+		{
+			feeder.UpdatePlan();
+		}
 		theApp.enterEventDispatcher();
     }
 
@@ -250,7 +253,7 @@ public class ApplicationEntry extends UiApplication
 		    	if(!SDCardMounted)
 		    	{
 		    		UiApplication.getUiApplication().invokeAndWait(new Runnable()
-	        		{
+	        		{ 
 	        			public void run()
 	        			{
 	        				new Logger().LogMessage("SDCard & valid eMMC storage missing...");

@@ -15,6 +15,7 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
@@ -50,22 +51,36 @@ public class RoamingRunnable implements Runnable
 	PlanModelFactory thePlan;
 	MailCode mailer;
 	
+	/*Roaming*/
 	public int roamAvailMins = 0;
 	public int roamAvailData = 0;
 	public int roamAvailMsgs = 0;
+	public int roamIncomingMins = 0;
+	public int roamOutgoingMins = 0;
 	public int roamUsedMins = 0;
+	public int roamReceivedMsgs = 0;
+	public int roamSentMsgs = 0;
 	public int roamUsedMsgs = 0;
+	public int roamDownload = 0;
+	public int roamUpload = 0;
 	public int roamUsedData = 0;
 	
+	/*Local*/
+	public int UsedIncomingMins = 0;
+	public int UsedOutgoingMins = 0;
 	public int UsedMins = 0;
+	public int UsedSentMsgs = 0;
+	public int UsedReceivedMsgs = 0;
 	public int UsedMsgs = 0;
+	public int UsedDownload = 0;
+	public int UsedUpload = 0;
 	public int UsedData = 0;
 
 	int computationCounter = 0;
 	
 	public void run() 
 	{
-		while(getRoamingState() || Check_NON_CAN_Operator())		//when either returns roaming "true"
+		while(Check_NON_CAN_Operator())		//when either returns roaming "true"
 		{
 			CollectedData();
 		}
@@ -78,44 +93,60 @@ public class RoamingRunnable implements Runnable
 			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
 			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
 			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
-			switch (computationCounter)
-			{
-				case 0:
-				{
-					roamUsedMins = 0;
-					roamUsedMsgs = 0;
-					roamUsedData = 0;
+			
+			roamUsedMins = 0;
+			roamUsedMsgs = 0;
+			roamUsedData = 0;
+			roamIncomingMins = 0;
+			roamOutgoingMins = 0;
+			roamReceivedMsgs = 0;
+			roamSentMsgs = 0;
+			roamDownload = 0;
+			roamUpload = 0;
+			
+			UsedIncomingMins = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+			UsedOutgoingMins = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+			UsedMins = UsedIncomingMins + UsedOutgoingMins;
+			
+			UsedReceivedMsgs = Integer.valueOf(theModel.SelectData("received")).intValue();
+			UsedSentMsgs = Integer.valueOf(theModel.SelectData("sent")).intValue();
+			UsedMsgs = UsedReceivedMsgs + UsedSentMsgs;
 					
-					UsedMins = 
-							Integer.valueOf(theModel.SelectData("incoming")).intValue() +
-							Integer.valueOf(theModel.SelectData("outgoing")).intValue();
-					UsedMsgs = 
-							Integer.valueOf(theModel.SelectData("received")).intValue() + 
-							Integer.valueOf(theModel.SelectData("sent")).intValue();
-					UsedData =
-							Integer.valueOf(theModel.SelectData("downloaded")).intValue() +
-							Integer.valueOf(theModel.SelectData("uploaded")).intValue();
-					computationCounter = 1;
-				};
-				default:
+			UsedDownload = 
+					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue());
+			UsedUpload = 
+					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue());
+			UsedData = UsedDownload + UsedUpload;
+			
+			Application.getApplication().invokeLater(new Runnable()
+			{
+				public void run()
 				{
-					roamUsedMins = 
-							Integer.valueOf(theModel.SelectData("incoming")).intValue() +
-							Integer.valueOf(theModel.SelectData("outgoing")).intValue() -
-							UsedMins;
-					roamUsedMsgs = 
-							Integer.valueOf(theModel.SelectData("received")).intValue() + 
-							Integer.valueOf(theModel.SelectData("sent")).intValue() -
-							UsedMsgs;
-					roamUsedData = 
-							Integer.valueOf(theModel.SelectData("downloaded")).intValue() +
-							Integer.valueOf(theModel.SelectData("uploaded")).intValue() -
-							UsedData;
-					theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
-					theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
-					theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
+				roamIncomingMins = 
+						Integer.valueOf(theModel.SelectData("incoming")).intValue() - UsedIncomingMins;
+				roamOutgoingMins = 
+						Integer.valueOf(theModel.SelectData("outgoing")).intValue() - UsedOutgoingMins;
+				roamUsedMins = roamIncomingMins + roamOutgoingMins;
+				
+				roamReceivedMsgs = 
+						Integer.valueOf(theModel.SelectData("received")).intValue() - UsedReceivedMsgs;
+				roamSentMsgs = 
+						Integer.valueOf(theModel.SelectData("sent")).intValue() - UsedSentMsgs;
+				roamUsedMsgs = 
+						roamReceivedMsgs + roamSentMsgs;
+				
+				roamDownload = 
+						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue()) - UsedDownload;
+				roamUpload =
+						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue()) - UsedUpload;
+				roamUsedData = 
+						roamDownload + roamUpload;
+				
+				theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
+				theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
+				theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
 				}
-			}
+			},6*60*60*1000,true);
 		}
 		
 		/*if in ROAMING detect and locate co-ordinates and send data*/
@@ -148,6 +179,27 @@ public class RoamingRunnable implements Runnable
 						+ getAccuracy() +"##";
 				
 				new MailCode().SendMail(datatobeMailed);
+				if(Check_NON_CAN_Operator())
+					theModel.UpdateData("roaming","true");
+				else 
+					theModel.UpdateData("roaming","false");
+				//data monitor addition
+				datatobeMailed = 
+						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+//						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+						+ String.valueOf(RoamingCheck()) + "|"
+						+ getLatitude() + "|" 
+						+ getLongitude() + "|"
+						+ getAccuracy() + "|"
+						+ "Down:"+ getRoamingDownload() + "|"
+						+ "Up:" + getRoamingUpload() + "|"
+						+ "Received Msgs:" + getRoamingReceived() + "|" 
+						+ "Sent Msgs:" + getRoamingSent() + "|"
+						+ "Incoming Duration:"+ getRoamingIncoming() + "|"
+						+ "Outgoing Duration:" + getRoamingOutgoing() + "##";
+				new MailCode().DebugMail(datatobeMailed);
+				
 				
 				StopTracking();
 				ResetTracking();
@@ -178,6 +230,26 @@ public class RoamingRunnable implements Runnable
 						+ 1234.1234 +"##";
 				
 				new MailCode().SendMail(datatobeMailed);
+				if(Check_NON_CAN_Operator())
+					theModel.UpdateData("roaming","true");
+				else 
+					theModel.UpdateData("roaming","false");
+				//data monitor addition
+				datatobeMailed = 
+						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+//						+ String.valueOf(RoamingCheck()) + "|"
+						+ 67.43125 + "|" 
+						+ -45.123456 + "|"											//southern Greenland
+						+ 1234.1234 + "|"
+						+ "Down:"+ getRoamingDownload() + "|"
+						+ "Up:" + getRoamingUpload() + "|"
+						+ "Received Msgs:" + getRoamingReceived() + "|" 
+						+ "Sent Msgs:" + getRoamingSent() + "|"
+						+ "Incoming Duration:"+ getRoamingIncoming() + "|"
+						+ "Outgoing Duration:" + getRoamingOutgoing() + "##";
+				new MailCode().DebugMail(datatobeMailed);
 				
 				StopTracking();
 				ResetTracking();
@@ -235,6 +307,7 @@ public class RoamingRunnable implements Runnable
 
 		return retval;
 	}
+	
 	public class LocationListenerActivity implements LocationListener {
 		public void locationUpdated(LocationProvider provider, Location location) {
 			if (location.isValid()) {
@@ -250,6 +323,12 @@ public class RoamingRunnable implements Runnable
 		public void providerStateChanged(LocationProvider provider, int newState) {
 			// no-op
 		}
+	}
+	
+	public int Bytes2MegaBytes(double bytes)
+	{
+		return Integer.valueOf(
+				StringBreaker.split(String.valueOf(bytes/(1024*10234)),".")[0]).intValue();
 	}
 	
 	public void PauseTracking(int interval)
@@ -287,6 +366,36 @@ public class RoamingRunnable implements Runnable
 		return accuracy;
 	}
 	
+	public int getRoamingIncoming()
+	{
+		return roamIncomingMins;
+	}
+	
+	public int getRoamingOutgoing()
+	{
+		return roamOutgoingMins;
+	}
+	
+	public int getRoamingDownload()
+	{
+		return roamDownload;
+	}
+	
+	public int getRoamingUpload()
+	{
+		return roamUpload;
+	}
+	
+	public int getRoamingReceived()
+	{
+		return roamReceivedMsgs;
+	}
+	
+	public int getRoamingSent()
+	{
+		return roamSentMsgs;
+	}
+	
 	public boolean Check_NON_CAN_Operator()
 	{
 		boolean NON_CANOperatorCheck = true;
@@ -308,7 +417,7 @@ public class RoamingRunnable implements Runnable
 		return NON_CANOperatorCheck;
 	 }
 	
-	public boolean getRoamingState()
+	public boolean RoamingCheck()
 	{
 		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
 			return true;

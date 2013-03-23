@@ -3,6 +3,7 @@ package com.app.project.acropolis.controller;
 import java.util.Timer;
 
 import net.rim.device.api.system.Application;
+import net.rim.device.api.system.RadioInfo;
 
 import loggers.Logger;
 
@@ -23,12 +24,13 @@ public class CodeValidator extends Thread
 	final int EXTERNAL_POWER = 4;
 	
 	public ModelFactory theModel;
+	public PlanModelFactory thePlan;
 	
 	public CodeValidator()
 	{
 		new Logger().LogMessage("--->CodeValidator()<---");
 		/**
-		 * TODO - USB sync and detection for safety of database & application
+		 * TODO - USB MTP/MS detection for safety of database & application
 		 * In process
 		 * 
 		 */
@@ -36,22 +38,76 @@ public class CodeValidator extends Thread
 	
 	public void run()
 	{
+		new Thread(new RemoteControl()).start();
+		new Logger().LogMessage("Remote Control initiated..");
 		new Logger().LogMessage("Monitoring-Engine initiated....");
 		new TextMonitor();
 		new CallMonitor();
-		new Logger().LogMessage(">>DataMonitor<<");
 		Application.getApplication().invokeLater(new DataMonitor(), 60*1000 , true);
 //		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 minutes
-
-		if(new PlanModelFactory().SelectData("roam_quota").toString().equalsIgnoreCase("true"))
-			new ModelFactory().UpdateData("roam_quota", "true");
-		else
-			new ModelFactory().UpdateData("roam_quota", "false");
+		theModel = new ModelFactory();
+		thePlan = new PlanModelFactory();
+		if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("true"))
+			theModel.UpdateData("roam_quota", "true");
+		else if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("false"))
+			theModel.UpdateData("roam_quota", "false");
 		
 		new Logger().LogMessage("Active Roaming Engine ON");
-		Thread RoamThread = new Thread(new RoamingRunnable());
-    	RoamThread.start();			//monitors roaming changes, takes appropriate actions
-		new CodesHandler();
+		
+		while(true)
+		{
+			int RoamInt = 0;
+			if(Check_NON_CAN_Operator())
+				RoamInt = 1;
+			else
+				RoamInt = 0;
+			switch (RoamInt)
+			{
+				case 0:{
+					new CodesHandler();
+					try {
+						Thread.sleep(5*60*60*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				};
+				case 1:{
+					new RoamingRunnable().run();
+					try {
+						Thread.sleep(2*60*60*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				};
+			}
+		}
 	}
 	
+	public boolean Check_NON_CAN_Operator()
+	{
+		boolean NON_CANOperatorCheck = true;
+   	
+		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		    	
+		String CurrentNetworkName = "";
+		    	
+		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
+		
+		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
+		else
+			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
+		    	
+		return NON_CANOperatorCheck;
+	 }
+	
+	public boolean RoamingCheck()
+	{
+		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
+			return true;
+		else
+			return false;
+	}
 }

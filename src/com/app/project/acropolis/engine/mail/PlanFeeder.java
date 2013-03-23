@@ -88,16 +88,7 @@ public class PlanFeeder implements Runnable
 							new Logger().LogMessage("inmail address:"+e.getMessage().getFrom().getAddr());
 							incoming_serverMail = 1;
 							incoming_subject = e.getMessage().getSubject();
-							if( e.getMessage().getSubject().equalsIgnoreCase("Device Plan Details") )
-							{
-								incoming_content = e.getMessage().getBodyText();
-								new Logger().LogMessage("Content::"+incoming_content);
-								strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
-								for(int i=0;i<=strPlanArray.length;i++)
-								{
-									thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );
-								}
-							}
+							incoming_content = e.getMessage().getBodyText();
 						}
 					}
 				} catch(MessagingException e1) {
@@ -110,6 +101,22 @@ public class PlanFeeder implements Runnable
 			{}
 		});
 	}
+	
+	public void UpdatePlan()
+	{
+		if(getIncomingServerMailSubject().equalsIgnoreCase("Device Plan Details"))
+		{
+			incoming_content =getIncomingServerMailContent();
+			new Logger().LogMessage("Plan well received");
+			strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
+			for(int i=0;i<=strPlanArray.length;i++)
+			{
+				thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );
+			}
+		}
+	}
+	
+	
 	
 	public int getIncomingServerMailAlert()
 	{

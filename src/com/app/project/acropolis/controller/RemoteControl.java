@@ -10,7 +10,7 @@ import com.app.project.acropolis.model.PlanModelFactory;
  */
 public class RemoteControl implements Runnable
 {
-	PlanFeeder plan;//= new PlanFeeder();
+	PlanFeeder plan = new PlanFeeder();
 	PlanModelFactory thePlan;
 	StringBreaker breaker;
 	

@@ -8,6 +8,7 @@ import java.util.Timer;
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
@@ -74,8 +75,8 @@ public class CodesHandler// implements RadioStatusListener
 //		new Timer().schedule(new TimerTask() {
 //			public void run()
 //			{
-		for(;;)
-		{
+//		for(;;)
+//		{
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
 					case 0:	//Radio OFF
@@ -83,26 +84,20 @@ public class CodesHandler// implements RadioStatusListener
 						new Logger().LogMessage("Radio OFF");
 						new Logger().LogMessage("woke up ..");
 						try {
-							Thread.sleep(1*60*60*1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						new Logger().LogMessage("sleeping ..");
-					};
-					case 1: //Radio ON
-					{
-						new Logger().LogMessage("Radio ON");
-						try {
 							Thread.sleep(10*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-						} 
+						}
+					};
+					case 1: //Radio ON
+					{
 						new Logger().LogMessage("woke up...");
 						CollectedData();
+						new Logger().LogMessage("Radio ON");
 						new Logger().LogMessage("sleeping...");
 					};
 				}
-		}
+//		}
 //			}
 //		}, 1*60*60*1000);
 	}
@@ -152,7 +147,10 @@ public class CodesHandler// implements RadioStatusListener
 							+ location.getAccuracy() +"##";
 					
 					new MailCode().SendMail(datatobeMailed);
-					
+					if(Check_NON_CAN_Operator())
+						theModel.UpdateData("roaming","true");
+					else 
+						theModel.UpdateData("roaming","false");
 					//data monitor addition
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
@@ -208,7 +206,10 @@ public class CodesHandler// implements RadioStatusListener
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"##";
 					new MailCode().SendMail(datatobeMailed);
-					
+					if(Check_NON_CAN_Operator())
+						theModel.UpdateData("roaming","true");
+					else 
+						theModel.UpdateData("roaming","false");
 					//Data monitoring
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"

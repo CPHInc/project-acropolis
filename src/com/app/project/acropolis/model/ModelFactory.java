@@ -17,6 +17,7 @@ import net.rim.device.api.database.Statement;
 import net.rim.device.api.io.IDNAException;
 import net.rim.device.api.io.MalformedURIException;
 import net.rim.device.api.io.URI;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ControlledAccessException;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.UiApplication;
@@ -59,12 +60,12 @@ public class ModelFactory {
 	{
 		OpenDB();
 		try{
-//			db.beginTransaction();
+			db.beginTransaction();
 			Statement st_update = db.createStatement(update_query + column + " = \'" + data + "\'");
 			st_update.prepare();
 			st_update.execute();
 			st_update.close();
-//			db.commitTransaction();
+			db.commitTransaction();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 			new DBLogger().LogMessage("DatabaseException:"+e.getClass()+"::"+e.getMessage());
@@ -103,6 +104,29 @@ public class ModelFactory {
 			e.printStackTrace();	
 		} 
 		CloseDB();
+		String temp = column;
+		if(collected == null)
+		{
+			for(int i=0;i<2;i++)
+			{
+				collected = SelectData(temp);
+				if(collected!=null)
+				{
+					break;
+				}
+				else
+				{
+					synchronized(Application.getApplication().getAppEventLock())
+					{
+						try {
+							new Thread().wait(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
 		new DBLogger().LogMessage("selected from ::"+column +":::" + collected);
 		return collected;
 	}
@@ -200,7 +224,7 @@ public class ModelFactory {
 	      }
               return storagePresent;
       }
-      
+       
       public void DBExistence()
       {
 	      try{
