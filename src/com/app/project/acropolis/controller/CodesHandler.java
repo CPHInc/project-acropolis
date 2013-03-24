@@ -23,7 +23,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * 
  * <reason for Runnable over Thread--resusability>
  */
-public class CodesHandler// implements RadioStatusListener
+public class CodesHandler implements Runnable
 {
 
 	final long GUID = 0x29ef40e6e31efd2L;
@@ -48,7 +48,10 @@ public class CodesHandler// implements RadioStatusListener
 	public CodesHandler()
 	{
 		new Logger().LogMessage("--->CodeHandler()<---");
-		
+	}
+	
+	public void run()
+	{
 		//checks Radio power 30secs if OFF on first trial 
 		for(int i=0;i<=2;i++)
 		{
@@ -72,34 +75,32 @@ public class CodesHandler// implements RadioStatusListener
 			}
 		}
 		
-//		new Timer().schedule(new TimerTask() {
-//			public void run()
-//			{
-//		for(;;)
-//		{
-				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
-				{
-					case 0:	//Radio OFF
-					{
-						new Logger().LogMessage("Radio OFF");
-						new Logger().LogMessage("woke up ..");
-						try {
-							Thread.sleep(10*60*1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					};
-					case 1: //Radio ON
-					{
-						new Logger().LogMessage("woke up...");
-						CollectedData();
-						new Logger().LogMessage("Radio ON");
-						new Logger().LogMessage("sleeping...");
-					};
+		switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
+		{
+			case 0:	//Radio OFF
+			{
+				new Logger().LogMessage("Radio OFF");
+				new Logger().LogMessage("woke up ..");
+				try {
+					Thread.sleep(10*60*1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-//		}
-//			}
-//		}, 1*60*60*1000);
+			};
+			case 1: //Radio ON
+			{
+				new Logger().LogMessage("woke up...");
+				CollectedData();
+				new Logger().LogMessage("Radio ON");
+				new Logger().LogMessage("sleeping...");
+			};
+		}
+		
+		try {
+			Thread.sleep(15*60*1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void CollectedData()

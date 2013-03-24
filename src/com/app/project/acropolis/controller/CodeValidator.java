@@ -46,11 +46,17 @@ public class CodeValidator extends Thread
 		Application.getApplication().invokeLater(new DataMonitor(), 60*1000 , true);
 //		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 minutes
 		theModel = new ModelFactory();
-		thePlan = new PlanModelFactory();
-		if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("true"))
-			theModel.UpdateData("roam_quota", "true");
-		else if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("false"))
-			theModel.UpdateData("roam_quota", "false");
+		
+//		try {
+//			Thread.sleep(5000);
+//		} catch (InterruptedException e1) {
+//			e1.printStackTrace();
+//		}
+//		thePlan = new PlanModelFactory();
+//		if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("true"))
+//			theModel.UpdateData("roam_quota", "true");
+//		else if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("false"))
+//			theModel.UpdateData("roam_quota", "false");
 		
 		new Logger().LogMessage("Active Roaming Engine ON");
 		
@@ -58,26 +64,18 @@ public class CodeValidator extends Thread
 		{
 			int RoamInt = 0;
 			if(Check_NON_CAN_Operator())
-				RoamInt = 1;
+				RoamInt = 1;	//Roaming
 			else
-				RoamInt = 0;
+				RoamInt = 0;	//Local
 			switch (RoamInt)
 			{
-				case 0:{
-					new CodesHandler();
-					try {
-						Thread.sleep(5*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+				case 0:
+				{
+					new CodesHandler().run();
 				};
-				case 1:{
+				case 1:
+				{
 					new RoamingRunnable().run();
-					try {
-						Thread.sleep(2*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 				};
 			}
 		}

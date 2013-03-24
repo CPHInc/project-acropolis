@@ -78,11 +78,18 @@ public class RoamingRunnable implements Runnable
 
 	int computationCounter = 0;
 	
+	public RoamingRunnable()
+	{
+		new Logger().LogMessage(">>RoamingRunnable<<");
+	}
+	
 	public void run() 
 	{
-		while(Check_NON_CAN_Operator())		//when either returns roaming "true"
-		{
-			CollectedData();
+		CollectedData();
+		try {
+			Thread.sleep(20*60*1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	} 
 	

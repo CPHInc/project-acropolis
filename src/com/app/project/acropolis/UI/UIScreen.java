@@ -497,11 +497,12 @@ public final class UIScreen extends MainScreen
 				LatitudeResultText.setText(theModel.SelectData("lat"));
 				LongitudeResultText.setText(theModel.SelectData("lng"));
 			}
-			else
+			else if(theModel.SelectData("fix_ack").equals("false"))
 			{
 	//			FixAckText.setText(FixString + "Searching");
-				LatitudeResultText.setText(waitText);
-				LongitudeResultText.setText(waitText);
+				//			FixAckText.setText(FixString + "Last known location");
+				LatitudeResultText.setText(theModel.SelectData("lat"));
+				LongitudeResultText.setText(theModel.SelectData("lng"));
 			}
 			
 			IncomingResultUsage.setText( IncomingResultString + String.valueOf(incomingMin).toString() );
