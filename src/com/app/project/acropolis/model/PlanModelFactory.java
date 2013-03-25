@@ -71,7 +71,6 @@ public class PlanModelFactory
 			e.printStackTrace();
 		}
 		CloseDB();
-		new DBLogger().LogMessage("DB updated");
 	}
 	
 	public String SelectData(String column)
@@ -122,7 +121,6 @@ public class PlanModelFactory
 				}
 			}
 		}
-		new DBLogger().LogMessage("selected from ::"+column +":::" + collected);
 		return collected;
 	}
 	
@@ -182,8 +180,8 @@ public class PlanModelFactory
 	     String root = null;
 	     try {
              if
-             ( ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )  ||                         //valid Flash check
-     		        ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )  )               //for OS 6+ valid Flash check     
+              ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                         //valid Flash check
+//     		        ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check     
                  //only if device flash is above 2GB
 	         {
 	             storagePresent = true;
@@ -235,13 +233,11 @@ public class PlanModelFactory
                  else if(eMMCMounted)
                  {
                      URI usage_uri = URI.create(eMMCPath);
-                     new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
                      dbPath = eMMCPath;
                  }       
                  else
                  {
                      URI usage_uri = URI.create(SDCardPath);
-                     new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
                      dbPath = SDCardPath;
                  }
              }
@@ -251,9 +247,7 @@ public class PlanModelFactory
 	     } catch (MalformedURIException e) {
 	             // TODO Auto-generated catch block
 	             e.printStackTrace();
-	     } catch (IDNAException e) {
-	             e.printStackTrace();
-	     }
+	     } 
      }
      
      public void OpenDB()

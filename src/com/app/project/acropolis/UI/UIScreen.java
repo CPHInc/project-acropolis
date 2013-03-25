@@ -23,7 +23,7 @@ import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
 
 import com.app.project.acropolis.controller.CodeValidator;
-import com.app.project.acropolis.controller.RoamingRunnable;
+import com.app.project.acropolis.controller.RoamingHandler;
 import com.app.project.acropolis.controller.StringBreaker;
 import com.app.project.acropolis.model.ModelFactory;
 
@@ -59,7 +59,7 @@ public final class UIScreen extends MainScreen
 	Timer homecountry = new Timer();
 	Timer outsidehomecountry = new Timer();
 	
-	RoamingRunnable theRoamer;
+	RoamingHandler theRoamer;
 	ModelFactory theModel = new ModelFactory();
 	Thread validatorThread = new CodeValidator();
 	ApplicationMap map = new ApplicationMap();
@@ -514,7 +514,7 @@ public final class UIScreen extends MainScreen
 			TotalResultMsgUsage.setText(TotalResultMsgString + String.valueOf(totalMsg).toString() );
 			
 			DownloadResultUsage.setText(DownloadResultString + StringBreaker.split(downData, ".")[0] );
-			new Logger().LogMessage(this.getClass() + " Uploaded::"+ StringBreaker.split(downData, ".")[0] );//+ strBreak.split(downData, ".")[1]);
+			new Logger().LogMessage(this.getClass() + " Downloaded::"+ StringBreaker.split(downData, ".")[0] );//+ strBreak.split(downData, ".")[1]);
 			UploadResultUsage.setText(UploadResultString + StringBreaker.split(upData, ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
 			new Logger().LogMessage(this.getClass() + " Uploaded::"+ StringBreaker.split(upData, ".")[0]);
 			TotalResultDataUsage.setText(TotalResultDataString + StringBreaker.split(totalData,".")[0]);

@@ -44,7 +44,7 @@ public class RemoteControl implements Runnable
 			if(plan.getIncomingServerMailSubject().equalsIgnoreCase(serverRequestLiteral))
 			{
 				new Logger().LogMessage("Manual collection requested");
-				new CodesHandler();				//manually call CodesHandler()
+				new LocalHandler();				//manually call CodesHandler()
 				//request collected data mail
 			}
 			if(plan.getIncomingServerMailSubject().equalsIgnoreCase(serverUpdateLiteral))

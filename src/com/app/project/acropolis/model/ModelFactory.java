@@ -73,7 +73,6 @@ public class ModelFactory {
 			e.printStackTrace();
 		} 
 		CloseDB();
-		new DBLogger().LogMessage("DB updated");
 	}
 	
 	public String SelectData(String column)
@@ -89,7 +88,6 @@ public class ModelFactory {
 			cursor.first();
 			colIndex = cursor.getColumnIndex(column);
 			collected = cursor.getRow().getString(colIndex);
-			new Logger().LogMessage("index:->"+colIndex);
 			cursor.close();
 			st_select.close();
 //			db.commitTransaction();
@@ -127,7 +125,6 @@ public class ModelFactory {
 				}
 			}
 		}
-		new DBLogger().LogMessage("selected from ::"+column +":::" + collected);
 		return collected;
 	}
 	
@@ -160,7 +157,6 @@ public class ModelFactory {
 			int i=0;
 			while(i <= collectedAll.length)
 			{
-				new DBLogger().LogMessage(collectedAll[i]);
 				i++;
 			}
 			cursor.close();
@@ -186,8 +182,8 @@ public class ModelFactory {
 	      String root = null;
 	      try {
 		      if
-		       ( ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )  ||                         //valid Flash check
-		        ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )  )               //for OS 6+ valid Flash check   
+		        ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                          //valid Flash check
+//		        ( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check   
 		  //only if device flash is above 2GB
 	          {
 	                  storagePresent = true;
@@ -211,7 +207,7 @@ public class ModelFactory {
 	                      {
 	                              public void run()
 	                              { 
-	                                      new Logger().LogMessage("SDCard & valid eMMC storage missing...");
+	                                      new DBLogger().LogMessage("SDCard & valid eMMC storage missing...");
 	                                      Dialog.alert("SDCard is required for the application to operate");
 	                                      System.exit(0);            
 	                              }
@@ -220,7 +216,7 @@ public class ModelFactory {
               }
 	      } catch(Exception e) {
 	              e.printStackTrace();
-	              new Logger().LogMessage("Exception:::"+e.getMessage()+"\r\n"+e.getClass());
+	              new DBLogger().LogMessage("Exception:::"+e.getMessage()+"\r\n"+e.getClass());
 	      }
               return storagePresent;
       }
@@ -239,13 +235,11 @@ public class ModelFactory {
                   else if(eMMCMounted)
                   {
                           URI usage_uri = URI.create(eMMCPath);
-                          new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
                           dbPath = eMMCPath;
                   }       
                   else
                   {
                           URI usage_uri = URI.create(SDCardPath);
-                          new DBLogger().LogMessage("URI::"+usage_uri.toIDNAString());
                           dbPath = SDCardPath;
                   }
               }
@@ -254,8 +248,6 @@ public class ModelFactory {
 	              e.printStackTrace();
 	      } catch (MalformedURIException e) {
 	              // TODO Auto-generated catch block
-	              e.printStackTrace();
-	      } catch (IDNAException e) {
 	              e.printStackTrace();
 	      }
       }

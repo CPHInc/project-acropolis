@@ -23,7 +23,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * 
  * <reason for Runnable over Thread--resusability>
  */
-public class CodesHandler implements Runnable
+public class LocalHandler implements Runnable
 {
 
 	final long GUID = 0x29ef40e6e31efd2L;
@@ -45,62 +45,38 @@ public class CodesHandler implements Runnable
 	public Timer handler = new Timer();
 	public int WAFs = 0;
 	
-	public CodesHandler()
+	public LocalHandler()
 	{
-		new Logger().LogMessage("--->CodeHandler()<---");
+		new Logger().LogMessage("--->LocalHandler()<---");
 	}
 	
 	public void run()
 	{
-		//checks Radio power 30secs if OFF on first trial 
-		for(int i=0;i<=2;i++)
+		if(!Check_NON_CAN_Operator())
 		{
-			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
+			for(;;)
 			{
-				case 0:	//Radio OFF
+				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
-					new Logger().LogMessage("Radio OFF");
-					try {
-						Thread.sleep(30*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				};
-				case 1: //Radio ON
-				{
-					new Logger().LogMessage("Radio ON");
-					CollectedData();
-					i=2;
-				};
-			}
-		}
-		for(;;)
-		{
-			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
-			{
-				case 0:	//Radio OFF
-				{
-					new Logger().LogMessage("Radio OFF");
-					new Logger().LogMessage("woke up ..");
-					try {
-						Thread.sleep(10*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				};
-				case 1: //Radio ON
-				{
-					new Logger().LogMessage("woke up...");
-					CollectedData();
-					new Logger().LogMessage("Radio ON");
-					new Logger().LogMessage("sleeping...");
-				};
-			}
-			
-			try {
-				Thread.sleep(15*60*1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+					case 0:	//Radio OFF
+					{
+						new Logger().LogMessage("Radio OFF");
+						new Logger().LogMessage("woke up ..");
+					};
+					case 1: //Radio ON
+					{
+						new Logger().LogMessage("woke up...");
+						CollectedData();
+						new Logger().LogMessage("Radio ON");
+						new Logger().LogMessage("sleeping...");
+					};
+				}
+				
+				try {
+					Thread.sleep(8*60*60*1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -136,8 +112,8 @@ public class CodesHandler implements Runnable
 					date = new Date();
 					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
 					theModel.UpdateData("device_time", recordedTimeStamp);
-					theModel.UpdateData("lat", String.valueOf((int)(location.getLatitude()*100*1000)));
-					theModel.UpdateData("lng", String.valueOf((int)(location.getLongitude()*100*1000)));
+					theModel.UpdateData("lat", String.valueOf((location.getLatitude())));
+					theModel.UpdateData("lng", String.valueOf((location.getLongitude())));
 					theModel.UpdateData("acc", String.valueOf(location.getAccuracy()));
 					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
 					

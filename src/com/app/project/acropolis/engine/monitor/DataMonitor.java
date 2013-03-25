@@ -10,13 +10,12 @@ import net.rim.device.api.system.WLANListener;
 
 import com.app.project.acropolis.model.ModelFactory;
 
-public class DataMonitor implements Runnable,SystemListener//extends TimerTask
+public class DataMonitor implements Runnable//extends TimerTask
 {
 	ModelFactory theModel = new ModelFactory();
 	
 	boolean WIFI_Connected = false;
 	
-	boolean SumupData = false;
 	int counter = 0;
 	final int Add_DB_Values = 0;
 	final int Use_Device_Values = 3;
@@ -31,7 +30,6 @@ public class DataMonitor implements Runnable,SystemListener//extends TimerTask
 	public DataMonitor()
 	{
 		new Logger().LogMessage(">>DataMonitor<<");
-		Application.getApplication().addSystemListener(this);
 	}
 	
 	/**
@@ -49,16 +47,16 @@ public class DataMonitor implements Runnable,SystemListener//extends TimerTask
 		
 		if( !wlan.getWLANConnection() )
 		{//on MDS
-			new Logger().LogMessage("MDS active");
+//			new Logger().LogMessage("MDS active");
 			if(counter==Add_DB_Values)
 			{
 				MDS_download = db_download + (RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload());
 				MDS_upload = db_upload + (RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload());
 				/*Download check*/
-				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
+//				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
 				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
 				/*Upload check*/
-				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
+//				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
 				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
 				counter=Use_Device_Values;
 			}
@@ -67,10 +65,10 @@ public class DataMonitor implements Runnable,SystemListener//extends TimerTask
 				MDS_download = RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload();
 				MDS_upload = RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload();
 				/*Download check*/
-				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
+//				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
 				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
 				/*Upload check*/
-				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
+//				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
 				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
 			}
 		}
@@ -81,29 +79,6 @@ public class DataMonitor implements Runnable,SystemListener//extends TimerTask
 			
 	}
 
-	public void batteryGood() {}
-
-	public void batteryLow() {}
-
-	public void batteryStatusChange(int arg0) {}
-
-	public void powerOff() {
-		counter = Add_DB_Values;
-		SumupData = true;
-		long DeviceCollectedData_down = MDS_download;
-		long DeviceCollectedData_up = MDS_upload;
-		theModel.UpdateData("downloaded", String.valueOf(DeviceCollectedData_down).toString());
-		theModel.UpdateData("uploaded", String.valueOf(DeviceCollectedData_up).toString());
-		
-		new Logger().LogMessage(this.getClass() + "\r\nPowering down");
-	}
-
-	public void powerUp() {
-		SumupData = false;
-		new Logger().LogMessage(this.getClass() + "\r\nPowering up");
-	}
-	
-	
 	public class WLANMonitor implements Runnable
 	{
 		public void run() 

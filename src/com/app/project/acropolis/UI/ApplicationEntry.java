@@ -56,8 +56,8 @@ public class ApplicationEntry extends UiApplication
 		if(ApplicationManager.getApplicationManager().inStartup())
 		{
 			try {
-				Thread.sleep(30*1000);
-				new Logger().LogMessage("slept for 30seconds...inStartup()!!");
+				Thread.sleep(45*1000);
+				new Logger().LogMessage("inStartup() 45seconds...");
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -229,8 +229,8 @@ public class ApplicationEntry extends UiApplication
     	String root = null;
     	try {
     		if
-			(	( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 ) ||				//valid Flash check
-				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )	)		//for OS 6+ valid Flash check 	
+				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
+//				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
 			//only if device flash is above 2GB
 			{
 				storagePresent = true;

@@ -44,7 +44,6 @@ public class CodeValidator extends Thread
 		new TextMonitor();
 		new CallMonitor();
 		Application.getApplication().invokeLater(new DataMonitor(), 60*1000 , true);
-//		new Timer().schedule(new DataMonitor(), 10*1000);			//keep listening every 10 minutes
 		theModel = new ModelFactory();
 		
 //		try {
@@ -58,10 +57,10 @@ public class CodeValidator extends Thread
 //		else if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("false"))
 //			theModel.UpdateData("roam_quota", "false");
 		
-		new Logger().LogMessage("Active Roaming Engine ON");
+		new Logger().LogMessage("Roaming Engine ACTIVE");
 		
-		new CodesHandler().run();
-		new RoamingRunnable().run();
+		new LocalHandler().run();
+		new RoamingHandler().run();
 	}
 	
 	public boolean Check_NON_CAN_Operator()

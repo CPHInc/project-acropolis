@@ -22,7 +22,7 @@ import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.model.ModelFactory;
 import com.app.project.acropolis.model.PlanModelFactory;
 
-public class RoamingRunnable implements Runnable
+public class RoamingHandler implements Runnable
 {
 	boolean isRoaming = false;
 	
@@ -78,9 +78,9 @@ public class RoamingRunnable implements Runnable
 
 	int computationCounter = 0;
 	
-	public RoamingRunnable()
+	public RoamingHandler()
 	{
-		new Logger().LogMessage(">>RoamingRunnable<<");
+		new Logger().LogMessage(">>RoamingHandler<<");
 	}
 	
 	public void run() 
@@ -94,7 +94,7 @@ public class RoamingRunnable implements Runnable
 				{
 					CollectedData();
 					try {
-						Thread.sleep(20*60*1000);
+						Thread.sleep(1*60*60*1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -196,6 +196,12 @@ public class RoamingRunnable implements Runnable
 						+ getLongitude() + "|"
 						+ getAccuracy() +"##";
 				
+				theModel.UpdateData("device_time", recordedTimeStamp);
+				theModel.UpdateData("lat", String.valueOf((getLatitude())));
+				theModel.UpdateData("lng", String.valueOf((getLongitude())));
+				theModel.UpdateData("acc", String.valueOf(getAccuracy()));
+				theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
+				
 				new MailCode().SendMail(datatobeMailed);
 				if(Check_NON_CAN_Operator())
 					theModel.UpdateData("roaming","true");
@@ -238,6 +244,12 @@ public class RoamingRunnable implements Runnable
 			{
 				date = new Date();
 				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
+				
+				theModel.UpdateData("device_time", recordedTimeStamp);
+				theModel.UpdateData("lat", String.valueOf(67.43125));
+				theModel.UpdateData("lng", String.valueOf(-45.123456));
+				theModel.UpdateData("acc", String.valueOf(1234.1234));
+				theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
 				
 				datatobeMailed = 
 						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"

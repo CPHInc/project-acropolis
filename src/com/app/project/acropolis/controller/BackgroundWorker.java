@@ -19,7 +19,7 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 
 	boolean PowerON = true;
 	
-	CodesHandler codes;
+	LocalHandler codes;
 
 	public BackgroundWorker()
 	{
