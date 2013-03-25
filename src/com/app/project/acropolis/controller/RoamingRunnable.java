@@ -85,76 +85,87 @@ public class RoamingRunnable implements Runnable
 	
 	public void run() 
 	{
-		CollectedData();
-		try {
-			Thread.sleep(20*60*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		int i=0;
+		for(;;)
+		{
+			if(Check_NON_CAN_Operator())
+			{
+				if(i==0)
+				{
+					CollectedData();
+					try {
+						Thread.sleep(20*60*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					i++;
+				}
+			}
 		}
 	} 
 	
 	public void CollectedData()
 	{
-		if(thePlan.SelectData("roam_quota").equalsIgnoreCase("true"))
-		{
-			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
-			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
-			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
-			
-			roamUsedMins = 0;
-			roamUsedMsgs = 0;
-			roamUsedData = 0;
-			roamIncomingMins = 0;
-			roamOutgoingMins = 0;
-			roamReceivedMsgs = 0;
-			roamSentMsgs = 0;
-			roamDownload = 0;
-			roamUpload = 0;
-			
-			UsedIncomingMins = Integer.valueOf(theModel.SelectData("incoming")).intValue();
-			UsedOutgoingMins = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
-			UsedMins = UsedIncomingMins + UsedOutgoingMins;
-			
-			UsedReceivedMsgs = Integer.valueOf(theModel.SelectData("received")).intValue();
-			UsedSentMsgs = Integer.valueOf(theModel.SelectData("sent")).intValue();
-			UsedMsgs = UsedReceivedMsgs + UsedSentMsgs;
-					
-			UsedDownload = 
-					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue());
-			UsedUpload = 
-					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue());
-			UsedData = UsedDownload + UsedUpload;
-			
-			Application.getApplication().invokeLater(new Runnable()
-			{
-				public void run()
-				{
-				roamIncomingMins = 
-						Integer.valueOf(theModel.SelectData("incoming")).intValue() - UsedIncomingMins;
-				roamOutgoingMins = 
-						Integer.valueOf(theModel.SelectData("outgoing")).intValue() - UsedOutgoingMins;
-				roamUsedMins = roamIncomingMins + roamOutgoingMins;
-				
-				roamReceivedMsgs = 
-						Integer.valueOf(theModel.SelectData("received")).intValue() - UsedReceivedMsgs;
-				roamSentMsgs = 
-						Integer.valueOf(theModel.SelectData("sent")).intValue() - UsedSentMsgs;
-				roamUsedMsgs = 
-						roamReceivedMsgs + roamSentMsgs;
-				
-				roamDownload = 
-						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue()) - UsedDownload;
-				roamUpload =
-						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue()) - UsedUpload;
-				roamUsedData = 
-						roamDownload + roamUpload;
-				
-				theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
-				theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
-				theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
-				}
-			},6*60*60*1000,true);
-		}
+//		if(thePlan.SelectData("roam_quota").equalsIgnoreCase("true"))
+//		{
+//			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
+//			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
+//			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
+//			
+//			roamUsedMins = 0;
+//			roamUsedMsgs = 0;
+//			roamUsedData = 0;
+//			roamIncomingMins = 0;
+//			roamOutgoingMins = 0;
+//			roamReceivedMsgs = 0;
+//			roamSentMsgs = 0;
+//			roamDownload = 0;
+//			roamUpload = 0;
+//			
+//			UsedIncomingMins = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+//			UsedOutgoingMins = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+//			UsedMins = UsedIncomingMins + UsedOutgoingMins;
+//			
+//			UsedReceivedMsgs = Integer.valueOf(theModel.SelectData("received")).intValue();
+//			UsedSentMsgs = Integer.valueOf(theModel.SelectData("sent")).intValue();
+//			UsedMsgs = UsedReceivedMsgs + UsedSentMsgs;
+//					
+//			UsedDownload = 
+//					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue());
+//			UsedUpload = 
+//					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue());
+//			UsedData = UsedDownload + UsedUpload;
+//			
+//			Application.getApplication().invokeLater(new Runnable()
+//			{
+//				public void run()
+//				{
+//				roamIncomingMins = 
+//						Integer.valueOf(theModel.SelectData("incoming")).intValue() - UsedIncomingMins;
+//				roamOutgoingMins = 
+//						Integer.valueOf(theModel.SelectData("outgoing")).intValue() - UsedOutgoingMins;
+//				roamUsedMins = roamIncomingMins + roamOutgoingMins;
+//				
+//				roamReceivedMsgs = 
+//						Integer.valueOf(theModel.SelectData("received")).intValue() - UsedReceivedMsgs;
+//				roamSentMsgs = 
+//						Integer.valueOf(theModel.SelectData("sent")).intValue() - UsedSentMsgs;
+//				roamUsedMsgs = 
+//						roamReceivedMsgs + roamSentMsgs;
+//				
+//				roamDownload = 
+//						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue()) - UsedDownload;
+//				roamUpload =
+//						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue()) - UsedUpload;
+//				roamUsedData = 
+//						roamDownload + roamUpload;
+//				
+//				theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
+//				theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
+//				theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
+//				}
+//			},6*60*60*1000,true);
+//		}
 		
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT");

@@ -74,32 +74,34 @@ public class CodesHandler implements Runnable
 				};
 			}
 		}
-		
-		switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
+		for(;;)
 		{
-			case 0:	//Radio OFF
+			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 			{
-				new Logger().LogMessage("Radio OFF");
-				new Logger().LogMessage("woke up ..");
-				try {
-					Thread.sleep(10*60*1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			};
-			case 1: //Radio ON
-			{
-				new Logger().LogMessage("woke up...");
-				CollectedData();
-				new Logger().LogMessage("Radio ON");
-				new Logger().LogMessage("sleeping...");
-			};
-		}
-		
-		try {
-			Thread.sleep(15*60*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+				case 0:	//Radio OFF
+				{
+					new Logger().LogMessage("Radio OFF");
+					new Logger().LogMessage("woke up ..");
+					try {
+						Thread.sleep(10*60*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				};
+				case 1: //Radio ON
+				{
+					new Logger().LogMessage("woke up...");
+					CollectedData();
+					new Logger().LogMessage("Radio ON");
+					new Logger().LogMessage("sleeping...");
+				};
+			}
+			
+			try {
+				Thread.sleep(15*60*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

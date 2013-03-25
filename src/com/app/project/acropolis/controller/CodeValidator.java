@@ -60,25 +60,8 @@ public class CodeValidator extends Thread
 		
 		new Logger().LogMessage("Active Roaming Engine ON");
 		
-		while(true)
-		{
-			int RoamInt = 0;
-			if(Check_NON_CAN_Operator())
-				RoamInt = 1;	//Roaming
-			else
-				RoamInt = 0;	//Local
-			switch (RoamInt)
-			{
-				case 0:
-				{
-					new CodesHandler().run();
-				};
-				case 1:
-				{
-					new RoamingRunnable().run();
-				};
-			}
-		}
+		new CodesHandler().run();
+		new RoamingRunnable().run();
 	}
 	
 	public boolean Check_NON_CAN_Operator()
