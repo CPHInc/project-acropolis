@@ -10,6 +10,8 @@ import net.rim.device.api.system.WLANListener;
 
 import com.app.project.acropolis.model.ModelFactory;
 
+/**
+ */
 public class DataMonitor implements Runnable//extends TimerTask
 {
 	ModelFactory theModel = new ModelFactory();
@@ -35,6 +37,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 	/**
 	 * RadioInfo.getNumberOfPacketsReceived()/Sent() includes
 	 * packets received/sent from WiFi,Cellular and Bluetooth
+	 * @see java.lang.Runnable#run()
 	 */
 	public void run()
 	{
@@ -79,8 +82,14 @@ public class DataMonitor implements Runnable//extends TimerTask
 			
 	}
 
+	/**
+	 */
 	public class WLANMonitor implements Runnable
 	{
+		/**
+		 * Method run.
+		 * @see java.lang.Runnable#run()
+		 */
 		public void run() 
 		{
 			WLANInfo.addListener((WLANListener)new WLANConnectionListener() 
@@ -102,21 +111,37 @@ public class DataMonitor implements Runnable//extends TimerTask
 			});
 		}
 		
+		/**
+		 * Method getWLANDownload.
+		 * @return long
+		 */
 		public long getWLANDownload()
 		{
 			return wifi_down;
 		}
 		
+		/**
+		 * Method getWLANUpload.
+		 * @return long
+		 */
 		public long getWLANUpload()
 		{
 			return wifi_up;
 		}
 	
+		/**
+		 * Method getWLANConnection.
+		 * @return boolean
+		 */
 		public boolean getWLANConnection()
 		{
 			return WIFI_Connected;
 		}
 		
+		/**
+		 * Method getWLANProfileName.
+		 * @return String
+		 */
 		public String getWLANProfileName()
 		{
 			return WLANInfo.getAPInfo().getProfileName();

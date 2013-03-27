@@ -13,6 +13,10 @@ import com.app.project.acropolis.engine.monitor.TextMonitor;
 import com.app.project.acropolis.model.ModelFactory;
 import com.app.project.acropolis.model.PlanModelFactory;
 
+/**
+ * All the Engines, Handlers, Runnable are passed and verified
+ * if all true then executed
+ */
 public class CodeValidator extends Thread
 {
 	final int NO_BATTERY = 8388608;
@@ -36,6 +40,10 @@ public class CodeValidator extends Thread
 		 */
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		new Thread(new RemoteControl()).start();
@@ -45,17 +53,7 @@ public class CodeValidator extends Thread
 		new CallMonitor();
 		Application.getApplication().invokeLater(new DataMonitor(), 60*1000 , true);
 		theModel = new ModelFactory();
-		
-//		try {
-//			Thread.sleep(5000);
-//		} catch (InterruptedException e1) {
-//			e1.printStackTrace();
-//		}
-//		thePlan = new PlanModelFactory();
-//		if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("true"))
-//			theModel.UpdateData("roam_quota", "true");
-//		else if(thePlan.SelectData("roam_quota").toString().equalsIgnoreCase("false"))
-//			theModel.UpdateData("roam_quota", "false");
+		thePlan = new PlanModelFactory();
 		
 		new Logger().LogMessage("Roaming Engine ACTIVE");
 		
@@ -63,6 +61,10 @@ public class CodeValidator extends Thread
 		new RoamingHandler().run();
 	}
 	
+	/**
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
+	 */
 	public boolean Check_NON_CAN_Operator()
 	{
 		boolean NON_CANOperatorCheck = true;
@@ -83,6 +85,10 @@ public class CodeValidator extends Thread
 		return NON_CANOperatorCheck;
 	 }
 	
+	/**
+	 * Method RoamingCheck.
+	 * @return boolean
+	 */
 	public boolean RoamingCheck()
 	{
 		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)

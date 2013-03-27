@@ -19,6 +19,7 @@ import com.app.project.acropolis.model.ModelFactory;
 
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 
 public class TextMonitor //implements Runnable
@@ -156,9 +157,16 @@ public class TextMonitor //implements Runnable
 		}
 	}
 	
+	/**
+	 */
 	public class TextListener implements OutboundMessageListener
 	{
 	
+		/**
+		 * Method notifyIncomingMessage.
+		 * @param conn MessageConnection
+		 * @see javax.wireless.messaging.MessageListener#notifyIncomingMessage(MessageConnection)
+		 */
 		public void notifyIncomingMessage(MessageConnection conn)
 		{
 			int msg_in = 1;
@@ -205,6 +213,11 @@ public class TextMonitor //implements Runnable
 			} 
 		}
 	
+		/**
+		 * Method notifyOutgoingMessage.
+		 * @param message Message
+		 * @see net.rim.blackberry.api.sms.OutboundMessageListener#notifyOutgoingMessage(Message)
+		 */
 		public void notifyOutgoingMessage(Message message) 
 		{
 			int msg_out = 1;

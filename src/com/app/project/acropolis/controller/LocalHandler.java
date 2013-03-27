@@ -22,6 +22,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * Gathers and arranges codes from LocationCode class and MailCode class
  * 
  * <reason for Runnable over Thread--resusability>
+ * @version $Revision: 1.0 $
  */
 public class LocalHandler implements Runnable
 {
@@ -50,6 +51,10 @@ public class LocalHandler implements Runnable
 		new Logger().LogMessage("--->LocalHandler()<---");
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		if(!Check_NON_CAN_Operator())
@@ -62,6 +67,11 @@ public class LocalHandler implements Runnable
 					{
 						new Logger().LogMessage("Radio OFF");
 						new Logger().LogMessage("woke up ..");
+						try {
+							Thread.sleep(1*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					};
 					case 1: //Radio ON
 					{
@@ -69,13 +79,12 @@ public class LocalHandler implements Runnable
 						CollectedData();
 						new Logger().LogMessage("Radio ON");
 						new Logger().LogMessage("sleeping...");
+						try {
+							Thread.sleep(8*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					};
-				}
-				
-				try {
-					Thread.sleep(8*60*60*1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
 				}
 			}
 		}
@@ -85,11 +94,9 @@ public class LocalHandler implements Runnable
 	{
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT-5");
-		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server
-		
+		String gmtTimeStamp = new String(sdf.format( Calendar.getInstance(timezone).getTime() )); 	//GMT time for server
 //		new Logger().LogMessage("time -- "+gmtTimeStamp);
-//		theModel.UpdateData("server_time", gmtTimeStamp);
-		
+//		theModel.UpdateData("server_time", new String(gmtTimeStamp).toString());
 		location = new LocationCode();
 		/**
 		 * Standard -- 
@@ -234,6 +241,10 @@ public class LocalHandler implements Runnable
 		
 	}
 	
+	/**
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
+	 */
 	public boolean Check_NON_CAN_Operator()
 	{
 		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
@@ -257,6 +268,10 @@ public class LocalHandler implements Runnable
 	 }
 
 	
+	/**
+	 * Method RoamingCheck.
+	 * @return boolean
+	 */
 	public boolean RoamingCheck()
 	{
 		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)

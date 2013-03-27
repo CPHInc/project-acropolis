@@ -2,6 +2,8 @@ package com.app.project.acropolis.controller;
 
 import loggers.Logger;
 
+/**
+ */
 public class StringBreaker 
 {
 	public String nontokenized = "";
@@ -14,6 +16,12 @@ public class StringBreaker
 		//Default Constructor
 	}
 	
+	/**
+	 * Method split.
+	 * @param strString String
+	 * @param strDelimiter String
+	 * @return String[]
+	 */
 	public static String[] split(String strString, String strDelimiter) {
 	    String[] strArray;
 	    int iOccurrences = 0;

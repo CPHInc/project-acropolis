@@ -7,6 +7,7 @@ import com.app.project.acropolis.model.PlanModelFactory;
 
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class RemoteControl implements Runnable
 {
@@ -36,6 +37,10 @@ public class RemoteControl implements Runnable
 //		}
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		

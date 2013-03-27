@@ -29,13 +29,12 @@ import net.rim.device.api.ui.component.Dialog;
 import com.app.project.acropolis.engine.mail.PlanFeeder;
 
 /**
- * @vendor CellPhoneHospitalInc
+
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  * 
  * ---RELEASE NOTES---
  * @version 1.0.1
- * @desc Advices corporate head office of the device 
- * 		location when on Roaming (Strictly for Enterprise users only)
+
  */
 
 public class ApplicationEntry extends UiApplication
@@ -51,6 +50,10 @@ public class ApplicationEntry extends UiApplication
 
 	public static PlanFeeder feeder = new PlanFeeder();
 	
+	/**
+	 * Method main.
+	 * @param args String[]
+	 */
 	public static void main(String[] args)
     {
 		if(ApplicationManager.getApplicationManager().inStartup())
@@ -76,12 +79,17 @@ public class ApplicationEntry extends UiApplication
 //		runtime.put(GUID,theApp);
 		
 		ApplicationEntry theApp = new ApplicationEntry();
-		
-		new Thread(feeder).start();
-		if(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED)
+		Application.getApplication().invokeLater(new Runnable()
 		{
-			feeder.UpdatePlan();
-		}
+			public void run()
+			{
+				new Thread(feeder).start();
+				while(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED)
+				{
+					feeder.UpdatePlan();
+				}
+			}
+		});
 		theApp.enterEventDispatcher();
     }
 
@@ -223,14 +231,18 @@ public class ApplicationEntry extends UiApplication
 	 	}
 	}
     
+	/**
+	 * Method StoragePresence.
+	 * @return boolean
+	 */
 	public boolean StoragePresence()
 	{
     	boolean storagePresent = false;
     	String root = null;
     	try {
     		if
-				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
-//				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
+//				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
+				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
 			//only if device flash is above 2GB
 			{
 				storagePresent = true;
@@ -272,6 +284,8 @@ public class ApplicationEntry extends UiApplication
 	
 	/**
 	 * Move "acropolis.db" application package to File-System(SDCard/store)
+	 * @param fileConnection FileConnection
+	 * @param DBName String
 	 */
 	public void MoveDBFromResourceToFileSystem(FileConnection fileConnection,String DBName)
 	{
@@ -312,35 +326,90 @@ public class ApplicationEntry extends UiApplication
 	}
     
 	
+	/**
+	 */
 	private class USBStateListener implements SystemListener2 {
 
+		/**
+		 * Method usbConnectionStateChange.
+		 * @param state int
+		 * @see net.rim.device.api.system.SystemListener2#usbConnectionStateChange(int)
+		 */
 		public void usbConnectionStateChange(int state) {
 			new Logger().LogMessage("USB State::" + state);
 		}
 		
+		/**
+		 * Method batteryGood.
+		 * @see net.rim.device.api.system.SystemListener#batteryGood()
+		 */
 		public void batteryGood() {}
 
+		/**
+		 * Method batteryLow.
+		 * @see net.rim.device.api.system.SystemListener#batteryLow()
+		 */
 		public void batteryLow() {}
 
+		/**
+		 * Method batteryStatusChange.
+		 * @param status int
+		 * @see net.rim.device.api.system.SystemListener#batteryStatusChange(int)
+		 */
 		public void batteryStatusChange(int status) {}
 
+		/**
+		 * Method powerOff.
+		 * @see net.rim.device.api.system.SystemListener#powerOff()
+		 */
 		public void powerOff() {}
 
+		/**
+		 * Method powerUp.
+		 * @see net.rim.device.api.system.SystemListener#powerUp()
+		 */
 		public void powerUp() {}
 
+		/**
+		 * Method backlightStateChange.
+		 * @param on boolean
+		 * @see net.rim.device.api.system.SystemListener2#backlightStateChange(boolean)
+		 */
 		public void backlightStateChange(boolean on) {}
 
+		/**
+		 * Method cradleMismatch.
+		 * @param mismatch boolean
+		 * @see net.rim.device.api.system.SystemListener2#cradleMismatch(boolean)
+		 */
 		public void cradleMismatch(boolean mismatch) {}
 
+		/**
+		 * Method fastReset.
+		 * @see net.rim.device.api.system.SystemListener2#fastReset()
+		 */
 		public void fastReset() {}
 
+		/**
+		 * Method powerOffRequested.
+		 * @param reason int
+		 * @see net.rim.device.api.system.SystemListener2#powerOffRequested(int)
+		 */
 		public void powerOffRequested(int reason) {}
 		
 	}
 	
+	/**
+	 */
 	private class RestoreEventListener implements SyncEventListener {
 		public boolean syncStarted = false;
 
+		/**
+		 * Method syncEventOccurred.
+		 * @param eventId int
+		 * @param object Object
+		 * @see net.rim.device.api.synchronization.SyncEventListener#syncEventOccurred(int, Object)
+		 */
 		public void syncEventOccurred(int eventId, Object object) {
 			if (eventId == SyncEventListener.SERIAL_SYNC_STOPPED || 
 					eventId == SyncEventListener.OTA_SYNC_TRANSACTION_STOPPED) 

@@ -10,6 +10,7 @@ import net.rim.device.api.system.RadioInfo;
  * 
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  *
+ * @version $Revision: 1.0 $
  */
 
 public class BackgroundWorker implements Runnable//extends Thread implements SystemListener
@@ -26,6 +27,10 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 		Application.getApplication().setAcceptEvents(false);			//not an event dispatching thread
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		new CodeValidator();
@@ -41,6 +46,10 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 		
 	}
 
+	 /**
+	  * Method Check_NON_CAN_Operator.
+	  * @return boolean
+	  */
 	 public boolean Check_NON_CAN_Operator()
 	 {
 		 boolean NON_CANOperatorCheck = true;
@@ -69,6 +78,10 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * Method batteryStatusChange.
+	 * @param status int
+	 */
 	public void batteryStatusChange(int status) {
 		// TODO Auto-generated method stub
 	}

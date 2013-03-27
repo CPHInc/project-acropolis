@@ -22,6 +22,8 @@ import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.model.ModelFactory;
 import com.app.project.acropolis.model.PlanModelFactory;
 
+/**
+ */
 public class RoamingHandler implements Runnable
 {
 	boolean isRoaming = false;
@@ -66,15 +68,15 @@ public class RoamingHandler implements Runnable
 	public int roamUsedData = 0;
 	
 	/*Local*/
-	public int UsedIncomingMins = 0;
-	public int UsedOutgoingMins = 0;
-	public int UsedMins = 0;
-	public int UsedSentMsgs = 0;
-	public int UsedReceivedMsgs = 0;
-	public int UsedMsgs = 0;
-	public int UsedDownload = 0;
-	public int UsedUpload = 0;
-	public int UsedData = 0;
+	public int LocalUsedIncomingMins = 0;
+	public int LocalUsedOutgoingMins = 0;
+	public int LocalUsedMins = 0;
+	public int LocalUsedSentMsgs = 0;
+	public int LocalUsedReceivedMsgs = 0;
+	public int LocalUsedDownload = 0;
+	public int LocalUsedUpload = 0;
+	public int LocalUsedMsgs = 0;
+	public int LocalUsedData = 0;
 
 	int computationCounter = 0;
 	
@@ -83,8 +85,14 @@ public class RoamingHandler implements Runnable
 		new Logger().LogMessage(">>RoamingHandler<<");
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run() 
 	{
+		thePlan = new PlanModelFactory();
+		theModel = new ModelFactory();
 		int i=0;
 		for(;;)
 		{
@@ -92,6 +100,7 @@ public class RoamingHandler implements Runnable
 			{
 				if(i==0)
 				{
+					MonitoredValues();
 					CollectedData();
 					try {
 						Thread.sleep(1*60*60*1000);
@@ -104,69 +113,72 @@ public class RoamingHandler implements Runnable
 		}
 	} 
 	
-	public void CollectedData()
+	public void MonitoredValues()
 	{
 //		if(thePlan.SelectData("roam_quota").equalsIgnoreCase("true"))
 //		{
-//			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
-//			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
-//			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
-//			
-//			roamUsedMins = 0;
-//			roamUsedMsgs = 0;
-//			roamUsedData = 0;
-//			roamIncomingMins = 0;
-//			roamOutgoingMins = 0;
-//			roamReceivedMsgs = 0;
-//			roamSentMsgs = 0;
-//			roamDownload = 0;
-//			roamUpload = 0;
-//			
-//			UsedIncomingMins = Integer.valueOf(theModel.SelectData("incoming")).intValue();
-//			UsedOutgoingMins = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
-//			UsedMins = UsedIncomingMins + UsedOutgoingMins;
-//			
-//			UsedReceivedMsgs = Integer.valueOf(theModel.SelectData("received")).intValue();
-//			UsedSentMsgs = Integer.valueOf(theModel.SelectData("sent")).intValue();
-//			UsedMsgs = UsedReceivedMsgs + UsedSentMsgs;
-//					
-//			UsedDownload = 
-//					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue());
-//			UsedUpload = 
-//					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue());
-//			UsedData = UsedDownload + UsedUpload;
-//			
-//			Application.getApplication().invokeLater(new Runnable()
-//			{
-//				public void run()
-//				{
-//				roamIncomingMins = 
-//						Integer.valueOf(theModel.SelectData("incoming")).intValue() - UsedIncomingMins;
-//				roamOutgoingMins = 
-//						Integer.valueOf(theModel.SelectData("outgoing")).intValue() - UsedOutgoingMins;
-//				roamUsedMins = roamIncomingMins + roamOutgoingMins;
-//				
-//				roamReceivedMsgs = 
-//						Integer.valueOf(theModel.SelectData("received")).intValue() - UsedReceivedMsgs;
-//				roamSentMsgs = 
-//						Integer.valueOf(theModel.SelectData("sent")).intValue() - UsedSentMsgs;
-//				roamUsedMsgs = 
-//						roamReceivedMsgs + roamSentMsgs;
-//				
-//				roamDownload = 
-//						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue()) - UsedDownload;
-//				roamUpload =
-//						Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue()) - UsedUpload;
-//				roamUsedData = 
-//						roamDownload + roamUpload;
-//				
-//				theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
-//				theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
-//				theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
-//				}
-//			},6*60*60*1000,true);
+			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
+			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
+			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
+			
+			roamUsedMins = 0;
+			roamUsedMsgs = 0;
+			roamUsedData = 0;
+			roamIncomingMins = 0;
+			roamOutgoingMins = 0;
+			roamReceivedMsgs = 0;
+			roamSentMsgs = 0;
+			roamDownload = 0;
+			roamUpload = 0;
+			
+			LocalUsedIncomingMins = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+			LocalUsedOutgoingMins = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+			LocalUsedMins = LocalUsedIncomingMins + LocalUsedOutgoingMins;
+			
+			LocalUsedReceivedMsgs = Integer.valueOf(theModel.SelectData("received")).intValue();
+			LocalUsedSentMsgs = Integer.valueOf(theModel.SelectData("sent")).intValue();
+			LocalUsedMsgs = LocalUsedReceivedMsgs + LocalUsedSentMsgs;
+					
+			LocalUsedDownload = 
+					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue());
+			LocalUsedUpload = 
+					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue());
+			LocalUsedData = LocalUsedDownload + LocalUsedUpload;
+			
+			Application.getApplication().invokeLater(new Runnable()
+			{
+				public void run()
+				{
+					roamIncomingMins = 
+							Integer.valueOf(theModel.SelectData("incoming")).intValue() - LocalUsedIncomingMins;
+					roamOutgoingMins = 
+							Integer.valueOf(theModel.SelectData("outgoing")).intValue() - LocalUsedOutgoingMins;
+					roamUsedMins = roamIncomingMins + roamOutgoingMins;
+					
+					roamReceivedMsgs = 
+							Integer.valueOf(theModel.SelectData("received")).intValue() - LocalUsedReceivedMsgs;
+					roamSentMsgs = 
+							Integer.valueOf(theModel.SelectData("sent")).intValue() - LocalUsedSentMsgs;
+					roamUsedMsgs = 
+							roamReceivedMsgs + roamSentMsgs;
+					
+					roamDownload = 
+							Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue()) - LocalUsedDownload;
+					roamUpload =
+							Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue()) - LocalUsedUpload;
+					roamUsedData = 
+							roamDownload + roamUpload;
+					
+					theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
+					theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
+					theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
+				}
+			},6*60*1000,true);
 //		}
-		
+	}
+	
+	public void CollectedData()
+	{
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT");
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server		
@@ -298,6 +310,10 @@ public class RoamingHandler implements Runnable
 		
 	}
 	
+	/**
+	 * Method CurrentLocation.
+	 * @return boolean
+	 */
 	public boolean CurrentLocation() 
 	{
 		boolean retval = true;
@@ -338,7 +354,15 @@ public class RoamingHandler implements Runnable
 		return retval;
 	}
 	
+	/**
+	 */
 	public class LocationListenerActivity implements LocationListener {
+		/**
+		 * Method locationUpdated.
+		 * @param provider LocationProvider
+		 * @param location Location
+		 * @see javax.microedition.location.LocationListener#locationUpdated(LocationProvider, Location)
+		 */
 		public void locationUpdated(LocationProvider provider, Location location) {
 			if (location.isValid()) {
 				longitude = location.getQualifiedCoordinates().getLongitude();
@@ -350,17 +374,32 @@ public class RoamingHandler implements Runnable
 			}
 		}
 
+		/**
+		 * Method providerStateChanged.
+		 * @param provider LocationProvider
+		 * @param newState int
+		 * @see javax.microedition.location.LocationListener#providerStateChanged(LocationProvider, int)
+		 */
 		public void providerStateChanged(LocationProvider provider, int newState) {
 			// no-op
 		}
 	}
 	
+	/**
+	 * Method Bytes2MegaBytes.
+	 * @param bytes double
+	 * @return int
+	 */
 	public int Bytes2MegaBytes(double bytes)
 	{
 		return Integer.valueOf(
 				StringBreaker.split(String.valueOf(bytes/(1024*10234)),".")[0]).intValue();
 	}
 	
+	/**
+	 * Method PauseTracking.
+	 * @param interval int
+	 */
 	public void PauseTracking(int interval)
 	{
 		bblocationprovider.pauseLocationTracking(interval);
@@ -381,51 +420,91 @@ public class RoamingHandler implements Runnable
 		bblocationprovider.reset();
 	}
 	
+	/**
+	 * Method getLatitude.
+	 * @return double
+	 */
 	public double getLatitude()
 	{
 		return latitude;
 	}
 	
+	/**
+	 * Method getLongitude.
+	 * @return double
+	 */
 	public double getLongitude()
 	{
 		return longitude;
 	}
 	
+	/**
+	 * Method getAccuracy.
+	 * @return double
+	 */
 	public double getAccuracy()
 	{
 		return accuracy;
 	}
 	
+	/**
+	 * Method getRoamingIncoming.
+	 * @return int
+	 */
 	public int getRoamingIncoming()
 	{
 		return roamIncomingMins;
 	}
 	
+	/**
+	 * Method getRoamingOutgoing.
+	 * @return int
+	 */
 	public int getRoamingOutgoing()
 	{
 		return roamOutgoingMins;
 	}
 	
+	/**
+	 * Method getRoamingDownload.
+	 * @return int
+	 */
 	public int getRoamingDownload()
 	{
 		return roamDownload;
 	}
 	
+	/**
+	 * Method getRoamingUpload.
+	 * @return int
+	 */
 	public int getRoamingUpload()
 	{
 		return roamUpload;
 	}
 	
+	/**
+	 * Method getRoamingReceived.
+	 * @return int
+	 */
 	public int getRoamingReceived()
 	{
 		return roamReceivedMsgs;
 	}
 	
+	/**
+	 * Method getRoamingSent.
+	 * @return int
+	 */
 	public int getRoamingSent()
 	{
 		return roamSentMsgs;
 	}
 	
+	/**
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
+	 */
 	public boolean Check_NON_CAN_Operator()
 	{
 		boolean NON_CANOperatorCheck = true;
@@ -447,6 +526,10 @@ public class RoamingHandler implements Runnable
 		return NON_CANOperatorCheck;
 	 }
 	
+	/**
+	 * Method RoamingCheck.
+	 * @return boolean
+	 */
 	public boolean RoamingCheck()
 	{
 		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)

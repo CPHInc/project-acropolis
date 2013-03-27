@@ -2,6 +2,8 @@ package loggers;
 
 import net.rim.device.api.system.EventLogger;
 
+/**
+ */
 public class Logger {
 
 	final long GUID = 0x352293d8b09a8122L;
@@ -12,6 +14,10 @@ public class Logger {
 		EventLogger.register(GUID, AppName,EventLogger.VIEWER_STRING);
 	}
 	
+	/**
+	 * Method LogMessage.
+	 * @param msg String
+	 */
 	public void LogMessage(String msg)
 	{
 		EventLogger.logEvent(GUID, msg.getBytes(), EventLogger.ALWAYS_LOG);

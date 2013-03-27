@@ -8,6 +8,8 @@ import net.rim.device.api.util.Arrays;
  * TableLayoutManager can be used to create multi column table
  * views. You can even embed table within another table to create
  * complex tabular views.
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class TableLayoutManager extends Manager
 {
@@ -35,6 +37,11 @@ public class TableLayoutManager extends Manager
     int _columns;
     private int _horizPadding;
 
+    /**
+     * Constructor for TableLayoutManager.
+     * @param columnStyles int[]
+     * @param style long
+     */
     public TableLayoutManager(int columnStyles[], long style)
     {
         this(columnStyles, null, DEFAULT_PADDING, style);
@@ -84,6 +91,12 @@ public class TableLayoutManager extends Manager
             _suggestedColumnWidths = new int[_columnStyles.length];
     }
 
+    /**
+     * Method getField.
+     * @param x int
+     * @param y int
+     * @return Field
+     */
     private Field getField(int x, int y)
     {
         int i = x + (y * _columns);
@@ -91,6 +104,12 @@ public class TableLayoutManager extends Manager
         return getField(i);
     }
 
+    /**
+     * Method isColumnStyle.
+     * @param value int
+     * @param flag int
+     * @return boolean
+     */
     private boolean isColumnStyle(int value, int flag)
     {
         return ((value) & (flag)) > 0;
@@ -100,6 +119,7 @@ public class TableLayoutManager extends Manager
      * Implements the getPreferredWidth call to return the
      * expected width for this manager. The expected width is
      * the Max(Sum (Column Widths))
+     * @return int
      */
     public int getPreferredWidth()
     {
@@ -157,6 +177,7 @@ public class TableLayoutManager extends Manager
 
     /**
      * implements the preferred height for this layout
+     * @return int
      */
     public int getPreferredHeight()
     {
@@ -194,6 +215,8 @@ public class TableLayoutManager extends Manager
 
     /**
      * Defines how Fields for this manager needs to be handled.
+     * @param layoutWidth int
+     * @param layoutHeight int
      */
     protected void sublayout(int layoutWidth, int layoutHeight)
     {
@@ -437,6 +460,11 @@ public class TableLayoutManager extends Manager
     /**
      * Navigation movement to allow for both cell to cell within
      * a columns and row movement
+     * @param dx int
+     * @param dy int
+     * @param status int
+     * @param time int
+     * @return boolean
      */
     protected boolean navigationMovement(int dx, int dy, int status, int time)
     {
@@ -503,7 +531,8 @@ public class TableLayoutManager extends Manager
      * @param field
      * @param width
      * @param height
-     * @return
+    
+     * @return XYPoint
      */
     private XYPoint calcAlignmentOffset(Field field, int width, int height)
     {

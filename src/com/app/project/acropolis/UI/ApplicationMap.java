@@ -5,6 +5,8 @@ import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.component.LabelField;
 
+/**
+ */
 public class ApplicationMap extends MapField
 {
 	 // For cursor
@@ -23,6 +25,10 @@ public class ApplicationMap extends MapField
         _sampleLabel = null; 
 	}
 	
+	/**
+	 * Method paint.
+	 * @param g Graphics
+	 */
 	public void paint(Graphics g)
 	{
 		g.setDrawingStyle(Graphics.DRAWSTYLE_AAPOLYGONS,true);
@@ -32,6 +38,10 @@ public class ApplicationMap extends MapField
 		g.drawBitmap(getWidth() >> 1, getHeight() >> 1, getWidth(), getHeight(), _cursor, 0, 0);
 	}
 	
+	/**
+	 * Method setZoom.
+	 * @param zoom int
+	 */
 	public void setZoom(int zoom)
 	{
 		fix = true;
@@ -51,6 +61,10 @@ public class ApplicationMap extends MapField
 //        return true;        
 //    }
     
+    /**
+     * Method setMapLabel.
+     * @param newText String
+     */
     public void setMapLabel(String newText)
     {
     	_turnOffText = false;

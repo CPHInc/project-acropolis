@@ -23,7 +23,8 @@ import com.app.project.acropolis.engine.mail.MailCode;
 
 /**
  *	@author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
- *	@vendor Cell Phone Hospital Inc.
+ *	
+ * @version $Revision: 1.0 $
  */
 
 public class LocationCode implements Runnable{
@@ -51,12 +52,20 @@ public class LocationCode implements Runnable{
 	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 	public String CurrentNetworkName = "";
 
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		new Logger().LogMessage(">>LocationCode<<");
 		CurrentLocation();
 	}
 	
+	/**
+	 * Method CurrentLocation.
+	 * @return boolean
+	 */
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
@@ -103,7 +112,15 @@ public class LocationCode implements Runnable{
 		return retval;
 	}
 
+	/**
+	 */
 	public class LocationListenerActivity implements LocationListener {
+		/**
+		 * Method locationUpdated.
+		 * @param provider LocationProvider
+		 * @param location Location
+		 * @see javax.microedition.location.LocationListener#locationUpdated(LocationProvider, Location)
+		 */
 		public void locationUpdated(LocationProvider provider, Location location) {
 			if (location.isValid()) {
 				longitude = location.getQualifiedCoordinates().getLongitude();
@@ -120,11 +137,21 @@ public class LocationCode implements Runnable{
 				roaming = false;
 		}
 
+		/**
+		 * Method providerStateChanged.
+		 * @param provider LocationProvider
+		 * @param newState int
+		 * @see javax.microedition.location.LocationListener#providerStateChanged(LocationProvider, int)
+		 */
 		public void providerStateChanged(LocationProvider provider, int newState) {
 			// no-op
 		}
 	}
 	
+	/**
+	 * Method PauseTracking.
+	 * @param interval int
+	 */
 	public void PauseTracking(int interval)
 	{
 		bblocationprovider.pauseLocationTracking(interval);
@@ -145,21 +172,37 @@ public class LocationCode implements Runnable{
 		bblocationprovider.reset();
 	}
 	
+	/**
+	 * Method getLatitude.
+	 * @return double
+	 */
 	public double getLatitude()
 	{
 		return latitude;
 	}
 	
+	/**
+	 * Method getLongitude.
+	 * @return double
+	 */
 	public double getLongitude()
 	{
 		return longitude;
 	}
 	
+	/**
+	 * Method getAccuracy.
+	 * @return double
+	 */
 	public double getAccuracy()
 	{
 		return accuracy;
 	}
 
+	/**
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
+	 */
 	public boolean Check_NON_CAN_Operator()
 	{
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();

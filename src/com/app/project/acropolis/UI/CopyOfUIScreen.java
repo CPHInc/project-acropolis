@@ -19,6 +19,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * 
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  *
+ * @version $Revision: 1.0 $
  */
 
 /**
@@ -178,9 +179,10 @@ public final class CopyOfUIScreen extends MainScreen
     
     /**
      * Convert seconds to minutes
-     * @param Seconds
-     * @return Minutes
-     */
+    
+    
+     * @param seconds int
+     * @return Minutes */
     public int Seconds2Minutes(int seconds)
     {
     	int minutes=0;
@@ -198,9 +200,14 @@ public final class CopyOfUIScreen extends MainScreen
     /**
      * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
      * Updates screen text via java.util.TimerTask
+     * @version $Revision: 1.0 $
      */
     public class ScreenTextUpdater implements Runnable//extends TimerTask
     {
+    	/**
+    	 * Method run.
+    	 * @see java.lang.Runnable#run()
+    	 */
     	public void run()
     	{
     		synchronized(Application.getEventLock())
@@ -219,6 +226,12 @@ public final class CopyOfUIScreen extends MainScreen
     	}
     }
     
+    /**
+     * Method ScreenMap.
+     * @param latitude int
+     * @param longitude int
+     * @param zoom int
+     */
     public void ScreenMap(int latitude,int longitude,int zoom)
     {
     	synchronized(Application.getEventLock())
@@ -248,6 +261,10 @@ public final class CopyOfUIScreen extends MainScreen
     	}
     }
     
+    /**
+     * Method onClose.
+     * @return boolean
+     */
     public boolean onClose()
     {
     	UiApplication.getUiApplication().requestBackground();

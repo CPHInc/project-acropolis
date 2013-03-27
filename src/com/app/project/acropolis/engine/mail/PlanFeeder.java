@@ -13,8 +13,11 @@ import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.blackberry.api.phone.Phone;
 
 import com.app.project.acropolis.controller.StringBreaker;
+import com.app.project.acropolis.model.ModelFactory;
 import com.app.project.acropolis.model.PlanModelFactory;
 
+/**
+ */
 public class PlanFeeder implements Runnable
 {
 	String in_Mail = "rohan@cellphonehospitalinc.com";
@@ -30,8 +33,13 @@ public class PlanFeeder implements Runnable
 	String[] planDatabaseColumns = {"billing_date","minutes","text","data","roam_quota","roam_min","roam_msg","roam_data"};
 	String[] strPlanArray = new String[40];
 	StringBreaker strBreak = new StringBreaker();
+	ModelFactory theModel;
 	PlanModelFactory thePlan;
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		new Logger().LogMessage(">>PlanFeeder<<");
@@ -104,30 +112,61 @@ public class PlanFeeder implements Runnable
 	
 	public void UpdatePlan()
 	{
-		if(getIncomingServerMailSubject().equalsIgnoreCase("Device Plan Details"))
+		thePlan = new PlanModelFactory();
+		theModel = new ModelFactory();
+		if(getIncomingServerMailSubject().equalsIgnoreCase("#UPDATE#"))
 		{
-			incoming_content =getIncomingServerMailContent();
+			incoming_content = getIncomingServerMailContent();
 			new Logger().LogMessage("Plan well received");
+			strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
+			thePlan.UpdateData( strPlanArray[0], strPlanArray[1] );	//column & value
+			try {
+				Thread.sleep(60*1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		else if(getIncomingServerMailSubject().equalsIgnoreCase("#UPDATEAll#"))
+		{
 			strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
 			for(int i=0;i<=strPlanArray.length;i++)
 			{
 				thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );
+				try {
+					Thread.sleep(60*1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if(planDatabaseColumns[i].equalsIgnoreCase("roam_quota"))
+				{
+					theModel.UpdateData("roam_quota", strPlanArray[i]);
+				}
 			}
 		}
 	}
 	
-	
-	
+	/**
+	 * Method getIncomingServerMailAlert.
+	 * @return int
+	 */
 	public int getIncomingServerMailAlert()
 	{
 		return incoming_serverMail;
 	}
 	
+	/**
+	 * Method getIncomingServerMailSubject.
+	 * @return String
+	 */
 	public String getIncomingServerMailSubject()
 	{
 		return incoming_subject;
 	}
 	
+	/**
+	 * Method getIncomingServerMailContent.
+	 * @return String
+	 */
 	public String getIncomingServerMailContent()
 	{
 		return incoming_content;

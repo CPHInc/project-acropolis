@@ -31,6 +31,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * 
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  *
+ * @version $Revision: 1.0 $
  */
 
 /**
@@ -101,9 +102,9 @@ public final class UIScreen extends MainScreen
 	String UploadResultString = "";
 	String TotalDataString = "Total (KB)";
 	String TotalResultDataString = "";
-	String TotalLocalCharges = "Total Monitored Cost";
+	String TotalLocalCharges = "Monthly Reg. Cost";
 	String TotalResultLocalCharges = "";
-	String TotalRoamingCharges = "Total Roaming Cost";
+	String TotalRoamingCharges = "Roaming Reg. Cost";
 	String TotalResultRoamingCharges = "$0.0";
 	String RoamingChargesString = "Roaming Charges(Approx.)";
 	String RoamingMinutesChargesString = "Minutes \'$2.00/min\':-- $";
@@ -182,9 +183,9 @@ public final class UIScreen extends MainScreen
     			(Color.CORNSILK, Color.CORNSILK, Color.CORNSILK, Color.CORNSILK));
     	
     	this.getMainManager().setBackground(BackgroundFactory.createLinearGradientBackground
-    			(Color.LIGHTGOLDENRODYELLOW, Color.LIGHTGRAY, Color.WHEAT, Color.WHEAT));
+    			(Color.MINTCREAM, Color.LIGHTCORAL, Color.MOCCASIN, Color.WHEAT));
     	
-    	DeriveApplicationFont();
+    	DeriveApplicationFont(); 
     	
     	Application.getApplication().setAcceptEvents(true);
     	new Logger().LogMessage("Application requested for Foreground entry");
@@ -410,6 +411,11 @@ public final class UIScreen extends MainScreen
 	   this.getMainManager().add(DataGrid);
    }
     
+    /**
+     * Method FormatDecimal. Trims down leading decimal to 100th unit
+     * @param value double
+     * @return xx.xx
+     */
     public String FormatDecimal(double value)
     {
     	String formated = "";
@@ -426,9 +432,8 @@ public final class UIScreen extends MainScreen
     
     /**
      * Convert seconds to minutes
-     * @param Seconds
-     * @return Minutes
-     */
+     * @param seconds int
+     * @return Minutes */
     public int Seconds2Minutes(int seconds)
     {
     	int minutes=0;
@@ -479,6 +484,15 @@ public final class UIScreen extends MainScreen
 			else if(theModel.SelectData("roaming").equalsIgnoreCase("true"))
 				roamResultText.setText("Yes");
 			
+			double roamTotalMinutes = Double.valueOf(theModel.SelectData("roam_min")).doubleValue();
+			double roamTotalMessages = Double.valueOf(theModel.SelectData("roam_msg")).doubleValue();
+			double roamTotalData = (Double.valueOf(theModel.SelectData("roam_data")).doubleValue())/(1024*1024);
+			String totalRoamCost = FormatDecimal(
+					(roamTotalMinutes*RoamingVoiceRate) 
+						+ (roamTotalMessages*RoamingMessageRate)
+							+ (roamTotalData*RoamingDataRate));
+			TotalResultRoaming.setText("$"+totalRoamCost);
+			
 //			LocalMinutesCharges.setText(LocalMinutesCharges.getText() + String.valueOf((incomingMin*LocalVoiceRate)));
 //			LocalMessageCharges.setText(LocalMessageCharges.getText() + String.valueOf((totalMsg*LocalMessageRate)));
 //			LocalDataCharges.setText(LocalDataCharges.getText() + 
@@ -525,9 +539,14 @@ public final class UIScreen extends MainScreen
     /**
      * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
      * Updates screen text via java.util.TimerTask
+     * @version $Revision: 1.0 $
      */
     public class ScreenTextUpdater implements Runnable//extends TimerTask
     {
+    	/**
+    	 * Method run.
+    	 * @see java.lang.Runnable#run()
+    	 */
     	public void run()
     	{
     		synchronized(Application.getEventLock())
@@ -537,6 +556,10 @@ public final class UIScreen extends MainScreen
     	}
     }
     
+    /**
+     * Method onClose.
+     * @return boolean
+     */
     public boolean onClose()
     {
     	UiApplication.getUiApplication().requestBackground();
