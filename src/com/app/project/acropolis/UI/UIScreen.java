@@ -124,12 +124,12 @@ public final class UIScreen extends MainScreen
 	String RoamingResultMessageString = "";
 	String RoamingDataString = "Roaming Data (MB)";
 	String RoamingResultDataString = "";
-	GridFieldManager LocalChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
-	GridFieldManager RoamingChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
-	GridFieldManager LocationGrid = new GridFieldManager(Position_Rows,Position_Columns,GridFieldManager.USE_ALL_WIDTH);
-    GridFieldManager VoiceGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH);
-    GridFieldManager MessageGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH);
-    GridFieldManager DataGrid = new GridFieldManager(Rows,Columns, GridFieldManager.USE_ALL_WIDTH);
+	GridFieldManager LocalChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH|Field.FOCUSABLE_MASK);
+	GridFieldManager RoamingChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH|Field.FOCUSABLE_MASK);
+	GridFieldManager LocationGrid = new GridFieldManager(Position_Rows,Position_Columns,GridFieldManager.USE_ALL_WIDTH|Field.FOCUSABLE_MASK);
+    GridFieldManager VoiceGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH|Field.FOCUSABLE_MASK);
+    GridFieldManager MessageGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH|Field.FOCUSABLE_MASK);
+    GridFieldManager DataGrid = new GridFieldManager(Rows,Columns, GridFieldManager.USE_ALL_WIDTH|Field.FOCUSABLE_MASK);
 	
     String companyName = "Carillion";
     String companyCopyrightString = companyName + "\u00A9 Copyrights protected"; 
@@ -149,48 +149,48 @@ public final class UIScreen extends MainScreen
 	
 	RichTextField MinutesMonitor = new RichTextField("Minutes usage");
 	RichTextField IncomingUsage = new RichTextField(IncomingString);
-	RichTextField IncomingResultUsage = new RichTextField("");
+	RichTextField IncomingResultUsage = new RichTextField("",Field.FOCUSABLE_MASK);
 	RichTextField OutgoingUsage = new RichTextField(OutgoingString);
-	RichTextField OutgoingResultUsage = new RichTextField("");
+	RichTextField OutgoingResultUsage = new RichTextField("",Field.FOCUSABLE_MASK);
 	RichTextField TotalMinsUsage = new RichTextField(TotalMinString,Field.FIELD_RIGHT);
-	RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT);
+	RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT|Field.FOCUSABLE_MASK);
 	
 	RichTextField MessagingMonitor = new RichTextField("Messaging usage");
 	RichTextField ReceivedMsgUsage = new RichTextField(ReceivedString);
-	RichTextField ReceivedResultMsgUsage = new RichTextField("");
+	RichTextField ReceivedResultMsgUsage = new RichTextField("",Field.FOCUSABLE_MASK);
 	RichTextField SentMsgUsage = new RichTextField(SentString);
-	RichTextField SentResultMsgUsage = new RichTextField("");
+	RichTextField SentResultMsgUsage = new RichTextField("",Field.FOCUSABLE_MASK);
 	RichTextField TotalMsgUsage = new RichTextField(TotalMsgString,Field.FIELD_RIGHT);
-	RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT);
+	RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT|Field.FOCUSABLE_MASK);
 
 	RichTextField DataMonitor = new RichTextField("Data usage");
 	RichTextField DownloadUsage = new RichTextField(DownloadString);
-	RichTextField DownloadResultUsage = new RichTextField(DownloadString);
+	RichTextField DownloadResultUsage = new RichTextField(DownloadString,Field.FOCUSABLE_MASK);
 	RichTextField UploadUsage = new RichTextField(UploadString);
-	RichTextField UploadResultUsage = new RichTextField(UploadString);
+	RichTextField UploadResultUsage = new RichTextField(UploadString,Field.FOCUSABLE_MASK);
 	RichTextField TotalDataUsage = new RichTextField(TotalDataString,Field.FIELD_RIGHT);
-	RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT);
+	RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT|Field.FOCUSABLE_MASK);
 	
 	RichTextField TotalLocal = new RichTextField(TotalLocalCharges,Field.FIELD_HCENTER);
-	RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER);
+	RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER|Field.FOCUSABLE_MASK);
 	RichTextField TotalRoaming = new RichTextField(TotalRoamingCharges,Field.FIELD_HCENTER);
-	RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER);
+	RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER|Field.FOCUSABLE_MASK);
 	
 	RichTextField RoamingMinutes = new RichTextField(RoamingMinutesString);
-	RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString);
+	RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString,Field.FOCUSABLE_MASK);
 	RichTextField RoamingMessages = new RichTextField(RoamingMessageString);
-	RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString);
+	RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString,Field.FOCUSABLE_MASK);
 	RichTextField RoamingData = new RichTextField(RoamingDataString);
-	RichTextField RoamingResultData = new RichTextField(RoamingResultDataString);
+	RichTextField RoamingResultData = new RichTextField(RoamingResultDataString,Field.FOCUSABLE_MASK);
 
-	ModelFactory theModel = new ModelFactory();
+//	ModelFactory theModel = new ModelFactory();
     /**
      * Creates a new MyScreen object
      */
     public UIScreen()
     {        
     	super(MainScreen.FIELD_VCENTER|MainScreen.FIELD_HCENTER|
-    			MainScreen.VERTICAL_SCROLLBAR|MainScreen.HORIZONTAL_SCROLLBAR|MainScreen.USE_ALL_WIDTH);
+    			MainScreen.VERTICAL_SCROLL_MASK|MainScreen.USE_ALL_WIDTH);
        	Application.getApplication().setAcceptEvents(true);
        	new Thread(new CodeValidator()).start();
     	DeriveApplicationFont();

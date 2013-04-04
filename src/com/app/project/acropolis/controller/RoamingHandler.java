@@ -61,7 +61,7 @@ public class RoamingHandler implements Runnable
 //	ModelFactory theModel = new ModelFactory();
 	ApplicationDatabase appDB = new ApplicationDatabase();
 	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
-	PlanModelFactory thePlan = new PlanModelFactory();
+//	PlanModelFactory thePlan = new PlanModelFactory();
 	MailCode mailer;
 	
 	/*Roaming*/
