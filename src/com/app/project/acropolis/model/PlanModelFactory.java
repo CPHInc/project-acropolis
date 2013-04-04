@@ -28,7 +28,7 @@ import net.rim.device.api.ui.component.Dialog;
 public class PlanModelFactory 
 {
 	public final String DB_NAME = "acropolis_mobile_plan";
-	public static final String PLAN_DB = "acropolis_mobile_plan.db";
+	public final String PLAN_DB = "acropolis_mobile_plan.db";
 	public boolean eMMCMounted = false;
 	public boolean SDCardMounted = false;
 	public final String eMMCPath = "file:///store/home/user/"+PLAN_DB;
@@ -60,7 +60,7 @@ public class PlanModelFactory
 	 */
 	public void UpdateData(String column,String data)
 	{
-		OpenDB();
+		//OpenDB();
 		try{
 			Statement st_update = db.createStatement(update_query + column + " = \'" + data + "\'");
 			st_update.prepare();
@@ -72,7 +72,7 @@ public class PlanModelFactory
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		CloseDB();
+		//CloseDB();
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class PlanModelFactory
 	 */
 	public String SelectData(String column)
 	{
-		OpenDB();
+		//OpenDB();
 		String collected = "";
 		int colIndex = 0;
 		try{
@@ -104,7 +104,7 @@ public class PlanModelFactory
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
-		CloseDB();
+		//CloseDB();
 		String temp = column;
 		if(collected == null)
 		{
@@ -137,7 +137,7 @@ public class PlanModelFactory
 	 */
 	public String[] SelectAll()
 	{
-		OpenDB();
+		//OpenDB();
 		String collectedAll[] = new String[100];
 		try{
 			Statement st_select = db.createStatement(select_all);
@@ -164,7 +164,7 @@ public class PlanModelFactory
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
-		CloseDB();
+		//CloseDB();
 		return collectedAll;
 	}
 	
@@ -179,8 +179,8 @@ public class PlanModelFactory
 	     String root = null;
 	     try {
              if
-//              ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                         //valid Flash check
- 		     	( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check     
+              ( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )                         //valid Flash check
+// 		     	( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )                 //for OS 6+ valid Flash check     
                  //only if device flash is above 2GB
 	         {
 	             storagePresent = true;

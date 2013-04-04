@@ -28,9 +28,6 @@ import com.app.project.acropolis.engine.mail.MailCode;
  */
 
 public class LocationCode implements Runnable{
-	final long GUID = 0x3c38b852369c643L;
-	final String AppName = "**Project Acropolis SVN debugger**";
-	
 	public String errorstream;
 	private double latitude;
 	private double longitude;
@@ -69,7 +66,7 @@ public class LocationCode implements Runnable{
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
-			new Logger().LogMessage("Automous scanning initiated...");
+			new Logger().LogMessage("Autonomous scanning initiated...");
 			bbcriteria = new BlackBerryCriteria(GPSInfo.getDefaultGPSMode());
 			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
 			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);

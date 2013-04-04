@@ -14,7 +14,9 @@ import javax.wireless.messaging.TextMessage;
 
 import loggers.Logger;
 import net.rim.blackberry.api.sms.OutboundMessageListener;
+import net.rim.device.api.system.RadioInfo;
 
+import com.app.project.acropolis.model.ApplicationDatabase;
 import com.app.project.acropolis.model.ModelFactory;
 
 /**
@@ -22,7 +24,7 @@ import com.app.project.acropolis.model.ModelFactory;
  * @version $Revision: 1.0 $
  */
 
-public class TextMonitor //implements Runnable
+public class TextMonitor implements Runnable
 {
 	
 	/**
@@ -47,6 +49,10 @@ public class TextMonitor //implements Runnable
 	 *  
 	 */
 	
+	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
+			"FixAck","FixDeviceTime","FixServerTime","Incoming",
+			"Outgoing","Download","Upload","Received","Sent"};
+	
 	final String SMS_Server = "sms://:0";
 	final String SMS_Server_noport = "sms://";
 	MessageConnection msg_conn;
@@ -70,17 +76,20 @@ public class TextMonitor //implements Runnable
 	
 	public int sent = 0;
 	public int received = 0;
-
-	ModelFactory theModel;
+	ModelFactory theModel = new ModelFactory();
+	ApplicationDatabase appDB = new ApplicationDatabase();
+	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
+	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
 	
 	public TextMonitor()
 	{
 		new Logger().LogMessage(">TextMonitor<");
-		theModel = new ModelFactory();
-		HandleMessageConnection();
 	}
 	
-	/** Via DatagramConnection ***/
+	public void run()
+	{
+		HandleMessageConnection();
+	}
 	
 	/**
 	 * Opens javax.microedition.io.DatagramConnection server and fetch
@@ -150,7 +159,6 @@ public class TextMonitor //implements Runnable
 	{
 		try {
 			msg_conn = (MessageConnection)Connector.open(SMS_Server);	// 'sms://:0'
-			new Logger().LogMessage("Registered message listener..");
 			msg_conn.setMessageListener(new TextListener());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -169,42 +177,86 @@ public class TextMonitor //implements Runnable
 		 */
 		public void notifyIncomingMessage(MessageConnection conn)
 		{
-			int msg_in = 1;
+			final int msg_in = 1;
 			new Logger().LogMessage(">>--"+this.getClass()+"--<<");
 			try {
 				msg_rcv = conn.receive();
 				new Logger().LogMessage("Receiving message..");				
 				
-				if(msg_rcv instanceof TextMessage)
+				if(!Check_NON_CAN_Operator())
 				{
-					textmsg_rcv = (TextMessage)msg_rcv;
-					received = Integer.valueOf(theModel.SelectData("received")).intValue();
-					received = received + msg_in;
-					theModel.UpdateData("received", String.valueOf(received));
-					new Logger().LogMessage("TextMessage received"+
-							"\r\nAddress:"+textmsg_rcv.getAddress() + 
-							"\r\nPayload:"+textmsg_rcv.getPayloadText() +
-							"\r\nCount:"+received);
+					if(msg_rcv instanceof TextMessage)
+					{
+						textmsg_rcv = (TextMessage)msg_rcv;
+						received = Integer.valueOf(localUsage.getValue(MapKeys[11])).intValue();
+//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = received + msg_in;
+						localUsage.setValue(MapKeys[11], String.valueOf(received));
+//						theModel.UpdateData("received",  new String(String.valueOf(received)));
+						new Logger().LogMessage("TextMessage received"+
+								"\r\nAddress:"+textmsg_rcv.getAddress() + 
+								"\r\nPayload:"+textmsg_rcv.getPayloadText() +
+								"\r\nCount:"+received);
+					}
+					else if(msg_rcv instanceof BinaryMessage)
+					{
+						binmsg_rcv = (BinaryMessage)msg_rcv;
+						received = Integer.valueOf(localUsage.getValue(MapKeys[11])).intValue();
+//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = received + msg_in;
+						localUsage.setValue(MapKeys[11], String.valueOf(received));
+						new Logger().LogMessage("BinaryMessage received" + 
+								"\r\nAddress:" + binmsg_rcv.getAddress() +
+								"\r\nCount:" + received);
+					}
+					else if(msg_rcv instanceof MultipartMessage)
+					{
+						multimsg_rcv = (MultipartMessage)msg_rcv;
+						received = Integer.valueOf(localUsage.getValue(MapKeys[11])).intValue();
+//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = received + msg_in;
+						localUsage.setValue(MapKeys[11], String.valueOf(received));
+						new Logger().LogMessage("MultipartMessage received" + 
+								"\r\nAddress:" + multimsg_rcv.getAddress() +
+								"\r\nCount:" + received);
+					}
 				}
-				else if(msg_rcv instanceof BinaryMessage)
+				else
 				{
-					binmsg_rcv = (BinaryMessage)msg_rcv;
-					received = Integer.valueOf(theModel.SelectData("received")).intValue();
-					received = received + msg_in;
-					theModel.UpdateData("received", String.valueOf(received));
-					new Logger().LogMessage("BinaryMessage received" + 
-							"\r\nAddress:" + binmsg_rcv.getAddress() +
-							"\r\nCount:" + received);
-				}
-				else if(msg_rcv instanceof MultipartMessage)
-				{
-					multimsg_rcv = (MultipartMessage)msg_rcv;
-					received = Integer.valueOf(theModel.SelectData("received")).intValue();
-					received = received + msg_in;
-					theModel.UpdateData("received", String.valueOf(received));
-					new Logger().LogMessage("MultipartMessage received" + 
-							"\r\nAddress:" + multimsg_rcv.getAddress() +
-							"\r\nCount:" + received);
+					if(msg_rcv instanceof TextMessage)
+					{
+						textmsg_rcv = (TextMessage)msg_rcv;
+						received = Integer.valueOf(roamUsage.getValue(MapKeys[11])).intValue();
+//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = received + msg_in;
+						roamUsage.setValue(MapKeys[11], String.valueOf(received));
+						new Logger().LogMessage("TextMessage received"+
+								"\r\nAddress:"+textmsg_rcv.getAddress() + 
+								"\r\nPayload:"+textmsg_rcv.getPayloadText() +
+								"\r\nCount:"+received);
+					}
+					else if(msg_rcv instanceof BinaryMessage)
+					{
+						binmsg_rcv = (BinaryMessage)msg_rcv;
+						received = Integer.valueOf(roamUsage.getValue(MapKeys[11])).intValue();
+//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = received + msg_in;
+						roamUsage.setValue(MapKeys[11], String.valueOf(received));
+						new Logger().LogMessage("BinaryMessage received" + 
+								"\r\nAddress:" + binmsg_rcv.getAddress() +
+								"\r\nCount:" + received);
+					}
+					else if(msg_rcv instanceof MultipartMessage)
+					{
+						multimsg_rcv = (MultipartMessage)msg_rcv;
+						received = Integer.valueOf(roamUsage.getValue(MapKeys[11])).intValue();
+//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = received + msg_in;
+						roamUsage.setValue(MapKeys[11], String.valueOf(received));
+						new Logger().LogMessage("MultipartMessage received" + 
+								"\r\nAddress:" + multimsg_rcv.getAddress() +
+								"\r\nCount:" + received);
+					}
 				}
 			} catch (InterruptedIOException e) {
 				e.printStackTrace();
@@ -220,40 +272,101 @@ public class TextMonitor //implements Runnable
 		 */
 		public void notifyOutgoingMessage(Message message) 
 		{
-			int msg_out = 1;
+			final int msg_out = 1;
 			new Logger().LogMessage(">>--"+this.getClass()+"--<<");
 			new Logger().LogMessage("Sending message");
-			if(message instanceof TextMessage)
+			if(!Check_NON_CAN_Operator())
 			{
-				textmsg_snd = (TextMessage)message;
-				sent = Integer.valueOf(theModel.SelectData("sent")).intValue();
-				sent = sent + msg_out;
-				theModel.UpdateData("sent", String.valueOf(sent));
-				new Logger().LogMessage("TextMessage sent"+
-						"\r\nTo Address"+textmsg_snd.getAddress()+
-						"\r\nCount:"+sent);
+				if(message instanceof TextMessage)
+				{
+					textmsg_snd = (TextMessage)message;
+					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
+//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = sent + msg_out;
+					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					new Logger().LogMessage("TextMessage sent"+
+							"\r\nTo Address"+textmsg_snd.getAddress()+
+							"\r\nCount:"+sent);
+				}
+				else if (message instanceof BinaryMessage)
+				{
+					binmsg_snd = (BinaryMessage)message;
+					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
+//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = sent + msg_out;
+					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					new Logger().LogMessage("BinaryMessage sent"+
+							"\r\nTo Address:"+binmsg_snd.getAddress()+
+							"\r\nCount:"+sent);
+				}
+				else if (message instanceof MultipartMessage)
+				{
+					multimsg_snd = (MultipartMessage)message;
+					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
+//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = sent + msg_out;
+					roamUsage.setValue(MapKeys[11], String.valueOf(sent));
+					new Logger().LogMessage("MultipartMessage sent"+
+							"\r\nTo Address:"+multimsg_snd.getAddress()+
+							"\r\nCount:"+sent);
+				}
 			}
-			else if (message instanceof BinaryMessage)
+			else
 			{
-				binmsg_snd = (BinaryMessage)message;
-				sent = Integer.valueOf(theModel.SelectData("sent")).intValue();
-				sent = sent + msg_out;
-				theModel.UpdateData("sent", String.valueOf(sent));
-				new Logger().LogMessage("BinaryMessage sent"+
-						"\r\nTo Address:"+binmsg_snd.getAddress()+
-						"\r\nCount:"+sent);
-			}
-			else if (message instanceof MultipartMessage)
-			{
-				multimsg_snd = (MultipartMessage)message;
-				sent = Integer.valueOf(theModel.SelectData("sent")).intValue();
-				sent = sent + msg_out;
-				theModel.UpdateData("sent", String.valueOf(sent));
-				new Logger().LogMessage("MultipartMessage sent"+
-						"\r\nTo Address:"+multimsg_snd.getAddress()+
-						"\r\nCount:"+sent);
+				if(message instanceof TextMessage)
+				{
+					textmsg_snd = (TextMessage)message;
+					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
+//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = sent + msg_out;
+					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					new Logger().LogMessage("TextMessage sent"+
+							"\r\nTo Address"+textmsg_snd.getAddress()+
+							"\r\nCount:"+sent);
+				}
+				else if (message instanceof BinaryMessage)
+				{
+					binmsg_snd = (BinaryMessage)message;
+					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
+//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = sent + msg_out;
+					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					new Logger().LogMessage("BinaryMessage sent"+
+							"\r\nTo Address:"+binmsg_snd.getAddress()+
+							"\r\nCount:"+sent);
+				}
+				else if (message instanceof MultipartMessage)
+				{
+					multimsg_snd = (MultipartMessage)message;
+					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
+//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = sent + msg_out;
+					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					new Logger().LogMessage("MultipartMessage sent"+
+							"\r\nTo Address:"+multimsg_snd.getAddress()+
+							"\r\nCount:"+sent);
+				}
 			}
 		}
 	}
 	
+	public boolean Check_NON_CAN_Operator()
+	{
+		boolean NON_CANOperatorCheck = true;
+   	
+		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		    	
+		String CurrentNetworkName = "";
+		    	
+		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
+		
+		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+			NON_CANOperatorCheck = false;				//local
+		else
+			NON_CANOperatorCheck = true;				// ROAMING
+		    	
+		return NON_CANOperatorCheck;
+	 }
 }

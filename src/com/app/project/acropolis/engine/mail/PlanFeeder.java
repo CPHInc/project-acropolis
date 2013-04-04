@@ -13,6 +13,7 @@ import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.blackberry.api.phone.Phone;
 
 import com.app.project.acropolis.controller.StringBreaker;
+import com.app.project.acropolis.model.ApplicationDatabase;
 import com.app.project.acropolis.model.ModelFactory;
 import com.app.project.acropolis.model.PlanModelFactory;
 
@@ -20,6 +21,11 @@ import com.app.project.acropolis.model.PlanModelFactory;
  */
 public class PlanFeeder implements Runnable
 {
+	final String[] LOCAL_PLAN_MAPKEYS = {"PhoneNumber","Roaming_Quota","BillingDate",
+			"IncomingPlan","OutgoingPlan","DownloadPlan","UploadPlan","Received","Sent"};
+	final String[] ROAMING_PLAN_MAPKEYS = {"PhoneNumber","RoamingIncomingPlan",
+			"RoamingOutgoingPlan","RoamingDownloadPlan","RoamingUploadPlan",
+			 "RoamingReceivedPlan","RoamingSentPlan"};
 	String in_Mail = "rohan@cellphonehospitalinc.com";
 	String in_Mail_server = "postmaster@cellphonehospitalinc.com";
 //	String in_Name = "Rohan K Mahendroo";
@@ -114,11 +120,16 @@ public class PlanFeeder implements Runnable
 	{
 		thePlan = new PlanModelFactory();
 		theModel = new ModelFactory();
+		ApplicationDatabase appDB = new ApplicationDatabase();
+		ApplicationDatabase.LocalPlanDB localPlan = appDB.new LocalPlanDB();
+		ApplicationDatabase.RoamingPlanDB roamPlan = appDB.new RoamingPlanDB();
+		ApplicationDatabase.ServerCommandsDB serverCmds = appDB.new ServerCommandsDB();
+		
 		if(getIncomingServerMailSubject().equalsIgnoreCase("#UPDATE#"))
 		{
 			incoming_content = getIncomingServerMailContent();
 			new Logger().LogMessage("Plan well received");
-			strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
+			strPlanArray = StringBreaker.split(incoming_content, incomingDelimiter);
 			thePlan.UpdateData( strPlanArray[0], strPlanArray[1] );	//column & value
 			try {
 				Thread.sleep(60*1000);
@@ -128,7 +139,7 @@ public class PlanFeeder implements Runnable
 		}
 		else if(getIncomingServerMailSubject().equalsIgnoreCase("#UPDATEAll#"))
 		{
-			strPlanArray = strBreak.split(incoming_content, incomingDelimiter);
+			strPlanArray = StringBreaker.split(incoming_content, incomingDelimiter);
 			for(int i=0;i<=strPlanArray.length;i++)
 			{
 				thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );

@@ -1,20 +1,23 @@
 package com.app.project.acropolis.engine.monitor;
 
+import java.util.TimerTask;
+
 import loggers.Logger;
-import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.SystemListener;
 import net.rim.device.api.system.WLANConnectionListener;
 import net.rim.device.api.system.WLANInfo;
 import net.rim.device.api.system.WLANListener;
 
+import com.app.project.acropolis.model.ApplicationDatabase;
 import com.app.project.acropolis.model.ModelFactory;
 
 /**
  */
-public class DataMonitor implements Runnable//extends TimerTask
+public class DataMonitor extends TimerTask
 {
-	ModelFactory theModel = new ModelFactory();
+	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
+			"FixAck","FixDeviceTime","FixServerTime","Incoming",
+			"Outgoing","Download","Upload","Received","Sent"};
 	
 	boolean WIFI_Connected = false;
 	
@@ -24,10 +27,17 @@ public class DataMonitor implements Runnable//extends TimerTask
 	
 	long db_download = 0;
 	long db_upload = 0;
+	long r_db_download = 0;
+	long r_db_upload = 0;
 	long MDS_download = 0;
 	long MDS_upload = 0;
 	long wifi_down = 0;
 	long wifi_up = 0;
+	
+	ModelFactory theModel = new ModelFactory();
+	ApplicationDatabase appDB = new ApplicationDatabase();
+	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
+	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
 	
 	public DataMonitor()
 	{
@@ -41,45 +51,58 @@ public class DataMonitor implements Runnable//extends TimerTask
 	 */
 	public void run()
 	{
+//		for(;;)
+//		{
+//			try {
+//				Thread.sleep(60*1000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 		WLANMonitor wlan = new WLANMonitor();
 		wlan.run();
 		
-		db_download = Long.parseLong(theModel.SelectData("downloaded"));	//db values
-		db_upload = Long.parseLong(theModel.SelectData("uploaded"));
-		
-		
-		if( !wlan.getWLANConnection() )
-		{//on MDS
-//			new Logger().LogMessage("MDS active");
-			if(counter==Add_DB_Values)
-			{
+		if(!Check_NON_CAN_Operator())
+		{
+			if( !wlan.getWLANConnection() )
+			{//on MDS
+//				db_download = Long.parseLong(theModel.SelectData("downloaded"));	//db values
+//				db_upload = Long.parseLong(theModel.SelectData("uploaded"));
+				db_download = Long.parseLong(localUsage.getValue(MapKeys[9]));
+				db_upload = Long.parseLong(localUsage.getValue(MapKeys[10]));
+	//			new Logger().LogMessage("MDS active");
 				MDS_download = db_download + (RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload());
 				MDS_upload = db_upload + (RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload());
 				/*Download check*/
-//				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
-				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
+				localUsage.setValue(MapKeys[9], String.valueOf(MDS_download));
+//				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
 				/*Upload check*/
-//				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
-				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
-				counter=Use_Device_Values;
+				localUsage.setValue(MapKeys[10], String.valueOf(MDS_upload));
+//				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
 			}
-			else if(counter==Use_Device_Values)
-			{
-				MDS_download = RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload();
-				MDS_upload = RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload();
-				/*Download check*/
-//				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
-				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
-				/*Upload check*/
-//				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
-				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
+			else
+			{//on WIFI
+				new Logger().LogMessage("Conected to WIFI@"+wlan.getWLANProfileName());
 			}
 		}
 		else
-		{//on WIFI
-			new Logger().LogMessage("Conected to WIFI@"+wlan.getWLANProfileName());
+		{
+			if( !wlan.getWLANConnection() )
+			{//on MDS
+	//			new Logger().LogMessage("MDS active");
+//				r_db_download = Long.parseLong(theModel.SelectData("roam_data"));
+				r_db_download = Long.parseLong(roamUsage.getValue(MapKeys[9]));
+				r_db_upload = Long.parseLong(roamUsage.getValue(MapKeys[10]));
+				r_db_download += RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload();
+				r_db_upload += RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload();
+				/*Download check*/
+//				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
+				roamUsage.setValue(MapKeys[9], String.valueOf(r_db_download));
+				roamUsage.setValue(MapKeys[10], String.valueOf(r_db_upload));
+//				theModel.UpdateData("roam_data", String.valueOf(r_db_data).toString());
+				/*Upload check*/
+//				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
+			}
 		}
-			
 	}
 
 	/**
@@ -147,5 +170,25 @@ public class DataMonitor implements Runnable//extends TimerTask
 			return WLANInfo.getAPInfo().getProfileName();
 		}
 	}
+	
+	public boolean Check_NON_CAN_Operator()
+	{
+		boolean NON_CANOperatorCheck = true;
+   	
+		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		    	
+		String CurrentNetworkName = "";
+		    	
+		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
+		
+		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+			NON_CANOperatorCheck = false;				//local
+		else
+			NON_CANOperatorCheck = true;				// ROAMING
+		    	
+		return NON_CANOperatorCheck;
+	 }
 	
 }

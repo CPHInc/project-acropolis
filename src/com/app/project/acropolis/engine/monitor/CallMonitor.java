@@ -3,15 +3,21 @@ import loggers.Logger;
 import net.rim.blackberry.api.phone.AbstractPhoneListener;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.blackberry.api.phone.PhoneCall;
+import net.rim.blackberry.api.phone.PhoneListener;
+import net.rim.device.api.system.RadioInfo;
 
+import com.app.project.acropolis.model.ApplicationDatabase;
 import com.app.project.acropolis.model.ModelFactory;
 
 
 /**
  */
-public class CallMonitor //implements Runnable
+public class CallMonitor implements Runnable
 {
-
+	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
+			"FixAck","FixDeviceTime","FixServerTime","Incoming",
+			"Outgoing","Download","Upload","Received","Sent"};
+	
 	public boolean Incoming = false;
 	public boolean Outgoing = false;
 	public boolean CallConnected = false;
@@ -22,19 +28,27 @@ public class CallMonitor //implements Runnable
 	
 	public int IN_minutes = 0;
 	public int OUT_minutes = 0;
-	
-	ModelFactory theModel;
+	public int R_IN_minutes = 0;
+	public int R_OUT_minutes = 0;
+	ModelFactory theModel = new ModelFactory();
+	ApplicationDatabase appDB = new ApplicationDatabase();
+	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
+	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
 	
 	public CallMonitor()
 	{
-		theModel = new ModelFactory();
 		new Logger().LogMessage(">CallMonitor<");
+	}
+	
+	public void run()
+	{
 		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
+//		Phone.addPhoneListener((PhoneListener) new CallAbstractListner());
 	}
 	
 	/**
 	 */
-	public class CallAbstractListner extends AbstractPhoneListener
+	public class CallAbstractListner extends AbstractPhoneListener//implements PhoneListener
 	{
 		/**
 		 * Method callAnswered.
@@ -53,7 +67,7 @@ public class CallMonitor //implements Runnable
 		public void callInitiated(int arg0) 
 		{
 			Outgoing = true;
-			new Logger().LogMessage("initiated call");
+			new Logger().LogMessage("Outgoing call");
 		}
 		
 		/**
@@ -99,23 +113,55 @@ public class CallMonitor //implements Runnable
 			int in = 0;
 			if(CallConnected)
 			{
-				if(Incoming)
+				if(!Check_NON_CAN_Operator())
 				{
-					in = Seconds2Minutes(call.getElapsedTime());
-					new Logger().LogMessage("in minutes:"+in);
-					IN_minutes = Integer.valueOf(theModel.SelectData("incoming")).intValue();
-					IN_minutes = IN_minutes + in;
-					theModel.UpdateData("incoming", String.valueOf(IN_minutes));
-					Incoming = false;
+					if(Incoming)
+					{
+						in = Seconds2Minutes(call.getElapsedTime());
+						new Logger().LogMessage("in minutes:"+in);
+						IN_minutes = Integer.valueOf(localUsage.getValue(MapKeys[7])).intValue();
+//						IN_minutes = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+						IN_minutes = IN_minutes + in;
+						localUsage.setValue(MapKeys[7], String.valueOf(IN_minutes));
+//						theModel.UpdateData("incoming", String.valueOf(IN_minutes));
+						Incoming = false;
+					}
+					if(Outgoing)
+					{
+						out = Seconds2Minutes(call.getElapsedTime());
+						new Logger().LogMessage("out minutes:"+out);
+						OUT_minutes = Integer.valueOf(localUsage.getValue(MapKeys[8])).intValue();
+//						OUT_minutes = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+						OUT_minutes = OUT_minutes + out;
+						localUsage.setValue(MapKeys[8], String.valueOf(OUT_minutes));
+//						theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
+						Outgoing = false;
+					}
 				}
-				if(Outgoing)
+				else
 				{
-					out = Seconds2Minutes(call.getElapsedTime());
-					new Logger().LogMessage("out minutes:"+out);
-					OUT_minutes = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
-					OUT_minutes = OUT_minutes + out;
-					theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
-					Outgoing = false;
+					if(Incoming)
+					{
+						in = Seconds2Minutes(call.getElapsedTime());
+						new Logger().LogMessage("in minutes:"+in);
+						R_IN_minutes = Integer.valueOf(roamUsage.getValue(MapKeys[7])).intValue();
+//						R_IN_minutes = Integer.valueOf(theModel.SelectData("roam_min")).intValue();
+						R_IN_minutes = R_IN_minutes + in;
+						roamUsage.setValue(MapKeys[7], String.valueOf(R_IN_minutes));
+//						theModel.UpdateData("roam_min", String.valueOf(R_IN_minutes));
+						Incoming = false;
+					}
+					if(Outgoing)
+					{
+						out = Seconds2Minutes(call.getElapsedTime());
+						new Logger().LogMessage("out minutes:"+out);
+//						R_OUT_minutes = Integer.valueOf(theModel.SelectData("roam_min")).intValue();
+						R_OUT_minutes = Integer.valueOf(localUsage.getValue(MapKeys[8])).intValue();
+						R_OUT_minutes = R_OUT_minutes + out;
+						roamUsage.setValue(MapKeys[8], String.valueOf(R_OUT_minutes));
+//						theModel.UpdateData("roam_min", String.valueOf(R_OUT_minutes));
+						Outgoing = false;
+					}
 				}
 			}
 		}
@@ -252,22 +298,46 @@ public class CallMonitor //implements Runnable
     	return minutes;
     }
 	
-	/**
-	 * Method getOutgoingDuration.
-	 * @return int
-	 */
-	public int getOutgoingDuration()
-	{
-		return OUT_minutes;
-	}
+//	/**
+//	 * Method getOutgoingDuration.
+//	 * @return int
+//	 */
+//	public int getOutgoingDuration()
+//	{
+//		return OUT_minutes;
+//	}
+//	
+//	/**
+//	 * Method getIncomingDuration.
+//	 * @return int
+//	 */
+//	public int getIncomingDuration()
+//	{
+//		return IN_minutes;
+//	}
 	
 	/**
-	 * Method getIncomingDuration.
-	 * @return int
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
 	 */
-	public int getIncomingDuration()
+	public boolean Check_NON_CAN_Operator()
 	{
-		return IN_minutes;
-	}
+		boolean NON_CANOperatorCheck = true;
+   	
+		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+		    	
+		String CurrentNetworkName = "";
+		    	
+		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
+		
+		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
+		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
+		else
+			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
+		    	
+		return NON_CANOperatorCheck;
+	 }
 	
 }

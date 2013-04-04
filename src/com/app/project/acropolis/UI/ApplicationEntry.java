@@ -11,6 +11,7 @@ import javax.microedition.io.file.FileSystemRegistry;
 
 import loggers.DBLogger;
 import loggers.Logger;
+import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.database.Database;
 import net.rim.device.api.database.DatabaseException;
 import net.rim.device.api.database.DatabaseFactory;
@@ -27,6 +28,7 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.app.project.acropolis.engine.mail.PlanFeeder;
+import com.app.project.acropolis.model.ApplicationDatabase;
 
 /**
 
@@ -79,17 +81,6 @@ public class ApplicationEntry extends UiApplication
 //		runtime.put(GUID,theApp);
 		
 		ApplicationEntry theApp = new ApplicationEntry();
-		Application.getApplication().invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				new Thread(feeder).start();
-				while(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED)
-				{
-					feeder.UpdatePlan();
-				}
-			}
-		});
 		theApp.enterEventDispatcher();
     }
 
@@ -101,13 +92,36 @@ public class ApplicationEntry extends UiApplication
     	new Logger().LogMessage("SyncEventListener registered");
     	SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
     	Application.getApplication().addSystemListener(new USBStateListener());
-		new Logger().LogMessage("Database start-up checking..");
-    	StartUP_Check();
+		new Logger().LogMessage("Database start-up checking..-->persitence");
+		PersistenceCreation();
+//    	StartUP_Check();
+    	Application.getApplication().invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				new Thread(feeder).start();
+				while(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED)
+				{
+					feeder.UpdatePlan();
+				}
+			}
+		});
+    	//execute CodeValidator() for checking device properties and code handling
 		new Logger().LogMessage("Screen pushed");
     	// Push a screen onto the UI stack for rendering.
         pushScreen(new UIScreen());
     }
-    
+
+    public boolean PersistenceCreation()
+    {
+    	ApplicationDatabase appDB = new ApplicationDatabase();
+    	appDB.new LocalUsageDB();
+    	appDB.new LocalPlanDB();
+    	appDB.new RoamingUsageDB();
+    	appDB.new RoamingPlanDB();
+    	//appDB.new ServerCommandsDB();
+    	return true;
+    }
     
     /**
 	 * At initial boot-up cycle
@@ -241,8 +255,8 @@ public class ApplicationEntry extends UiApplication
     	String root = null;
     	try {
     		if
-//				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
-				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
+				( DeviceInfo.getTotalFlashSize() > 1*1024*1024*1024 )				//valid Flash check
+//				( DeviceInfo.getTotalFlashSizeEx() > 2*1024*1024*1024 )			//for OS 6+ valid Flash check 	
 			//only if device flash is above 2GB
 			{
 				storagePresent = true;

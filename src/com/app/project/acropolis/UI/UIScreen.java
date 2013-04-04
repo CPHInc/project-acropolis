@@ -5,9 +5,9 @@ import java.util.Timer;
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.system.Application;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.FontFamily;
@@ -15,16 +15,17 @@ import net.rim.device.api.ui.FontManager;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
-import net.rim.device.api.ui.decor.BackgroundFactory;
 import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
 
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.RoamingHandler;
 import com.app.project.acropolis.controller.StringBreaker;
+import com.app.project.acropolis.model.ApplicationDatabase;
 import com.app.project.acropolis.model.ModelFactory;
 
 /**
@@ -40,6 +41,15 @@ import com.app.project.acropolis.model.ModelFactory;
  */
 public final class UIScreen extends MainScreen
 {
+	final String AppTitle = "Carillion Wireless Monitoring System";
+	
+	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
+			"FixAck","FixDeviceTime","FixServerTime","Incoming",
+			"Outgoing","Download","Upload","Received","Sent"};
+	ApplicationDatabase appDB = new ApplicationDatabase();
+	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
+	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
+	
 	/*Local Rates*/
 	final double LocalVoiceRate = 0.10;//incoming free(general)
 	final double LocalMessageRate = 0.10;//some plan 250 free after 10cents/msg
@@ -61,8 +71,7 @@ public final class UIScreen extends MainScreen
 	Timer outsidehomecountry = new Timer();
 	
 	RoamingHandler theRoamer;
-	ModelFactory theModel = new ModelFactory();
-	Thread validatorThread = new CodeValidator();
+	Thread validatorThread = new Thread(new CodeValidator());
 	ApplicationMap map = new ApplicationMap();
 	int Device_Orientation = 0;
 	final int ZOOM_MIN = 3;					//supported MAX = 15 && MIN = 0
@@ -73,7 +82,9 @@ public final class UIScreen extends MainScreen
 	
 	final int Charges_Rows = 1;
 	final int Charges_Columns = 2;
-	final int Rows = 3;
+	final int Position_Rows = 1;
+	final int Position_Columns = 2;
+	final int Rows = 4;
 	final int Columns = 2;
 	
 	String waitText = "waiting..";
@@ -102,75 +113,77 @@ public final class UIScreen extends MainScreen
 	String UploadResultString = "";
 	String TotalDataString = "Total (KB)";
 	String TotalResultDataString = "";
-	String TotalLocalCharges = "Monthly Reg. Cost";
+	String TotalRunningCost = "Running Cost";
+	String TotalLocalCharges = "Monthly";
 	String TotalResultLocalCharges = "";
-	String TotalRoamingCharges = "Roaming Reg. Cost";
+	String TotalRoamingCharges = "Roaming";
 	String TotalResultRoamingCharges = "$0.0";
-	String RoamingChargesString = "Roaming Charges(Approx.)";
-	String RoamingMinutesChargesString = "Minutes \'$2.00/min\':-- $";
-	String RoamingMessageChargesString = "Messages \'$0.6/msg\':-- $";
-	String RoamingDataChargesString = "Data \'$5.00/MB\':-- $";
-	String LocalChargesString = "Local Charges (Approx.)";
-	String LocalMinutesChargesString = "Minutes \'$0.10/min\' (\u221E Incoming) $";
-	String LocalMessageChargesString = "Messages \'$0.10/msg\':-- $";
-	String LocalDataChargesString = "Data \'$0.06/MB\':-- $";
-	
+	String RoamingMinutesString = "Roaming Minutes";
+	String RoamingResultMinutesString = "";
+	String RoamingMessageString = "Roaming Messages";
+	String RoamingResultMessageString = "";
+	String RoamingDataString = "Roaming Data (MB)";
+	String RoamingResultDataString = "";
 	GridFieldManager LocalChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
 	GridFieldManager RoamingChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
-	GridFieldManager LocationGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH);
+	GridFieldManager LocationGrid = new GridFieldManager(Position_Rows,Position_Columns,GridFieldManager.USE_ALL_WIDTH);
     GridFieldManager VoiceGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH);
     GridFieldManager MessageGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH);
     GridFieldManager DataGrid = new GridFieldManager(Rows,Columns, GridFieldManager.USE_ALL_WIDTH);
 	
+    String companyName = "Carillion";
+    String companyCopyrightString = companyName + "\u00A9 Copyrights protected"; 
+    BitmapField LogoField;
+    RichTextField CompanyCopyright = new RichTextField(companyCopyrightString);
+    RichTextField RunningCostText = new RichTextField(TotalRunningCost);
 	RichTextField phonenumberText = new RichTextField("Phone Number : " + Phone.getDevicePhoneNumber(true) );
-	RichTextField roamText = new RichTextField(RoamingString,Field.FOCUSABLE|Field.FIELD_LEFT);
-	RichTextField roamResultText = new RichTextField("",Field.FOCUSABLE);
+	RichTextField roamText = new RichTextField(RoamingString,Field.FIELD_LEFT);
+	RichTextField roamResultText = new RichTextField("");
 //	RichTextField FixAckText = new RichTextField(FixString,Field.NON_FOCUSABLE|Field.FIELD_LEFT); 
 	
-	RichTextField LatitudeText = new RichTextField(LatitudeString,Field.FOCUSABLE);
-	RichTextField LatitudeResultText = new RichTextField(LatitudeResultString,Field.FOCUSABLE);
+	RichTextField LatitudeText = new RichTextField(LatitudeString);
+	RichTextField LatitudeResultText = new RichTextField(LatitudeResultString);
 	RichTextField UsageDetails = new RichTextField("Monitored Usage",Field.FIELD_HCENTER|Field.FIELD_VCENTER);
-	RichTextField LongitudeText = new RichTextField(LongitudeString,Field.FOCUSABLE);
-	RichTextField LongitudeResultText = new RichTextField(LongitudeResultString,Field.FOCUSABLE);
+	RichTextField LongitudeText = new RichTextField(LongitudeString);
+	RichTextField LongitudeResultText = new RichTextField(LongitudeResultString);
 	
 	RichTextField MinutesMonitor = new RichTextField("Minutes usage");
 	RichTextField IncomingUsage = new RichTextField(IncomingString);
-	RichTextField IncomingResultUsage = new RichTextField("",Field.FOCUSABLE);
+	RichTextField IncomingResultUsage = new RichTextField("");
 	RichTextField OutgoingUsage = new RichTextField(OutgoingString);
-	RichTextField OutgoingResultUsage = new RichTextField("",Field.FOCUSABLE);
+	RichTextField OutgoingResultUsage = new RichTextField("");
 	RichTextField TotalMinsUsage = new RichTextField(TotalMinString,Field.FIELD_RIGHT);
-	RichTextField TotalResultMinsUsage = new RichTextField("",Field.FOCUSABLE|Field.FIELD_LEFT);
+	RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT);
 	
 	RichTextField MessagingMonitor = new RichTextField("Messaging usage");
 	RichTextField ReceivedMsgUsage = new RichTextField(ReceivedString);
-	RichTextField ReceivedResultMsgUsage = new RichTextField("",Field.FOCUSABLE);
+	RichTextField ReceivedResultMsgUsage = new RichTextField("");
 	RichTextField SentMsgUsage = new RichTextField(SentString);
-	RichTextField SentResultMsgUsage = new RichTextField("",Field.FOCUSABLE);
-	RichTextField TotalMsgUsage = new RichTextField(TotalMsgString,Field.FOCUSABLE|Field.FIELD_RIGHT);
-	RichTextField TotalResultMsgUsage = new RichTextField("",Field.FOCUSABLE|Field.FIELD_LEFT);
+	RichTextField SentResultMsgUsage = new RichTextField("");
+	RichTextField TotalMsgUsage = new RichTextField(TotalMsgString,Field.FIELD_RIGHT);
+	RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT);
 
 	RichTextField DataMonitor = new RichTextField("Data usage");
 	RichTextField DownloadUsage = new RichTextField(DownloadString);
-	RichTextField DownloadResultUsage = new RichTextField(DownloadString,Field.FOCUSABLE);
+	RichTextField DownloadResultUsage = new RichTextField(DownloadString);
 	RichTextField UploadUsage = new RichTextField(UploadString);
-	RichTextField UploadResultUsage = new RichTextField(UploadString,Field.FOCUSABLE);
+	RichTextField UploadResultUsage = new RichTextField(UploadString);
 	RichTextField TotalDataUsage = new RichTextField(TotalDataString,Field.FIELD_RIGHT);
-	RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FOCUSABLE|Field.FIELD_LEFT);
+	RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT);
 	
 	RichTextField TotalLocal = new RichTextField(TotalLocalCharges,Field.FIELD_HCENTER);
 	RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER);
-	RichTextField LocalCharges =  new RichTextField(LocalChargesString);
-	RichTextField LocalMinutesCharges = new RichTextField(LocalMinutesChargesString);
-	RichTextField LocalMessageCharges = new RichTextField(LocalMessageChargesString);
-	RichTextField LocalDataCharges = new RichTextField(LocalDataChargesString);
-	
 	RichTextField TotalRoaming = new RichTextField(TotalRoamingCharges,Field.FIELD_HCENTER);
 	RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER);
-	RichTextField RoamingCharges =  new RichTextField(RoamingChargesString,Field.FIELD_HCENTER);
-	RichTextField RoamingMinutesCharges = new RichTextField(RoamingMinutesChargesString);
-	RichTextField RoamingMessageCharges = new RichTextField(RoamingMessageChargesString);
-	RichTextField RoamingDataCharges = new RichTextField(RoamingDataChargesString);
+	
+	RichTextField RoamingMinutes = new RichTextField(RoamingMinutesString);
+	RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString);
+	RichTextField RoamingMessages = new RichTextField(RoamingMessageString);
+	RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString);
+	RichTextField RoamingData = new RichTextField(RoamingDataString);
+	RichTextField RoamingResultData = new RichTextField(RoamingResultDataString);
 
+	ModelFactory theModel = new ModelFactory();
     /**
      * Creates a new MyScreen object
      */
@@ -178,47 +191,25 @@ public final class UIScreen extends MainScreen
     {        
     	super(MainScreen.FIELD_VCENTER|MainScreen.FIELD_HCENTER|
     			MainScreen.VERTICAL_SCROLLBAR|MainScreen.HORIZONTAL_SCROLLBAR|MainScreen.USE_ALL_WIDTH);
+       	Application.getApplication().setAcceptEvents(true);
+       	new Thread(new CodeValidator()).start();
+    	DeriveApplicationFont();
+    	setTitle(AppTitle);		//if required
     	
-    	super.setBackground(BackgroundFactory.createLinearGradientBackground
-    			(Color.CORNSILK, Color.CORNSILK, Color.CORNSILK, Color.CORNSILK));
-    	
-    	this.getMainManager().setBackground(BackgroundFactory.createLinearGradientBackground
-    			(Color.MINTCREAM, Color.LIGHTCORAL, Color.MOCCASIN, Color.WHEAT));
-    	
-    	DeriveApplicationFont(); 
-    	
-    	Application.getApplication().setAcceptEvents(true);
     	new Logger().LogMessage("Application requested for Foreground entry");
         UiApplication.getUiApplication().requestForeground();
-
-    	setTitle(" ** DEBUG Version ** Project Acropolis ");		//if required
-    	
-//    	this.getMainManager().setBackground(
-//                BackgroundFactory.createLinearGradientBackground(0x0099CCFF,
-//                0x0099CCFF,0x00336699,0x00336699));
-    	//execute CodeValidator() for checking device properties and code handling
-    	
-    	validatorThread.start();
-    	
+    	//Breathing time
     	try {
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+    	String phonenumber = Phone.getDevicePhoneNumber(false);
+    	new Logger().LogMessage("#number"+phonenumber);
+    	BreathingArea();
     	
-    	theModel.UpdateData("phone_number", Phone.getDevicePhoneNumber(true));
-    	
-		add(phonenumberText);
-    	
-//    	add(LocalCharges);
-//    	add(LocalMinutesCharges);
-//    	add(LocalMessageCharges);
-//    	add(LocalDataCharges);
-    	
-//    	add(RoamingCharges);
-//    	add(RoamingMinutesCharges);
-//    	add(RoamingMessageCharges);
-//    	add(RoamingDataCharges);
+    	CompanyLogo();
+		add(RunningCostText);
     	ChargesGrid();
     	add(new RichTextField("   ",Field.NON_FOCUSABLE));
     	MonitoredField();
@@ -263,8 +254,6 @@ public final class UIScreen extends MainScreen
     	LocalChargesGrid.add(TotalLocal);
     	TotalResultLocal.setText(TotalResultLocalCharges);
     	LocalChargesGrid.add(TotalResultLocal);
-//    	Bitmap roundedBMP = Bitmap.getBitmapResource("rounded-border.png");
-//    	LocalChargesGrid.setBorder(BorderFactory.createBitmapBorder(new XYEdges(3,3,3,3),roundedBMP));
     	LocalChargesGrid.setBorder(BorderFactory.createSimpleBorder(new XYEdges(3,3,3,3),Border.STYLE_TRANSPARENT));
     	this.getMainManager().add(LocalChargesGrid);
     	
@@ -275,6 +264,13 @@ public final class UIScreen extends MainScreen
     	RoamingChargesGrid.add(TotalResultRoaming);
     	RoamingChargesGrid.setBorder(BorderFactory.createSimpleBorder(new XYEdges(3,3,3,3),Border.STYLE_TRANSPARENT));
     	this.getMainManager().add(RoamingChargesGrid);
+    }
+    
+    public void CompanyLogo()
+    {
+    	Bitmap companyBMP = Bitmap.getBitmapResource("carillion.png");
+    	LogoField = new BitmapField(companyBMP,BitmapField.HCENTER);
+    	add(LogoField);
     }
     
     public void MonitoredField()
@@ -315,19 +311,18 @@ public final class UIScreen extends MainScreen
     	LocationGrid.setColumnProperty(1,GridFieldManager.FIXED_SIZE,Display.getWidth()/2);
     	
     	/*Row 1*/
-    	LocationGrid.add(roamText);
+    	LocationGrid.add(roamText);//col1
     	roamResultText.setText(RoamingResultString);
-    	LocationGrid.add(roamResultText);
+    	LocationGrid.add(roamResultText);//col2
     	
-    	/*Row 2*/
-    	LocationGrid.add(LatitudeText);
-    	LatitudeResultText.setText(LatitudeResultString);
-    	LocationGrid.add(LatitudeResultText);
-    	
-    	/*Row 3*/
-    	LocationGrid.add(LongitudeText);
-    	LongitudeResultText.setText(LongitudeResultString);
-    	LocationGrid.add(LongitudeResultText);
+//    	/*Row 2*/
+//    	LocationGrid.add(LatitudeText);
+//    	LatitudeResultText.setText(LatitudeResultString);
+//    	LocationGrid.add(LatitudeResultText);
+//    	/*Row 3*/
+//    	LocationGrid.add(LongitudeText);
+//    	LongitudeResultText.setText(LongitudeResultString);
+//    	LocationGrid.add(LongitudeResultText);
     	
     	LocationGrid.setBorder(BorderFactory.createBevelBorder(new XYEdges(4,4,4,4)));
     	this.getMainManager().add(LocationGrid);
@@ -355,6 +350,13 @@ public final class UIScreen extends MainScreen
     	TotalResultMinsUsage.setFont(Font.getDefault().derive(Font.BOLD));
     	VoiceGrid.add(TotalResultMinsUsage);
     	
+    	/*Row 4*/
+    	RoamingMinutes.setFont(Font.getDefault().derive(Font.BOLD));
+    	VoiceGrid.add(RoamingMinutes);
+    	RoamingResultMinutes.setText("0");
+    	RoamingResultMinutes.setFont(Font.getDefault().derive(Font.BOLD|Font.ITALIC));
+    	VoiceGrid.add(RoamingResultMinutes);
+    	
     	VoiceGrid.setBorder(BorderFactory.createBevelBorder(new XYEdges(4,4,4,4)));
     	this.getMainManager().add(VoiceGrid);
     }
@@ -381,6 +383,13 @@ public final class UIScreen extends MainScreen
     	TotalResultMsgUsage.setFont(Font.getDefault().derive(Font.BOLD));
     	MessageGrid.add(TotalResultMsgUsage);
 
+    	/*Row 4*/
+    	RoamingMessages.setFont(Font.getDefault().derive(Font.BOLD));
+    	MessageGrid.add(RoamingMessages);
+    	RoamingResultMessages.setText("0");
+    	RoamingResultMessages.setFont(Font.getDefault().derive(Font.BOLD|Font.ITALIC));
+    	MessageGrid.add(RoamingResultMessages);
+    	
     	MessageGrid.setBorder(BorderFactory.createBevelBorder(new XYEdges(4,4,4,4)));
     	this.getMainManager().add(MessageGrid);
     }
@@ -406,6 +415,13 @@ public final class UIScreen extends MainScreen
 	   TotalResultDataUsage.setText(TotalResultDataString);
 	   TotalResultDataUsage.setFont(Font.getDefault().derive(Font.BOLD));
 	   DataGrid.add(TotalResultDataUsage);
+	   
+	   /*Row 4*/
+	   RoamingData.setFont(Font.getDefault().derive(Font.BOLD));
+	   DataGrid.add(RoamingData);
+	   RoamingResultData.setText("0");
+	   RoamingResultData.setFont(Font.getDefault().derive(Font.BOLD|Font.ITALIC));
+	   DataGrid.add(RoamingResultData);
 	   
 	   DataGrid.setBorder(BorderFactory.createBevelBorder(new XYEdges(4,4,4,4)));
 	   this.getMainManager().add(DataGrid);
@@ -452,87 +468,91 @@ public final class UIScreen extends MainScreen
     {
     	synchronized(Application.getEventLock())
     	{
+    		/* * Local * */
 			//Java AutoBoxing used for parsing String to int(via Integer) 
-			int incomingMin = Integer.valueOf(theModel.SelectData("incoming")).intValue();
-			int outgoingMin = Integer.valueOf(theModel.SelectData("outgoing")).intValue(); 
-			int totalMin = incomingMin + outgoingMin;
+//			int incomingMin = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+//			int outgoingMin = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+    		int incomingMin = Integer.valueOf(localUsage.getValue(MapKeys[7])).intValue();
+			int outgoingMin = Integer.valueOf(localUsage.getValue(MapKeys[8])).intValue();
+    		int localTotalMinutes = incomingMin+outgoingMin;
+//			int rcvMsg = (Integer.valueOf(theModel.SelectData("received"))).intValue();
+//			int sntMsg = (Integer.valueOf(theModel.SelectData("sent"))).intValue();
+			int rcvMsg = (Integer.valueOf(localUsage.getValue(MapKeys[11]))).intValue();
+			int sntMsg = (Integer.valueOf(localUsage.getValue(MapKeys[12]))).intValue();
+			int localTotalMsg = rcvMsg+sntMsg;
+//			String downData = String.valueOf(
+//					(Long.parseLong(
+//							theModel.SelectData("downloaded")))/(1024));
+//			String upData = String.valueOf(
+//					(Long.parseLong(
+//							theModel.SelectData("uploaded")))/(1024));
+			double downData = Double.valueOf(localUsage.getValue(MapKeys[9])).doubleValue()/1024;
+			double upData = Double.valueOf(localUsage.getValue(MapKeys[10])).doubleValue()/1024;
+			double localTotalData = downData + upData;
+			/* * Roaming * */
+//			if(theModel.SelectData("roaming").equalsIgnoreCase("false"))
+//				roamResultText.setText("No");
+//			else if(theModel.SelectData("roaming").equalsIgnoreCase("true"))
+//				roamResultText.setText("Yes");
+//			double roamTotalMinutes = Double.valueOf(theModel.SelectData("roam_min")).doubleValue();
+//			double roamTotalMessages = Double.valueOf(theModel.SelectData("roam_msg")).doubleValue();
+//			double roamTotalData = (Double.valueOf(theModel.SelectData("roam_data")).doubleValue())/(1024*1024);
+			if(roamUsage.getValue(MapKeys[1]).equalsIgnoreCase("false"))
+				roamResultText.setText("No");
+			else if(roamUsage.getValue(MapKeys[1]).equalsIgnoreCase("true"))
+				roamResultText.setText("Yes");
+			double roamInMinutes = Double.valueOf(roamUsage.getValue(MapKeys[7])).doubleValue();
+			double roamOutMinutes = Double.valueOf(roamUsage.getValue(MapKeys[8])).doubleValue();
+			double roamTotalMinutes =  roamInMinutes + roamOutMinutes;
+			double roamRcvMsg = Double.valueOf(roamUsage.getValue(MapKeys[11])).doubleValue();
+			double roamSntMsg = Double.valueOf(roamUsage.getValue(MapKeys[12])).doubleValue();
+			double roamTotalMsg =  roamRcvMsg + roamSntMsg;
+			double roamDownData = (Double.valueOf(roamUsage.getValue(MapKeys[9])).doubleValue())/1024;
+			double roamUpData = (Double.valueOf(roamUsage.getValue(MapKeys[10])).doubleValue())/1024;
+			double roamTotalData = roamDownData + roamUpData;
 			
-			int rcvMsg = (Integer.valueOf(theModel.SelectData("received"))).intValue();
-			int sntMsg = (Integer.valueOf(theModel.SelectData("sent"))).intValue();
-			int totalMsg = rcvMsg + sntMsg;
-			
-			String downData = String.valueOf(
-					(Long.parseLong(
-							theModel.SelectData("downloaded")))/(1024));
-			String upData = String.valueOf(
-					(Long.parseLong(
-							theModel.SelectData("uploaded")))/(1024));
-			String totalData = String.valueOf( 
-					( Long.parseLong(downData) + Long.parseLong(upData) ));
-			
-			String temptotalData = StringBreaker.split(String.valueOf(Integer.valueOf(totalData).intValue()/1024),".")[0];
+//			int TotalMinutes = incomingMin 
+			int totalIncoming = incomingMin + (int)roamInMinutes;
+			int totalOutgoing = outgoingMin + (int)roamOutMinutes;
+			int totalDownload = (int)(downData + roamDownData);
+			int totalUpload = (int)(upData + roamUpData);
+			int totalReceived = rcvMsg + (int)roamRcvMsg;
+			int totalSent = sntMsg + (int)roamSntMsg;
+			int totalMin = localTotalMinutes + (int)roamTotalMinutes;
+			int totalMsg = localTotalMsg + (int)roamTotalMsg;
+			double totalData = localTotalData + roamTotalData;
 			
 			String totalCost = FormatDecimal(
 						((outgoingMin*LocalVoiceRate) +
 								(totalMsg*LocalMessageRate) +
-								((Double.valueOf(temptotalData).doubleValue())*LocalDataRate)));
-			
+								((totalData/1024)*LocalDataRate)));
 			TotalResultLocal.setText("$"+totalCost);
+			IncomingResultUsage.setText( String.valueOf(totalIncoming).toString() );
+			OutgoingResultUsage.setText( String.valueOf(totalOutgoing).toString() );
+			TotalResultMinsUsage.setText( String.valueOf(totalMin).toString() );
+			ReceivedResultMsgUsage.setText( String.valueOf(totalReceived).toString());
+			SentResultMsgUsage.setText( String.valueOf(totalSent).toString() );
+			TotalResultMsgUsage.setText( String.valueOf(totalMsg).toString() );
+			DownloadResultUsage.setText( StringBreaker.split(String.valueOf(totalDownload), ".")[0] );
+			UploadResultUsage.setText( StringBreaker.split(String.valueOf(totalUpload), ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
+			TotalResultDataUsage.setText( StringBreaker.split(String.valueOf(totalData),".")[0]);
 			
-			if(theModel.SelectData("roaming").equalsIgnoreCase("false"))
-				roamResultText.setText("No");
-			else if(theModel.SelectData("roaming").equalsIgnoreCase("true"))
-				roamResultText.setText("Yes");
-			
-			double roamTotalMinutes = Double.valueOf(theModel.SelectData("roam_min")).doubleValue();
-			double roamTotalMessages = Double.valueOf(theModel.SelectData("roam_msg")).doubleValue();
-			double roamTotalData = (Double.valueOf(theModel.SelectData("roam_data")).doubleValue())/(1024*1024);
 			String totalRoamCost = FormatDecimal(
 					(roamTotalMinutes*RoamingVoiceRate) 
-						+ (roamTotalMessages*RoamingMessageRate)
+						+ (roamTotalMsg*RoamingMessageRate)
 							+ (roamTotalData*RoamingDataRate));
+			RoamingResultMinutes.setText(StringBreaker.split(String.valueOf(roamTotalMinutes),".")[0]);
+			RoamingResultMessages.setText(StringBreaker.split(String.valueOf(roamTotalMsg),".")[0]);
+			RoamingResultData.setText(StringBreaker.split(String.valueOf(roamTotalData),".")[0]);
 			TotalResultRoaming.setText("$"+totalRoamCost);
 			
-//			LocalMinutesCharges.setText(LocalMinutesCharges.getText() + String.valueOf((incomingMin*LocalVoiceRate)));
-//			LocalMessageCharges.setText(LocalMessageCharges.getText() + String.valueOf((totalMsg*LocalMessageRate)));
-//			LocalDataCharges.setText(LocalDataCharges.getText() + 
-//					(String.valueOf((Integer.valueOf(temptotalData).intValue()/1024)*LocalDataRate).toString()));
+			new Logger().LogMessage("Roaming--\r\nMins->"+roamTotalMinutes+
+					"\r\nMsgs->"+roamTotalMsg+
+					"\r\nData->"+roamTotalData);
 			
-//			int roamTotalMinutes = theRoamer.getRoamingIncoming() + theRoamer.getRoamingOutgoing();
-//			int roamTotalMessages = theRoamer.getRoamingReceived() + theRoamer.getRoamingSent();
-//			int roamTotalData = theRoamer.getRoamingDownload() + theRoamer.getRoamingUpload();
-//			RoamingMinutesCharges.setText(RoamingMinutesCharges.getText() + String.valueOf((roamTotalMinutes*RoamingVoiceRate)).toString());
-//			RoamingMessageCharges.setText(RoamingMessageCharges.getText() + String.valueOf((roamTotalMessages*RoamingMessageRate)).toString());
-//			RoamingDataCharges.setText(RoamingDataCharges.getText() + String.valueOf((roamTotalData*RoamingDataRate)).toString());
-			
-			if(theModel.SelectData("fix_ack").equals("true"))
-			{
-	//			FixAckText.setText(FixString + "Last known location");
-				LatitudeResultText.setText(theModel.SelectData("lat"));
-				LongitudeResultText.setText(theModel.SelectData("lng"));
-			}
-			else if(theModel.SelectData("fix_ack").equals("false"))
-			{
-	//			FixAckText.setText(FixString + "Searching");
-				//			FixAckText.setText(FixString + "Last known location");
-				LatitudeResultText.setText(theModel.SelectData("lat"));
-				LongitudeResultText.setText(theModel.SelectData("lng"));
-			}
-			
-			IncomingResultUsage.setText( IncomingResultString + String.valueOf(incomingMin).toString() );
-			OutgoingResultUsage.setText( OutgoingResultString + String.valueOf(outgoingMin).toString() );
-			TotalResultMinsUsage.setText( TotalResultMinString + String.valueOf(totalMin).toString() );
-			
-			ReceivedResultMsgUsage.setText(ReceivedResultString + String.valueOf(rcvMsg).toString());
-			SentResultMsgUsage.setText(SentResultString + String.valueOf(sntMsg).toString() );
-			TotalResultMsgUsage.setText(TotalResultMsgString + String.valueOf(totalMsg).toString() );
-			
-			DownloadResultUsage.setText(DownloadResultString + StringBreaker.split(downData, ".")[0] );
-			new Logger().LogMessage(this.getClass() + " Downloaded::"+ StringBreaker.split(downData, ".")[0] );//+ strBreak.split(downData, ".")[1]);
-			UploadResultUsage.setText(UploadResultString + StringBreaker.split(upData, ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
-			new Logger().LogMessage(this.getClass() + " Uploaded::"+ StringBreaker.split(upData, ".")[0]);
-			TotalResultDataUsage.setText(TotalResultDataString + StringBreaker.split(totalData,".")[0]);
-			
+//			/* * Location/Position * */
+//			LatitudeResultText.setText(theModel.SelectData("lat"));
+//			LongitudeResultText.setText(theModel.SelectData("lng"));
     	}
     }
     
@@ -554,6 +574,17 @@ public final class UIScreen extends MainScreen
     			TextInserter();
     		}
     	}
+    }
+    
+    public boolean BreathingArea()
+    {
+    	try {
+			Thread.sleep(900);
+		} catch (InterruptedException e) {
+			new Logger().LogMessage("Class::"+e.getClass());
+			e.printStackTrace();
+		}
+    	return true;
     }
     
     /**

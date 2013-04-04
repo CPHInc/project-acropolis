@@ -8,11 +8,11 @@ import java.util.Timer;
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.engine.monitor.LocationCode;
+import com.app.project.acropolis.model.ApplicationDatabase;
 import com.app.project.acropolis.model.ModelFactory;
 
 
@@ -26,12 +26,9 @@ import com.app.project.acropolis.model.ModelFactory;
  */
 public class LocalHandler implements Runnable
 {
-
-	final long GUID = 0x29ef40e6e31efd2L;
-	final String AppName = "**Project Acropolis SVN debugger**";
-	
-	LocationCode location;
-	ModelFactory theModel = new ModelFactory();
+	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
+			"FixAck","FixDeviceTime","FixServerTime","Incoming",
+			"Outgoing","Download","Upload","Received","Sent"};
 	
 	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
 	public String datatobeMailed = "";
@@ -45,6 +42,10 @@ public class LocalHandler implements Runnable
 	
 	public Timer handler = new Timer();
 	public int WAFs = 0;
+//	ModelFactory theModel = new ModelFactory();
+	LocationCode location;
+	ApplicationDatabase appDB = new ApplicationDatabase();
+	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
 	
 	public LocalHandler()
 	{
@@ -59,6 +60,7 @@ public class LocalHandler implements Runnable
 	{
 		if(!Check_NON_CAN_Operator())
 		{
+			localUsage.setValue(MapKeys[1], "false");
 			for(;;)
 			{
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
@@ -76,11 +78,13 @@ public class LocalHandler implements Runnable
 					case 1: //Radio ON
 					{
 						new Logger().LogMessage("woke up...");
+//						theModel.UpdateData("roaming","false");
+						localUsage.setValue(MapKeys[1], "false");
 						CollectedData();
 						new Logger().LogMessage("Radio ON");
 						new Logger().LogMessage("sleeping...");
 						try {
-							Thread.sleep(8*60*60*1000);
+							Thread.sleep(12*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -94,9 +98,10 @@ public class LocalHandler implements Runnable
 	{
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getTimeZone("GMT-5");
-		String gmtTimeStamp = new String(sdf.format( Calendar.getInstance(timezone).getTime() )); 	//GMT time for server
+		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
 //		new Logger().LogMessage("time -- "+gmtTimeStamp);
 //		theModel.UpdateData("server_time", new String(gmtTimeStamp).toString());
+		localUsage.setValue("FixServerTime", gmtTimeStamp);
 		location = new LocationCode();
 		/**
 		 * Standard -- 
@@ -105,53 +110,56 @@ public class LocalHandler implements Runnable
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
-		theModel.UpdateData("phone_number", Phone.getDevicePhoneNumber(false) );
 		for(int a=0;a<14;a++)
 		{
 			if( RadioInfo.getCurrentNetworkName()!=null )//||(RadioInfo.getCurrentNetworkName() ==null))
-				
 			{
-				new Logger().LogMessage("Operator available" + RadioInfo.getCurrentNetworkName());
+				new Logger().LogMessage("Operator available::" + RadioInfo.getCurrentNetworkName());
 				if( location.getLatitude() != 0 && location.getLongitude() != 0 )
 					// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 				{
-					theModel.UpdateData("fix_ack", "true");
+//					theModel.UpdateData("fix_ack", "true");
 					date = new Date();
 					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
-					theModel.UpdateData("device_time", recordedTimeStamp);
-					theModel.UpdateData("lat", String.valueOf((location.getLatitude())));
-					theModel.UpdateData("lng", String.valueOf((location.getLongitude())));
-					theModel.UpdateData("acc", String.valueOf(location.getAccuracy()));
-					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
-					
-					datatobeMailed = 
-							"#1.0.1|DataStream|"+  theModel.SelectData("phone_number") + "|"
-							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-							+ location.getLatitude() + "|" 
-							+ location.getLongitude() + "|"
-							+ location.getAccuracy() +"##";
-					
-					new MailCode().SendMail(datatobeMailed);
-					if(Check_NON_CAN_Operator())
-						theModel.UpdateData("roaming","true");
-					else 
-						theModel.UpdateData("roaming","false");
+					localUsage.setValue(MapKeys[4], "true");
+					localUsage.setValue(MapKeys[5], recordedTimeStamp);
+					localUsage.setValue(MapKeys[2], String.valueOf(location.getLatitude()));
+					localUsage.setValue(MapKeys[3], String.valueOf(location.getLatitude()));
+//					theModel.UpdateData("device_time", recordedTimeStamp);
+//					theModel.UpdateData("lat", String.valueOf((location.getLatitude())));
+//					theModel.UpdateData("lng", String.valueOf((location.getLongitude())));
+//					theModel.UpdateData("acc", String.valueOf(location.getAccuracy()));
+//					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
+//					datatobeMailed = 
+//							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(true) + "|"
+//							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+//							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+//							+ location.getLatitude() + "|" 
+//							+ location.getLongitude() + "|"
+//							+ location.getAccuracy() +"##";
+//					new MailCode().SendMail(datatobeMailed);
+					localUsage.setValue(MapKeys[6], gmtTimeStamp);
 					//data monitor addition
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
 //							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
 							+ String.valueOf(RoamingCheck()) + "|"
-							+ location.getLatitude() + "|" 
-							+ location.getLongitude() + "|"
+							+ localUsage.getValue(MapKeys[2]) + "|" 
+							+ localUsage.getValue(MapKeys[3]) + "|"
 							+ location.getAccuracy() + "|"
-							+ "Down:"+ theModel.SelectData("downloaded") + "|"
-							+ "Up:" + theModel.SelectData("uploaded") + "|"
-							+ "Received Msgs:" + theModel.SelectData("received") + "|" 
-							+ "Sent Msgs:" + theModel.SelectData("sent") + "|"
-							+ "Incoming Duration:"+ theModel.SelectData("incoming") + "|"
-							+ "Outgoing Duration:" + theModel.SelectData("outgoing") + "##";
+//							+ "Down:"+ theModel.SelectData("downloaded") + "|"
+//							+ "Up:" + theModel.SelectData("uploaded") + "|"
+//							+ "Received Msgs:" + theModel.SelectData("received") + "|" 
+//							+ "Sent Msgs:" + theModel.SelectData("sent") + "|"
+//							+ "Incoming Duration:"+ theModel.SelectData("incoming") + "|"
+//							+ "Outgoing Duration:" + theModel.SelectData("outgoing") + "##";
+							+ "Down:"+ localUsage.getValue(MapKeys[9]) + "|"
+							+ "Up:" + localUsage.getValue(MapKeys[10]) + "|"
+							+ "Received Msgs:" + localUsage.getValue(MapKeys[11]) + "|" 
+							+ "Sent Msgs:" + localUsage.getValue(MapKeys[12]) + "|"
+							+ "Incoming Duration:"+ localUsage.getValue(MapKeys[7]) + "|"
+							+ "Outgoing Duration:" + localUsage.getValue(MapKeys[8]) + "##";
 					new MailCode().DebugMail(datatobeMailed);
 //					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
@@ -174,43 +182,50 @@ public class LocalHandler implements Runnable
 				
 				else if(a==13)
 				{
-					theModel.UpdateData("fix_ack", "false");
+//					theModel.UpdateData("fix_ack", "false");
 					date = new Date();
 					String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
 					
-					theModel.UpdateData("device_time", recordedTimeStamp);
-					theModel.UpdateData("lat", String.valueOf(67.43125));
-					theModel.UpdateData("lng", String.valueOf(-45.123456));
-					theModel.UpdateData("acc", String.valueOf(1234.1234));
-					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
+//					theModel.UpdateData("device_time", recordedTimeStamp);
+//					theModel.UpdateData("lat", String.valueOf(67.43125));
+//					theModel.UpdateData("lng", String.valueOf(-45.123456));
+//					theModel.UpdateData("acc", String.valueOf(1234.1234));
+//					theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
 					
-					datatobeMailed = 
-							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
-							+ 67.43125 + "|" 
-							+ -45.123456 + "|"											//southern Greenland
-							+ 1234.1234 +"##";
-					new MailCode().SendMail(datatobeMailed);
-					if(Check_NON_CAN_Operator())
-						theModel.UpdateData("roaming","true");
-					else 
-						theModel.UpdateData("roaming","false");
+					localUsage.setValue(MapKeys[4], "false");
+					localUsage.setValue(MapKeys[5], recordedTimeStamp);
+					localUsage.setValue(MapKeys[2], String.valueOf(67.43125));
+					localUsage.setValue(MapKeys[3], String.valueOf(-45.123456));
+					
+//					datatobeMailed = 
+//							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+//							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+//							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method 
+//							+ 67.43125 + "|" 
+//							+ -45.123456 + "|"											//southern Greenland
+//							+ 1234.1234 +"##";
+//					new MailCode().SendMail(datatobeMailed);
 					//Data monitoring
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//CodesHandler Roaming method
-							+ String.valueOf(RoamingCheck()) + "|"				//CodesHandler Roaming method
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//LocalHandler Roaming method
+//							+ String.valueOf(RoamingCheck()) + "|"
 							+ 67.43125 + "|" 
 							+ -45.123456 + "|"											//southern Greenland
 							+ 1234.1234 +"|"
-							+ "Down:"+ theModel.SelectData("downloaded") + "|"
-							+ "Up:" + theModel.SelectData("uploaded") + "|"
-							+ "Received Msgs:" + theModel.SelectData("received") + "|" 
-							+ "Sent Msgs:" + theModel.SelectData("sent") + "|"
-							+ "Incoming Duration:"+ theModel.SelectData("incoming") + "|"
-							+ "Outgoing Duration:" + theModel.SelectData("outgoing") + "##";
+//							+ "Down:"+ theModel.SelectData("downloaded") + "|"
+//							+ "Up:" + theModel.SelectData("uploaded") + "|"
+//							+ "Received Msgs:" + theModel.SelectData("received") + "|" 
+//							+ "Sent Msgs:" + theModel.SelectData("sent") + "|"
+//							+ "Incoming Duration:"+ theModel.SelectData("incoming") + "|"
+//							+ "Outgoing Duration:" + theModel.SelectData("outgoing") + "##";
+							+ "Down:"+ localUsage.getValue(MapKeys[9]) + "|"
+							+ "Up:" + localUsage.getValue(MapKeys[10]) + "|"
+							+ "Received Msgs:" + localUsage.getValue(MapKeys[11]) + "|" 
+							+ "Sent Msgs:" + localUsage.getValue(MapKeys[12]) + "|"
+							+ "Incoming Duration:"+ localUsage.getValue(MapKeys[7]) + "|"
+							+ "Outgoing Duration:" + localUsage.getValue(MapKeys[8]) + "##";
 					new MailCode().DebugMail(datatobeMailed);
 //					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
@@ -247,6 +262,11 @@ public class LocalHandler implements Runnable
 	 */
 	public boolean Check_NON_CAN_Operator()
 	{
+		try {
+			Thread.sleep(10*1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
 		    	
 		if(CurrentNetworkName == null)
