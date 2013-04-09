@@ -61,8 +61,8 @@ public class LocationCode implements Runnable{
 	
 	/**
 	 * Method CurrentLocation.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean CurrentLocation() {
 		boolean retval = true;
 		try {
@@ -110,14 +110,16 @@ public class LocationCode implements Runnable{
 	}
 
 	/**
+	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+	 * @version $Revision: 1.0 $
 	 */
 	public class LocationListenerActivity implements LocationListener {
 		/**
 		 * Method locationUpdated.
 		 * @param provider LocationProvider
 		 * @param location Location
-		 * @see javax.microedition.location.LocationListener#locationUpdated(LocationProvider, Location)
-		 */
+		
+		 * @see javax.microedition.location.LocationListener#locationUpdated(LocationProvider, Location) */
 		public void locationUpdated(LocationProvider provider, Location location) {
 			if (location.isValid()) {
 				longitude = location.getQualifiedCoordinates().getLongitude();
@@ -138,8 +140,8 @@ public class LocationCode implements Runnable{
 		 * Method providerStateChanged.
 		 * @param provider LocationProvider
 		 * @param newState int
-		 * @see javax.microedition.location.LocationListener#providerStateChanged(LocationProvider, int)
-		 */
+		
+		 * @see javax.microedition.location.LocationListener#providerStateChanged(LocationProvider, int) */
 		public void providerStateChanged(LocationProvider provider, int newState) {
 			// no-op
 		}
@@ -171,8 +173,8 @@ public class LocationCode implements Runnable{
 	
 	/**
 	 * Method getLatitude.
-	 * @return double
-	 */
+	
+	 * @return double */
 	public double getLatitude()
 	{
 		return latitude;
@@ -180,8 +182,8 @@ public class LocationCode implements Runnable{
 	
 	/**
 	 * Method getLongitude.
-	 * @return double
-	 */
+	
+	 * @return double */
 	public double getLongitude()
 	{
 		return longitude;
@@ -189,8 +191,8 @@ public class LocationCode implements Runnable{
 	
 	/**
 	 * Method getAccuracy.
-	 * @return double
-	 */
+	
+	 * @return double */
 	public double getAccuracy()
 	{
 		return accuracy;
@@ -198,8 +200,8 @@ public class LocationCode implements Runnable{
 
 	/**
 	 * Method Check_NON_CAN_Operator.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean Check_NON_CAN_Operator()
 	{
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();

@@ -3,7 +3,6 @@ package com.app.project.acropolis.controller;
 import loggers.Logger;
 
 import com.app.project.acropolis.engine.mail.PlanFeeder;
-import com.app.project.acropolis.model.PlanModelFactory;
 
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -12,7 +11,7 @@ import com.app.project.acropolis.model.PlanModelFactory;
 public class RemoteControl implements Runnable
 {
 	PlanFeeder plan = new PlanFeeder();
-	PlanModelFactory thePlan;
+//	PlanModelFactory thePlan;
 	StringBreaker breaker;
 	
 	final int serverRequested = 1;
@@ -55,10 +54,10 @@ public class RemoteControl implements Runnable
 			if(plan.getIncomingServerMailSubject().equalsIgnoreCase(serverUpdateLiteral))
 			{
 				new Logger().LogMessage("Update application values..");
-				thePlan = new PlanModelFactory();
+//				thePlan = new PlanModelFactory();
 				String column_toUpdate = StringBreaker.split(plan.getIncomingServerMailContent() , "|")[0];
 				String data_toUpdated = StringBreaker.split(plan.getIncomingServerMailContent(),"|")[1];
-				thePlan.UpdateData(column_toUpdate, data_toUpdated);
+//				thePlan.UpdateData(column_toUpdate, data_toUpdated);
 				//updates counters to specified value
 			}
 			if(plan.getIncomingServerMailSubject().equalsIgnoreCase(serverPromptMsgLiteral))

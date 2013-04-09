@@ -3,14 +3,14 @@ import loggers.Logger;
 import net.rim.blackberry.api.phone.AbstractPhoneListener;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.blackberry.api.phone.PhoneCall;
-import net.rim.blackberry.api.phone.PhoneListener;
 import net.rim.device.api.system.RadioInfo;
 
-import com.app.project.acropolis.model.ApplicationDatabase;
-import com.app.project.acropolis.model.ModelFactory;
+import com.app.project.acropolis.model.ApplicationDB;
 
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class CallMonitor implements Runnable
 {
@@ -30,31 +30,34 @@ public class CallMonitor implements Runnable
 	public int OUT_minutes = 0;
 	public int R_IN_minutes = 0;
 	public int R_OUT_minutes = 0;
-	ModelFactory theModel = new ModelFactory();
-	ApplicationDatabase appDB = new ApplicationDatabase();
-	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
-	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
-	
+//	ModelFactory theModel = new ModelFactory();
+//	ApplicationStoreDetails DBDetails = new ApplicationStoreDetails();
+		
 	public CallMonitor()
 	{
 		new Logger().LogMessage(">CallMonitor<");
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
-//		Phone.addPhoneListener((PhoneListener) new CallAbstractListner());
 	}
 	
 	/**
+	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+	 * @version $Revision: 1.0 $
 	 */
-	public class CallAbstractListner extends AbstractPhoneListener//implements PhoneListener
+	public class CallAbstractListner extends AbstractPhoneListener
 	{
 		/**
 		 * Method callAnswered.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callAnswered(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callAnswered(int) */
 		public void callAnswered(int arg0) {
 			new Logger().LogMessage("call answered :"+arg0);
 		}
@@ -62,8 +65,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callInitiated.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callInitiated(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callInitiated(int) */
 		public void callInitiated(int arg0) 
 		{
 			Outgoing = true;
@@ -73,8 +76,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callIncoming.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callIncoming(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callIncoming(int) */
 		public void callIncoming(int arg0) 
 		{
 			Incoming = true;
@@ -84,8 +87,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callConnected.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callConnected(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callConnected(int) */
 		public void callConnected(int arg0)
 		{
 			CallConnected = true;
@@ -105,8 +108,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callDisconnected.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callDisconnected(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callDisconnected(int) */
 		public void callDisconnected(int arg0) 
 		{
 			int out = 0;
@@ -118,23 +121,19 @@ public class CallMonitor implements Runnable
 					if(Incoming)
 					{
 						in = Seconds2Minutes(call.getElapsedTime());
-						new Logger().LogMessage("in minutes:"+in);
-						IN_minutes = Integer.valueOf(localUsage.getValue(MapKeys[7])).intValue();
-//						IN_minutes = Integer.valueOf(theModel.SelectData("incoming")).intValue();
+						IN_minutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalIncoming)).intValue();
+						new Logger().LogMessage("DB Lin minutes:"+IN_minutes);
 						IN_minutes = IN_minutes + in;
-						localUsage.setValue(MapKeys[7], String.valueOf(IN_minutes));
-//						theModel.UpdateData("incoming", String.valueOf(IN_minutes));
+						ApplicationDB.setValue(String.valueOf(IN_minutes), ApplicationDB.LocalIncoming);
 						Incoming = false;
 					}
 					if(Outgoing)
 					{
 						out = Seconds2Minutes(call.getElapsedTime());
-						new Logger().LogMessage("out minutes:"+out);
-						OUT_minutes = Integer.valueOf(localUsage.getValue(MapKeys[8])).intValue();
-//						OUT_minutes = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
+						OUT_minutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalOutgoing)).intValue();
+						new Logger().LogMessage("DB Lout minutes:"+OUT_minutes);
 						OUT_minutes = OUT_minutes + out;
-						localUsage.setValue(MapKeys[8], String.valueOf(OUT_minutes));
-//						theModel.UpdateData("outgoing", String.valueOf(OUT_minutes));
+						ApplicationDB.setValue(String.valueOf(IN_minutes), ApplicationDB.LocalOutgoing);
 						Outgoing = false;
 					}
 				}
@@ -143,23 +142,19 @@ public class CallMonitor implements Runnable
 					if(Incoming)
 					{
 						in = Seconds2Minutes(call.getElapsedTime());
-						new Logger().LogMessage("in minutes:"+in);
-						R_IN_minutes = Integer.valueOf(roamUsage.getValue(MapKeys[7])).intValue();
-//						R_IN_minutes = Integer.valueOf(theModel.SelectData("roam_min")).intValue();
+						R_IN_minutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingIncoming)).intValue();
+						new Logger().LogMessage("DB Rin minutes:"+R_IN_minutes);
 						R_IN_minutes = R_IN_minutes + in;
-						roamUsage.setValue(MapKeys[7], String.valueOf(R_IN_minutes));
-//						theModel.UpdateData("roam_min", String.valueOf(R_IN_minutes));
+						ApplicationDB.setValue(String.valueOf(R_IN_minutes),ApplicationDB.RoamingIncoming);
 						Incoming = false;
 					}
 					if(Outgoing)
 					{
 						out = Seconds2Minutes(call.getElapsedTime());
-						new Logger().LogMessage("out minutes:"+out);
-//						R_OUT_minutes = Integer.valueOf(theModel.SelectData("roam_min")).intValue();
-						R_OUT_minutes = Integer.valueOf(localUsage.getValue(MapKeys[8])).intValue();
+						R_OUT_minutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingOutgoing)).intValue();
+						new Logger().LogMessage("DB Rout minutes:"+R_OUT_minutes);
 						R_OUT_minutes = R_OUT_minutes + out;
-						roamUsage.setValue(MapKeys[8], String.valueOf(R_OUT_minutes));
-//						theModel.UpdateData("roam_min", String.valueOf(R_OUT_minutes));
+						ApplicationDB.setValue(String.valueOf(R_OUT_minutes),ApplicationDB.RoamingOutgoing);
 						Outgoing = false;
 					}
 				}
@@ -169,8 +164,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callEndedByUser.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callEndedByUser(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callEndedByUser(int) */
 		public void callEndedByUser(int arg0) {
 			// TODO Auto-generated method stub
 			new Logger().LogMessage("Call ended by user");
@@ -179,8 +174,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callAdded.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callAdded(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callAdded(int) */
 		public void callAdded(int arg0) {
 			
 		}
@@ -188,8 +183,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callConferenceCallEstablished.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callConferenceCallEstablished(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callConferenceCallEstablished(int) */
 		public void callConferenceCallEstablished(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -198,8 +193,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callDirectConnectConnected.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callDirectConnectConnected(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callDirectConnectConnected(int) */
 		public void callDirectConnectConnected(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -208,8 +203,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callDirectConnectDisconnected.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callDirectConnectDisconnected(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callDirectConnectDisconnected(int) */
 		public void callDirectConnectDisconnected(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -219,8 +214,8 @@ public class CallMonitor implements Runnable
 		 * Method callFailed.
 		 * @param arg0 int
 		 * @param arg1 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callFailed(int, int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callFailed(int, int) */
 		public void callFailed(int arg0, int arg1) {
 			// TODO Auto-generated method stub
 			
@@ -229,8 +224,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callHeld.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callHeld(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callHeld(int) */
 		public void callHeld(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -239,8 +234,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callRemoved.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callRemoved(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callRemoved(int) */
 		public void callRemoved(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -249,8 +244,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callResumed.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callResumed(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callResumed(int) */
 		public void callResumed(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -259,8 +254,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method callWaiting.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#callWaiting(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#callWaiting(int) */
 		public void callWaiting(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -269,8 +264,8 @@ public class CallMonitor implements Runnable
 		/**
 		 * Method conferenceCallDisconnected.
 		 * @param arg0 int
-		 * @see net.rim.blackberry.api.phone.PhoneListener#conferenceCallDisconnected(int)
-		 */
+		
+		 * @see net.rim.blackberry.api.phone.PhoneListener#conferenceCallDisconnected(int) */
 		public void conferenceCallDisconnected(int arg0) {
 			// TODO Auto-generated method stub
 			
@@ -301,7 +296,8 @@ public class CallMonitor implements Runnable
 //	/**
 //	 * Method getOutgoingDuration.
 //	 * @return int
-//	 */
+//	 * @return boolean
+	 */
 //	public int getOutgoingDuration()
 //	{
 //		return OUT_minutes;

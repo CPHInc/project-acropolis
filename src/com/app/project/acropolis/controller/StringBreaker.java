@@ -3,6 +3,8 @@ package com.app.project.acropolis.controller;
 import loggers.Logger;
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class StringBreaker 
 {
@@ -20,8 +22,8 @@ public class StringBreaker
 	 * Method split.
 	 * @param strString String
 	 * @param strDelimiter String
-	 * @return String[]
-	 */
+	
+	 * @return String[] */
 	public static String[] split(String strString, String strDelimiter) {
 	    String[] strArray;
 	    int iOccurrences = 0;

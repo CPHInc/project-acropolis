@@ -6,6 +6,8 @@ import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.component.LabelField;
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class ApplicationMap extends MapField
 {
@@ -50,7 +52,8 @@ public class ApplicationMap extends MapField
 	
 //	/**
 //     * @see net.rim.device.api.ui.Field#navigationMovement(int, int, int, int)
-//     */
+//     * @param newText String
+     */
 //    public boolean navigationMovement(int dx, int dy, int status, int time) 
 //    {
 //        // The map is shifted in relation to the current zoom level.

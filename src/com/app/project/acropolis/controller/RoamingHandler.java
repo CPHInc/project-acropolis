@@ -4,29 +4,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.microedition.location.Criteria;
-import javax.microedition.location.Location;
-import javax.microedition.location.LocationException;
-import javax.microedition.location.LocationListener;
-import javax.microedition.location.LocationProvider;
-import javax.microedition.location.QualifiedCoordinates;
-
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
-import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.engine.monitor.LocationCode;
-import com.app.project.acropolis.model.ApplicationDatabase;
-import com.app.project.acropolis.model.ModelFactory;
-import com.app.project.acropolis.model.PlanModelFactory;
+import com.app.project.acropolis.model.RoamingUsageDB;
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class RoamingHandler implements Runnable
 {
@@ -59,8 +50,7 @@ public class RoamingHandler implements Runnable
 	
 	LocationCode location;
 //	ModelFactory theModel = new ModelFactory();
-	ApplicationDatabase appDB = new ApplicationDatabase();
-	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
+	RoamingUsageDB roamUsage = new RoamingUsageDB();
 //	PlanModelFactory thePlan = new PlanModelFactory();
 	MailCode mailer;
 	
@@ -107,6 +97,11 @@ public class RoamingHandler implements Runnable
 		int i=0;
 		for(;;)
 		{
+			try {
+				Thread.sleep(10*1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 			if(Check_NON_CAN_Operator())
 			{
 				if(i==0)
@@ -323,8 +318,8 @@ public class RoamingHandler implements Runnable
 	/**
 	 * Method Bytes2MegaBytes.
 	 * @param bytes double
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int Bytes2MegaBytes(double bytes)
 	{
 		return Integer.valueOf(
@@ -333,8 +328,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method getRoamingIncoming.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getRoamingIncoming()
 	{
 		return roamIncomingMins;
@@ -342,8 +337,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method getRoamingOutgoing.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getRoamingOutgoing()
 	{
 		return roamOutgoingMins;
@@ -351,8 +346,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method getRoamingDownload.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getRoamingDownload()
 	{
 		return roamDownload;
@@ -360,8 +355,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method getRoamingUpload.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getRoamingUpload()
 	{
 		return roamUpload;
@@ -369,8 +364,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method getRoamingReceived.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getRoamingReceived()
 	{
 		return roamReceivedMsgs;
@@ -378,8 +373,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method getRoamingSent.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getRoamingSent()
 	{
 		return roamSentMsgs;
@@ -387,8 +382,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method Check_NON_CAN_Operator.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean Check_NON_CAN_Operator()
 	{
 		try {
@@ -417,8 +412,8 @@ public class RoamingHandler implements Runnable
 	
 	/**
 	 * Method RoamingCheck.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean RoamingCheck()
 	{
 		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)

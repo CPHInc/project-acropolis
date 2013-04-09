@@ -8,10 +8,13 @@ import net.rim.device.api.system.WLANConnectionListener;
 import net.rim.device.api.system.WLANInfo;
 import net.rim.device.api.system.WLANListener;
 
-import com.app.project.acropolis.model.ApplicationDatabase;
-import com.app.project.acropolis.model.ModelFactory;
+import com.app.project.acropolis.model.ApplicationDB;
+import com.app.project.acropolis.model.ApplicationStoreDetails;
+import com.app.project.acropolis.model.RoamingUsageDB;
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class DataMonitor extends TimerTask
 {
@@ -34,11 +37,6 @@ public class DataMonitor extends TimerTask
 	long wifi_down = 0;
 	long wifi_up = 0;
 	
-	ModelFactory theModel = new ModelFactory();
-	ApplicationDatabase appDB = new ApplicationDatabase();
-	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
-	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
-	
 	public DataMonitor()
 	{
 		new Logger().LogMessage(">>DataMonitor<<");
@@ -51,33 +49,18 @@ public class DataMonitor extends TimerTask
 	 */
 	public void run()
 	{
-//		for(;;)
-//		{
-//			try {
-//				Thread.sleep(60*1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
 		WLANMonitor wlan = new WLANMonitor();
 		wlan.run();
-		
 		if(!Check_NON_CAN_Operator())
 		{
 			if( !wlan.getWLANConnection() )
 			{//on MDS
-//				db_download = Long.parseLong(theModel.SelectData("downloaded"));	//db values
-//				db_upload = Long.parseLong(theModel.SelectData("uploaded"));
-				db_download = Long.parseLong(localUsage.getValue(MapKeys[9]));
-				db_upload = Long.parseLong(localUsage.getValue(MapKeys[10]));
-	//			new Logger().LogMessage("MDS active");
+				db_download = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalDownload));
+				db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalUpload));
 				MDS_download = db_download + (RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload());
 				MDS_upload = db_upload + (RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload());
-				/*Download check*/
-				localUsage.setValue(MapKeys[9], String.valueOf(MDS_download));
-//				theModel.UpdateData("downloaded", String.valueOf(MDS_download).toString());
-				/*Upload check*/
-				localUsage.setValue(MapKeys[10], String.valueOf(MDS_upload));
-//				theModel.UpdateData("uploaded", String.valueOf(MDS_upload).toString());
+				ApplicationDB.setValue(String.valueOf(MDS_download),ApplicationDB.LocalDownload);
+				ApplicationDB.setValue(String.valueOf(MDS_upload),ApplicationDB.LocalUpload);
 			}
 			else
 			{//on WIFI
@@ -88,24 +71,19 @@ public class DataMonitor extends TimerTask
 		{
 			if( !wlan.getWLANConnection() )
 			{//on MDS
-	//			new Logger().LogMessage("MDS active");
-//				r_db_download = Long.parseLong(theModel.SelectData("roam_data"));
-				r_db_download = Long.parseLong(roamUsage.getValue(MapKeys[9]));
-				r_db_upload = Long.parseLong(roamUsage.getValue(MapKeys[10]));
+				r_db_download = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingDownload));
+				r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
 				r_db_download += RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload();
 				r_db_upload += RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload();
-				/*Download check*/
-//				new Logger().LogMessage("RadioInfo packets down-->"+RadioInfo.getNumberOfPacketsReceived());
-				roamUsage.setValue(MapKeys[9], String.valueOf(r_db_download));
-				roamUsage.setValue(MapKeys[10], String.valueOf(r_db_upload));
-//				theModel.UpdateData("roam_data", String.valueOf(r_db_data).toString());
-				/*Upload check*/
-//				new Logger().LogMessage("RadioInfo packets up-->"+RadioInfo.getNumberOfPacketsSent());
+				ApplicationDB.setValue(String.valueOf(r_db_download),ApplicationDB.RoamingDownload);
+				ApplicationDB.setValue(String.valueOf(r_db_upload),ApplicationDB.RoamingUpload);
 			}
 		}
 	}
 
 	/**
+	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+	 * @version $Revision: 1.0 $
 	 */
 	public class WLANMonitor implements Runnable
 	{
@@ -136,8 +114,8 @@ public class DataMonitor extends TimerTask
 		
 		/**
 		 * Method getWLANDownload.
-		 * @return long
-		 */
+		
+		 * @return long */
 		public long getWLANDownload()
 		{
 			return wifi_down;
@@ -145,8 +123,8 @@ public class DataMonitor extends TimerTask
 		
 		/**
 		 * Method getWLANUpload.
-		 * @return long
-		 */
+		
+		 * @return long */
 		public long getWLANUpload()
 		{
 			return wifi_up;
@@ -154,8 +132,8 @@ public class DataMonitor extends TimerTask
 	
 		/**
 		 * Method getWLANConnection.
-		 * @return boolean
-		 */
+		
+		 * @return boolean */
 		public boolean getWLANConnection()
 		{
 			return WIFI_Connected;
@@ -163,14 +141,18 @@ public class DataMonitor extends TimerTask
 		
 		/**
 		 * Method getWLANProfileName.
-		 * @return String
-		 */
+		
+		 * @return String */
 		public String getWLANProfileName()
 		{
 			return WLANInfo.getAPInfo().getProfileName();
 		}
 	}
 	
+	/**
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
+	 */
 	public boolean Check_NON_CAN_Operator()
 	{
 		boolean NON_CANOperatorCheck = true;

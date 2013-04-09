@@ -12,6 +12,8 @@ import com.app.project.acropolis.engine.monitor.TextMonitor;
 /**
  * All the Engines, Handlers, Runnable are passed and verified
  * if all true then executed
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class CodeValidator implements Runnable
 {
@@ -54,8 +56,8 @@ public class CodeValidator implements Runnable
 	
 	/**
 	 * Method Check_NON_CAN_Operator.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean Check_NON_CAN_Operator()
 	{
 		boolean NON_CANOperatorCheck = true;
@@ -78,8 +80,8 @@ public class CodeValidator implements Runnable
 	
 	/**
 	 * Method RoamingCheck.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean RoamingCheck()
 	{
 		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)

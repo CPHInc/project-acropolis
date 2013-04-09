@@ -28,7 +28,9 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.Dialog;
 
 import com.app.project.acropolis.engine.mail.PlanFeeder;
-import com.app.project.acropolis.model.ApplicationDatabase;
+import com.app.project.acropolis.model.ApplicationDB;
+import com.app.project.acropolis.model.RoamingPlanDB;
+import com.app.project.acropolis.model.RoamingUsageDB;
 
 /**
 
@@ -100,7 +102,7 @@ public class ApplicationEntry extends UiApplication
 			public void run()
 			{
 				new Thread(feeder).start();
-				while(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED)
+				while(feeder.getIncomingServerMailAlert() == PLAN_RECEIVED )
 				{
 					feeder.UpdatePlan();
 				}
@@ -111,14 +113,19 @@ public class ApplicationEntry extends UiApplication
     	// Push a screen onto the UI stack for rendering.
         pushScreen(new UIScreen());
     }
-
+    
+    static ApplicationDB appdb = new ApplicationDB();
+    /**
+     * Method PersistenceCreation.
+     * @return boolean
+     */
     public boolean PersistenceCreation()
     {
-    	ApplicationDatabase appDB = new ApplicationDatabase();
-    	appDB.new LocalUsageDB();
-    	appDB.new LocalPlanDB();
-    	appDB.new RoamingUsageDB();
-    	appDB.new RoamingPlanDB();
+    	appdb.setValue(Phone.getDevicePhoneNumber(true),ApplicationDB.PhoneNumber);
+    	new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.PhoneNumber));
+//    	new LocalPlanDB();
+    	new RoamingUsageDB();
+    	new RoamingPlanDB();
     	//appDB.new ServerCommandsDB();
     	return true;
     }
@@ -247,8 +254,8 @@ public class ApplicationEntry extends UiApplication
     
 	/**
 	 * Method StoragePresence.
-	 * @return boolean
-	 */
+	
+	 * @return boolean */
 	public boolean StoragePresence()
 	{
     	boolean storagePresent = false;
@@ -341,14 +348,16 @@ public class ApplicationEntry extends UiApplication
     
 	
 	/**
+	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+	 * @version $Revision: 1.0 $
 	 */
 	private class USBStateListener implements SystemListener2 {
 
 		/**
 		 * Method usbConnectionStateChange.
 		 * @param state int
-		 * @see net.rim.device.api.system.SystemListener2#usbConnectionStateChange(int)
-		 */
+		
+		 * @see net.rim.device.api.system.SystemListener2#usbConnectionStateChange(int) */
 		public void usbConnectionStateChange(int state) {
 			new Logger().LogMessage("USB State::" + state);
 		}
@@ -368,8 +377,8 @@ public class ApplicationEntry extends UiApplication
 		/**
 		 * Method batteryStatusChange.
 		 * @param status int
-		 * @see net.rim.device.api.system.SystemListener#batteryStatusChange(int)
-		 */
+		
+		 * @see net.rim.device.api.system.SystemListener#batteryStatusChange(int) */
 		public void batteryStatusChange(int status) {}
 
 		/**
@@ -387,15 +396,15 @@ public class ApplicationEntry extends UiApplication
 		/**
 		 * Method backlightStateChange.
 		 * @param on boolean
-		 * @see net.rim.device.api.system.SystemListener2#backlightStateChange(boolean)
-		 */
+		
+		 * @see net.rim.device.api.system.SystemListener2#backlightStateChange(boolean) */
 		public void backlightStateChange(boolean on) {}
 
 		/**
 		 * Method cradleMismatch.
 		 * @param mismatch boolean
-		 * @see net.rim.device.api.system.SystemListener2#cradleMismatch(boolean)
-		 */
+		
+		 * @see net.rim.device.api.system.SystemListener2#cradleMismatch(boolean) */
 		public void cradleMismatch(boolean mismatch) {}
 
 		/**
@@ -407,13 +416,15 @@ public class ApplicationEntry extends UiApplication
 		/**
 		 * Method powerOffRequested.
 		 * @param reason int
-		 * @see net.rim.device.api.system.SystemListener2#powerOffRequested(int)
-		 */
+		
+		 * @see net.rim.device.api.system.SystemListener2#powerOffRequested(int) */
 		public void powerOffRequested(int reason) {}
 		
 	}
 	
 	/**
+	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+	 * @version $Revision: 1.0 $
 	 */
 	private class RestoreEventListener implements SyncEventListener {
 		public boolean syncStarted = false;
@@ -422,8 +433,8 @@ public class ApplicationEntry extends UiApplication
 		 * Method syncEventOccurred.
 		 * @param eventId int
 		 * @param object Object
-		 * @see net.rim.device.api.synchronization.SyncEventListener#syncEventOccurred(int, Object)
-		 */
+		
+		 * @see net.rim.device.api.synchronization.SyncEventListener#syncEventOccurred(int, Object) */
 		public void syncEventOccurred(int eventId, Object object) {
 			if (eventId == SyncEventListener.SERIAL_SYNC_STOPPED || 
 					eventId == SyncEventListener.OTA_SYNC_TRANSACTION_STOPPED) 

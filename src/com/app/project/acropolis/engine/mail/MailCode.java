@@ -14,6 +14,8 @@ import net.rim.device.api.system.Application;
 import net.rim.device.api.ui.component.Dialog;
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class MailCode 
 {

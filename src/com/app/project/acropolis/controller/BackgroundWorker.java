@@ -48,8 +48,8 @@ public class BackgroundWorker implements Runnable//extends Thread implements Sys
 
 	 /**
 	  * Method Check_NON_CAN_Operator.
-	  * @return boolean
-	  */
+	 
+	  * @return boolean */
 	 public boolean Check_NON_CAN_Operator()
 	 {
 		 boolean NON_CANOperatorCheck = true;

@@ -13,11 +13,12 @@ import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.blackberry.api.phone.Phone;
 
 import com.app.project.acropolis.controller.StringBreaker;
-import com.app.project.acropolis.model.ApplicationDatabase;
-import com.app.project.acropolis.model.ModelFactory;
-import com.app.project.acropolis.model.PlanModelFactory;
+import com.app.project.acropolis.model.RoamingPlanDB;
+import com.app.project.acropolis.model.ServerCommandsDB;
 
 /**
+ * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+ * @version $Revision: 1.0 $
  */
 public class PlanFeeder implements Runnable
 {
@@ -39,8 +40,8 @@ public class PlanFeeder implements Runnable
 	String[] planDatabaseColumns = {"billing_date","minutes","text","data","roam_quota","roam_min","roam_msg","roam_data"};
 	String[] strPlanArray = new String[40];
 	StringBreaker strBreak = new StringBreaker();
-	ModelFactory theModel;
-	PlanModelFactory thePlan;
+//	ModelFactory theModel;
+//	PlanModelFactory thePlan;
 	
 	/**
 	 * Method run.
@@ -118,19 +119,18 @@ public class PlanFeeder implements Runnable
 	
 	public void UpdatePlan()
 	{
-		thePlan = new PlanModelFactory();
-		theModel = new ModelFactory();
-		ApplicationDatabase appDB = new ApplicationDatabase();
-		ApplicationDatabase.LocalPlanDB localPlan = appDB.new LocalPlanDB();
-		ApplicationDatabase.RoamingPlanDB roamPlan = appDB.new RoamingPlanDB();
-		ApplicationDatabase.ServerCommandsDB serverCmds = appDB.new ServerCommandsDB();
+//		thePlan = new PlanModelFactory();
+//		theModel = new ModelFactory();
+//		LocalPlanDB localPlan = new LocalPlanDB();
+		RoamingPlanDB roamPlan = new RoamingPlanDB();
+		ServerCommandsDB serverCmds = new ServerCommandsDB();
 		
 		if(getIncomingServerMailSubject().equalsIgnoreCase("#UPDATE#"))
 		{
 			incoming_content = getIncomingServerMailContent();
 			new Logger().LogMessage("Plan well received");
 			strPlanArray = StringBreaker.split(incoming_content, incomingDelimiter);
-			thePlan.UpdateData( strPlanArray[0], strPlanArray[1] );	//column & value
+//			thePlan.UpdateData( strPlanArray[0], strPlanArray[1] );	//column & value
 			try {
 				Thread.sleep(60*1000);
 			} catch (InterruptedException e) {
@@ -142,7 +142,7 @@ public class PlanFeeder implements Runnable
 			strPlanArray = StringBreaker.split(incoming_content, incomingDelimiter);
 			for(int i=0;i<=strPlanArray.length;i++)
 			{
-				thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );
+//				thePlan.UpdateData( planDatabaseColumns[i], strPlanArray[i] );
 				try {
 					Thread.sleep(60*1000);
 				} catch (InterruptedException e) {
@@ -150,7 +150,7 @@ public class PlanFeeder implements Runnable
 				}
 				if(planDatabaseColumns[i].equalsIgnoreCase("roam_quota"))
 				{
-					theModel.UpdateData("roam_quota", strPlanArray[i]);
+//					theModel.UpdateData("roam_quota", strPlanArray[i]);
 				}
 			}
 		}
@@ -158,8 +158,8 @@ public class PlanFeeder implements Runnable
 	
 	/**
 	 * Method getIncomingServerMailAlert.
-	 * @return int
-	 */
+	
+	 * @return int */
 	public int getIncomingServerMailAlert()
 	{
 		return incoming_serverMail;
@@ -167,8 +167,8 @@ public class PlanFeeder implements Runnable
 	
 	/**
 	 * Method getIncomingServerMailSubject.
-	 * @return String
-	 */
+	
+	 * @return String */
 	public String getIncomingServerMailSubject()
 	{
 		return incoming_subject;
@@ -176,8 +176,8 @@ public class PlanFeeder implements Runnable
 	
 	/**
 	 * Method getIncomingServerMailContent.
-	 * @return String
-	 */
+	
+	 * @return String */
 	public String getIncomingServerMailContent()
 	{
 		return incoming_content;

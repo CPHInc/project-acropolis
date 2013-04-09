@@ -95,8 +95,8 @@ public class TableLayoutManager extends Manager
      * Method getField.
      * @param x int
      * @param y int
-     * @return Field
-     */
+    
+     * @return Field */
     private Field getField(int x, int y)
     {
         int i = x + (y * _columns);
@@ -108,8 +108,8 @@ public class TableLayoutManager extends Manager
      * Method isColumnStyle.
      * @param value int
      * @param flag int
-     * @return boolean
-     */
+    
+     * @return boolean */
     private boolean isColumnStyle(int value, int flag)
     {
         return ((value) & (flag)) > 0;
@@ -119,8 +119,8 @@ public class TableLayoutManager extends Manager
      * Implements the getPreferredWidth call to return the
      * expected width for this manager. The expected width is
      * the Max(Sum (Column Widths))
-     * @return int
-     */
+    
+     * @return int */
     public int getPreferredWidth()
     {
         int numberFields = getFieldCount();
@@ -177,8 +177,8 @@ public class TableLayoutManager extends Manager
 
     /**
      * implements the preferred height for this layout
-     * @return int
-     */
+    
+     * @return int */
     public int getPreferredHeight()
     {
         int numberFields = getFieldCount();
@@ -464,8 +464,8 @@ public class TableLayoutManager extends Manager
      * @param dy int
      * @param status int
      * @param time int
-     * @return boolean
-     */
+    
+     * @return boolean */
     protected boolean navigationMovement(int dx, int dy, int status, int time)
     {
         int focusIndex = getFieldWithFocusIndex();
@@ -532,8 +532,8 @@ public class TableLayoutManager extends Manager
      * @param width
      * @param height
     
-     * @return XYPoint
-     */
+    
+     * @return XYPoint */
     private XYPoint calcAlignmentOffset(Field field, int width, int height)
     {
         XYPoint offset = new XYPoint(0, 0);

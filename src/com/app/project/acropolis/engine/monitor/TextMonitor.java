@@ -16,8 +16,7 @@ import loggers.Logger;
 import net.rim.blackberry.api.sms.OutboundMessageListener;
 import net.rim.device.api.system.RadioInfo;
 
-import com.app.project.acropolis.model.ApplicationDatabase;
-import com.app.project.acropolis.model.ModelFactory;
+import com.app.project.acropolis.model.ApplicationDB;
 
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -76,16 +75,16 @@ public class TextMonitor implements Runnable
 	
 	public int sent = 0;
 	public int received = 0;
-	ModelFactory theModel = new ModelFactory();
-	ApplicationDatabase appDB = new ApplicationDatabase();
-	ApplicationDatabase.LocalUsageDB localUsage = appDB.new LocalUsageDB();
-	ApplicationDatabase.RoamingUsageDB roamUsage = appDB.new RoamingUsageDB();
 	
 	public TextMonitor()
 	{
 		new Logger().LogMessage(">TextMonitor<");
 	}
 	
+	/**
+	 * Method run.
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run()
 	{
 		HandleMessageConnection();
@@ -166,15 +165,16 @@ public class TextMonitor implements Runnable
 	}
 	
 	/**
+	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
+	 * @version $Revision: 1.0 $
 	 */
 	public class TextListener implements OutboundMessageListener
 	{
-	
 		/**
 		 * Method notifyIncomingMessage.
 		 * @param conn MessageConnection
-		 * @see javax.wireless.messaging.MessageListener#notifyIncomingMessage(MessageConnection)
-		 */
+		
+		 * @see javax.wireless.messaging.MessageListener#notifyIncomingMessage(MessageConnection) */
 		public void notifyIncomingMessage(MessageConnection conn)
 		{
 			final int msg_in = 1;
@@ -188,36 +188,28 @@ public class TextMonitor implements Runnable
 					if(msg_rcv instanceof TextMessage)
 					{
 						textmsg_rcv = (TextMessage)msg_rcv;
-						received = Integer.valueOf(localUsage.getValue(MapKeys[11])).intValue();
-//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived)).intValue();
 						received = received + msg_in;
-						localUsage.setValue(MapKeys[11], String.valueOf(received));
-//						theModel.UpdateData("received",  new String(String.valueOf(received)));
+						ApplicationDB.setValue(String.valueOf(received),ApplicationDB.LocalReceived);
 						new Logger().LogMessage("TextMessage received"+
-								"\r\nAddress:"+textmsg_rcv.getAddress() + 
-								"\r\nPayload:"+textmsg_rcv.getPayloadText() +
 								"\r\nCount:"+received);
 					}
 					else if(msg_rcv instanceof BinaryMessage)
 					{
 						binmsg_rcv = (BinaryMessage)msg_rcv;
-						received = Integer.valueOf(localUsage.getValue(MapKeys[11])).intValue();
-//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived)).intValue();
 						received = received + msg_in;
-						localUsage.setValue(MapKeys[11], String.valueOf(received));
+						ApplicationDB.setValue(String.valueOf(received),ApplicationDB.LocalReceived);
 						new Logger().LogMessage("BinaryMessage received" + 
-								"\r\nAddress:" + binmsg_rcv.getAddress() +
 								"\r\nCount:" + received);
 					}
 					else if(msg_rcv instanceof MultipartMessage)
 					{
 						multimsg_rcv = (MultipartMessage)msg_rcv;
-						received = Integer.valueOf(localUsage.getValue(MapKeys[11])).intValue();
-//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived)).intValue();
 						received = received + msg_in;
-						localUsage.setValue(MapKeys[11], String.valueOf(received));
+						ApplicationDB.setValue(String.valueOf(received),ApplicationDB.LocalReceived);
 						new Logger().LogMessage("MultipartMessage received" + 
-								"\r\nAddress:" + multimsg_rcv.getAddress() +
 								"\r\nCount:" + received);
 					}
 				}
@@ -226,35 +218,28 @@ public class TextMonitor implements Runnable
 					if(msg_rcv instanceof TextMessage)
 					{
 						textmsg_rcv = (TextMessage)msg_rcv;
-						received = Integer.valueOf(roamUsage.getValue(MapKeys[11])).intValue();
-//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingReceived)).intValue();
 						received = received + msg_in;
-						roamUsage.setValue(MapKeys[11], String.valueOf(received));
+						ApplicationDB.setValue(String.valueOf(received),ApplicationDB.RoamingReceived);
 						new Logger().LogMessage("TextMessage received"+
-								"\r\nAddress:"+textmsg_rcv.getAddress() + 
-								"\r\nPayload:"+textmsg_rcv.getPayloadText() +
 								"\r\nCount:"+received);
 					}
 					else if(msg_rcv instanceof BinaryMessage)
 					{
 						binmsg_rcv = (BinaryMessage)msg_rcv;
-						received = Integer.valueOf(roamUsage.getValue(MapKeys[11])).intValue();
-//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingReceived)).intValue();
 						received = received + msg_in;
-						roamUsage.setValue(MapKeys[11], String.valueOf(received));
+						ApplicationDB.setValue(String.valueOf(received),ApplicationDB.RoamingReceived);
 						new Logger().LogMessage("BinaryMessage received" + 
-								"\r\nAddress:" + binmsg_rcv.getAddress() +
 								"\r\nCount:" + received);
 					}
 					else if(msg_rcv instanceof MultipartMessage)
 					{
 						multimsg_rcv = (MultipartMessage)msg_rcv;
-						received = Integer.valueOf(roamUsage.getValue(MapKeys[11])).intValue();
-//						received = Integer.valueOf(theModel.SelectData("received")).intValue();
+						received = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingReceived)).intValue();
 						received = received + msg_in;
-						roamUsage.setValue(MapKeys[11], String.valueOf(received));
+						ApplicationDB.setValue(String.valueOf(received),ApplicationDB.RoamingReceived);
 						new Logger().LogMessage("MultipartMessage received" + 
-								"\r\nAddress:" + multimsg_rcv.getAddress() +
 								"\r\nCount:" + received);
 					}
 				}
@@ -268,8 +253,8 @@ public class TextMonitor implements Runnable
 		/**
 		 * Method notifyOutgoingMessage.
 		 * @param message Message
-		 * @see net.rim.blackberry.api.sms.OutboundMessageListener#notifyOutgoingMessage(Message)
-		 */
+		
+		 * @see net.rim.blackberry.api.sms.OutboundMessageListener#notifyOutgoingMessage(Message) */
 		public void notifyOutgoingMessage(Message message) 
 		{
 			final int msg_out = 1;
@@ -280,34 +265,28 @@ public class TextMonitor implements Runnable
 				if(message instanceof TextMessage)
 				{
 					textmsg_snd = (TextMessage)message;
-					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
-//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent)).intValue();
 					sent = sent + msg_out;
-					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					ApplicationDB.setValue(String.valueOf(sent),ApplicationDB.LocalSent);
 					new Logger().LogMessage("TextMessage sent"+
-							"\r\nTo Address"+textmsg_snd.getAddress()+
 							"\r\nCount:"+sent);
 				}
 				else if (message instanceof BinaryMessage)
 				{
 					binmsg_snd = (BinaryMessage)message;
-					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
-//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent)).intValue();
 					sent = sent + msg_out;
-					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					ApplicationDB.setValue(String.valueOf(sent),ApplicationDB.LocalSent);
 					new Logger().LogMessage("BinaryMessage sent"+
-							"\r\nTo Address:"+binmsg_snd.getAddress()+
 							"\r\nCount:"+sent);
 				}
 				else if (message instanceof MultipartMessage)
 				{
 					multimsg_snd = (MultipartMessage)message;
-					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
-//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent)).intValue();
 					sent = sent + msg_out;
-					roamUsage.setValue(MapKeys[11], String.valueOf(sent));
+					ApplicationDB.setValue(String.valueOf(sent),ApplicationDB.LocalSent);
 					new Logger().LogMessage("MultipartMessage sent"+
-							"\r\nTo Address:"+multimsg_snd.getAddress()+
 							"\r\nCount:"+sent);
 				}
 			}
@@ -316,40 +295,38 @@ public class TextMonitor implements Runnable
 				if(message instanceof TextMessage)
 				{
 					textmsg_snd = (TextMessage)message;
-					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
-//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingSent)).intValue();
 					sent = sent + msg_out;
-					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					ApplicationDB.setValue(String.valueOf(sent),ApplicationDB.RoamingSent);
 					new Logger().LogMessage("TextMessage sent"+
-							"\r\nTo Address"+textmsg_snd.getAddress()+
 							"\r\nCount:"+sent);
 				}
 				else if (message instanceof BinaryMessage)
 				{
 					binmsg_snd = (BinaryMessage)message;
-					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
-//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingSent)).intValue();
 					sent = sent + msg_out;
-					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					ApplicationDB.setValue(String.valueOf(sent),ApplicationDB.RoamingSent);
 					new Logger().LogMessage("BinaryMessage sent"+
-							"\r\nTo Address:"+binmsg_snd.getAddress()+
 							"\r\nCount:"+sent);
 				}
 				else if (message instanceof MultipartMessage)
 				{
 					multimsg_snd = (MultipartMessage)message;
-					sent = Integer.valueOf(localUsage.getValue(MapKeys[12])).intValue();
-//					received = Integer.valueOf(theModel.SelectData("received")).intValue();
+					sent = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingSent)).intValue();
 					sent = sent + msg_out;
-					roamUsage.setValue(MapKeys[12], String.valueOf(sent));
+					ApplicationDB.setValue(String.valueOf(sent),ApplicationDB.RoamingSent);
 					new Logger().LogMessage("MultipartMessage sent"+
-							"\r\nTo Address:"+multimsg_snd.getAddress()+
 							"\r\nCount:"+sent);
 				}
 			}
 		}
 	}
 	
+	/**
+	 * Method Check_NON_CAN_Operator.
+	 * @return boolean
+	 */
 	public boolean Check_NON_CAN_Operator()
 	{
 		boolean NON_CANOperatorCheck = true;
