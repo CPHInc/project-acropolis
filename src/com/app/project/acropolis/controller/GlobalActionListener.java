@@ -5,7 +5,11 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import loggers.Logger;
+import net.rim.blackberry.api.mail.ServiceConfiguration;
+import net.rim.blackberry.api.mail.Session;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.servicebook.ServiceBook;
+import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.system.GlobalEventListener;
 
 import com.app.project.acropolis.engine.monitor.LocationCode;
@@ -14,7 +18,7 @@ import com.app.project.acropolis.model.ApplicationDB;
 public class GlobalActionListener implements GlobalEventListener 
 {
 	final long DATE_CHANGED_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
-	final long TIMEZONE_CHANGED_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_TIMEZONE_CHANGED;
+	final long SERVICE_BOOK_REMOVED = net.rim.device.api.servicebook.ServiceBook.GUID_SB_REMOVED;
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
 	//com.app.project.acropolis.engine.mail.HoledCeiling.UPDATE
@@ -26,6 +30,7 @@ public class GlobalActionListener implements GlobalEventListener
 	
 	public void eventOccurred(long arg0, int arg1, int arg2, Object arg3,
 			Object arg4) {
+		
 		if(arg0 == DATE_CHANGED_GUID)
 		{
 			SimpleDateFormat sdf_date = new SimpleDateFormat("yyyyMMdd");
