@@ -123,7 +123,6 @@ public class RoamingHandler implements Runnable
 		{
 			new Logger().LogMessage("Operator::"+RadioInfo.getCurrentNetworkName());
 			if( location.getLatitude() != 0 && location.getLongitude() != 0 )
-				// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 			{
 				TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
 				Calendar calendar = Calendar.getInstance(serverTimeZone);

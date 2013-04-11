@@ -29,11 +29,6 @@ public class CodeValidator implements Runnable
 	public CodeValidator()
 	{
 		new Logger().LogMessage("--->CodeValidator()<---");
-		/**
-		 * TODO - USB MTP/MS detection for safety of database & application
-		 * In process
-		 * 
-		 */
 	}
 	
 	/**
@@ -47,21 +42,8 @@ public class CodeValidator implements Runnable
 		new Thread(new CallMonitor()).start();
 		new TextMonitor().run();
 		new Timer().schedule(new DataMonitor(),60*1000);
-		
 		new Logger().LogMessage("Positioning Engine enqueued");
 		new Thread(new RoamingHandler()).start();
 		new Thread(new LocalHandler()).start();
-	}
-	
-	/**
-	 * Method RoamingCheck.
-	
-	 * @return boolean */
-	public boolean RoamingCheck()
-	{
-		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
-			return true;
-		else
-			return false;
 	}
 }

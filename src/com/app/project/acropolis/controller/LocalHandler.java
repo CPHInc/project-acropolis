@@ -29,7 +29,6 @@ public class LocalHandler implements Runnable
 			"FixAck","FixDeviceTime","FixServerTime","Incoming",
 			"Outgoing","Download","Upload","Received","Sent"};
 	
-	/*format followed #1.0.1|Data Stream|PhoneNumber|TimeStamp(GMT)|DeviceTime|Roaming|LAT|LNG|Accuracy# */
 	public String datatobeMailed = "";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
@@ -41,7 +40,6 @@ public class LocalHandler implements Runnable
 	
 	public Timer handler = new Timer();
 	public int WAFs = 0;
-//	ModelFactory theModel = new ModelFactory();
 	LocationCode location;
 	
 	public LocalHandler()
@@ -113,7 +111,6 @@ public class LocalHandler implements Runnable
 			{
 				new Logger().LogMessage("Operator available::" + RadioInfo.getCurrentNetworkName());
 				if( location.getLatitude() != 0 && location.getLongitude() != 0 )
-					// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 				{
 					TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
 					Calendar calendar = Calendar.getInstance(serverTimeZone);
@@ -129,8 +126,7 @@ public class LocalHandler implements Runnable
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 							+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-//							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-							+ String.valueOf(RoamingCheck()) + "|"
+							+ String.valueOf(Check_NON_CAN_Operator()) + "|"
 							+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
 							+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
 							+ location.getAccuracy() + "|"
@@ -141,7 +137,6 @@ public class LocalHandler implements Runnable
 							+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
 							+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
 					new MailCode().DebugMail(datatobeMailed);
-//					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
 					location.ResetTracking();
 					
@@ -187,7 +182,6 @@ public class LocalHandler implements Runnable
 							+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
 							+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
 					new MailCode().DebugMail(datatobeMailed);
-//					new Logger().LogMessage("Downloaded and Uploaded mail sent");
 					location.StopTracking();
 					location.ResetTracking();
 					
