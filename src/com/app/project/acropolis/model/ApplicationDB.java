@@ -1,8 +1,13 @@
 package com.app.project.acropolis.model;
 
+import java.util.Date;
 import java.util.Vector;
 
 import loggers.DBLogger;
+import loggers.Logger;
+import net.rim.blackberry.api.phone.Phone;
+import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 import net.rim.device.api.util.Persistable;
@@ -12,6 +17,8 @@ import net.rim.device.api.util.Persistable;
 public final class ApplicationDB implements Persistable
 {
 	static final long KEY = 0xeff98108be81b2b8L;
+//	static final long KEY = 0x81a1a23d4b2ed297L;
+	//KEY === com.app.project.acropolis.model.ApplicationDB.version1
 	static PersistentObject persist;
 	
 	public static final int PhoneNumber = 0;
@@ -48,32 +55,24 @@ public final class ApplicationDB implements Persistable
 	public static final int RoamingPlanDownload = 31;
 	public static final int RoamingPlanUpload = 32;
 	
-//	String[] LocalUsageDUMMY = {Phone.getDevicePhoneNumber(true),"false","0","0",
-//			"false","0","0","0","0","0","0","0","0"};
-	
 	final static int VectorSize = 33;
 	public static Vector appVector = new Vector(VectorSize);
 	
-//	static ApplicationStoreDetails storeDetails = new ApplicationStoreDetails();
 	public ApplicationDB()
 	{
 		new DBLogger().LogMessage(">>-ApplicationDatabase-<<");
-//		PersistedVector();
 		persist = PersistentStore.getPersistentObject(KEY);
 		synchronized(persist)
 		{
 			if(persist.getContents()==null)
 			{
-				if(appVector.isEmpty())
+				for(int i=0;i<appVector.capacity();++i)
 				{
-					for(int i=0;i<appVector.capacity();++i)
-					{
-						appVector.addElement(new String("0"));
-						appVector.setElementAt(new String("0"),i);
-					}
-					persist.setContents(appVector);
-		 			persist.commit();
+					appVector.addElement(new String("0"));
+//						appVector.setElementAt(new String("0"),i);
 				}
+				persist.setContents(appVector);
+	 			persist.commit();
 			}
 			else
 			{
@@ -81,8 +80,13 @@ public final class ApplicationDB implements Persistable
 			}
 		}
 	
-//		appVector = new Vector(VectorSize);
-//		storeDetails.CommitVector(appVector);
+	}
+	
+	public static boolean destroyOld()
+	{
+		long oldkey = 0x3a090f86b9137748L;
+		PersistentStore.destroyPersistentObject(oldkey);
+		return true;
 	}
 	
 	/**
@@ -94,15 +98,24 @@ public final class ApplicationDB implements Persistable
 	public static boolean setValue(String value,int id)
 	{
 		persist = PersistentStore.getPersistentObject(KEY);
-//		Vector vector = new Vector(VectorSize);
 		synchronized(persist)
 		{
+			destroyOld();
+			if(persist.getContents()==null)
+			{
+				for(int i=0;i<appVector.capacity();++i)
+				{
+					appVector.addElement(new String("0"));
+//					appVector.setElementAt(new String("0"),i);
+				}
+				persist.setContents(appVector);
+	 			persist.commit();
+			}
 			Vector vector = (Vector)persist.getContents();
 			vector.setElementAt(value,id);
 			persist.setContents(vector);
 			persist.commit();
 		}
-//		storeDetails.CommitVector(appVector);
 		return true;
 	}
 	
@@ -115,25 +128,55 @@ public final class ApplicationDB implements Persistable
 	{
 		String data = "";
 		persist = PersistentStore.getPersistentObject(KEY);
-//		Vector vector = new Vector(VectorSize);
 		synchronized(persist)
 		{
+			destroyOld();
+			if(persist.getContents()==null)
+			{
+				for(int i=0;i<appVector.capacity();++i)
+				{
+					appVector.addElement(new String("0"));
+//					appVector.setElementAt(new String("0"),i);
+				}
+				persist.setContents(appVector);
+	 			persist.commit();
+			}
 			Vector vector = (Vector) persist.getContents();
 			data = (String) vector.elementAt(id);
 		}
-//		appVector = new Vector(VectorSize);
-//		appVector = storeDetails.SupplyVector();
 		return data;
 	}
 	
-//	public void PersistedVector()
-//	{
-//		appVector = new Vector(VectorSize);
-//		appVector = storeDetails.SupplyVector();
-//	}
-//	public Vector DBVector()
-//	{
-//		return appVector;
-//	}
+	public static void reset()
+	{
+		persist = PersistentStore.getPersistentObject(KEY);
+		synchronized(persist)
+		{
+			Vector vector = new Vector(VectorSize);
+			for(int i=0;i<vector.capacity();i++)
+			{
+				vector.addElement("0");
+			}
+			vector.setElementAt((String)Phone.getDevicePhoneNumber(true),ApplicationDB.PhoneNumber);
+			persist.setContents(vector);
+		}
+	}
+	
+	public void BillingCycleEngine()
+	{
+		Application.getApplication().invokeLater(new Runnable()
+		{
+			public void run()
+			{
+				SimpleDateFormat date_format = new SimpleDateFormat("yyyyMMDD");
+				String currentDate = date_format.formatLocal(new Date().getTime());
+				if(currentDate.equalsIgnoreCase(ApplicationDB.getValue(ApplicationDB.BillDate)))
+				{
+					reset();
+					new Logger().LogMessage("value 0 billing date");
+				}
+			}
+		},100,true);
+	}
 	
 }

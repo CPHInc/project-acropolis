@@ -7,7 +7,6 @@ import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.model.ApplicationDB;
 
-
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  * @version $Revision: 1.0 $
@@ -121,7 +120,7 @@ public class CallMonitor implements Runnable
 					if(Incoming)
 					{
 						in = Seconds2Minutes(call.getElapsedTime());
-						IN_minutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalIncoming)).intValue();
+						IN_minutes = Integer.parseInt(ApplicationDB.getValue(ApplicationDB.LocalIncoming));
 						new Logger().LogMessage("DB Lin minutes:"+IN_minutes);
 						IN_minutes = IN_minutes + in;
 						ApplicationDB.setValue(String.valueOf(IN_minutes), ApplicationDB.LocalIncoming);
@@ -133,7 +132,7 @@ public class CallMonitor implements Runnable
 						OUT_minutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalOutgoing)).intValue();
 						new Logger().LogMessage("DB Lout minutes:"+OUT_minutes);
 						OUT_minutes = OUT_minutes + out;
-						ApplicationDB.setValue(String.valueOf(IN_minutes), ApplicationDB.LocalOutgoing);
+						ApplicationDB.setValue(String.valueOf(OUT_minutes), ApplicationDB.LocalOutgoing);
 						Outgoing = false;
 					}
 				}
@@ -292,25 +291,6 @@ public class CallMonitor implements Runnable
     	}
     	return minutes;
     }
-	
-//	/**
-//	 * Method getOutgoingDuration.
-//	 * @return int
-//	 * @return boolean
-	 */
-//	public int getOutgoingDuration()
-//	{
-//		return OUT_minutes;
-//	}
-//	
-//	/**
-//	 * Method getIncomingDuration.
-//	 * @return int
-//	 */
-//	public int getIncomingDuration()
-//	{
-//		return IN_minutes;
-//	}
 	
 	/**
 	 * Method Check_NON_CAN_Operator.

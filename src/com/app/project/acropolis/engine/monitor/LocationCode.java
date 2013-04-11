@@ -45,9 +45,9 @@ public class LocationCode implements Runnable{
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
 	
-	public boolean NON_CANOperatorCheck = true;
-	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-	public String CurrentNetworkName = "";
+	public static boolean NON_CANOperatorCheck = true;
+	public final static String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+	public static String CurrentNetworkName = "";
 
 	/**
 	 * Method run.
@@ -202,7 +202,7 @@ public class LocationCode implements Runnable{
 	 * Method Check_NON_CAN_Operator.
 	
 	 * @return boolean */
-	public boolean Check_NON_CAN_Operator()
+	public static boolean Check_NON_CAN_Operator()
 	{
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
 		

@@ -4,6 +4,9 @@ import java.util.Timer;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
+import net.rim.device.api.command.Command;
+import net.rim.device.api.command.CommandHandler;
+import net.rim.device.api.command.ReadOnlyCommandMetadata;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.DeviceInfo;
@@ -12,15 +15,18 @@ import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.FontFamily;
 import net.rim.device.api.ui.FontManager;
+import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
+import net.rim.device.api.util.StringProvider;
 
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.RoamingHandler;
@@ -48,14 +54,14 @@ public final class UIScreen extends MainScreen
 			"Outgoing","Download","Upload","Received","Sent"};
 	
 	/*Local Rates*/
-	final double LocalVoiceRate = 0.10;//incoming free(general)
-	final double LocalMessageRate = 0.10;//some plan 250 free after 10cents/msg
-	final double LocalDataRate = 0.06;//500MB free after 6cent/MB
+	final static double LocalVoiceRate = 0.10;//incoming free(general)
+	final static double LocalMessageRate = 0.10;//some plan 250 free after 10cents/msg
+	final static double LocalDataRate = 0.06;//500MB free after 6cent/MB
 	
 	/*Roaming Rates (Outside Canada)*/
-	final double RoamingVoiceRate = 2.00;
-	final double RoamingMessageRate = 0.60;
-	final double RoamingDataRate = 5.00;
+	final static double RoamingVoiceRate = 2.00;
+	final static double RoamingMessageRate = 0.60;
+	final static double RoamingDataRate = 5.00;
 
 	/*Long Distance Rates*/
 	final double LongDistanceVoiceRate = 0.20;
@@ -103,23 +109,23 @@ public final class UIScreen extends MainScreen
 	String SentResultString = "";
 	String TotalMsgString = "Total Messages";
 	String TotalResultMsgString = "";
-	String DownloadString = "Downloaded (KB)";
+	static String DownloadString = "Downloaded (KB)";
 	String DownloadResultString = "";
-	String UploadString = "Uploaded (KB)";
+	static String UploadString = "Uploaded (KB)";
 	String UploadResultString = "";
 	String TotalDataString = "Total (KB)";
-	String TotalResultDataString = "";
+	static String TotalResultDataString = "";
 	String TotalRunningCost = "Running Cost";
 	String TotalLocalCharges = "Monthly";
-	String TotalResultLocalCharges = "";
+	static String TotalResultLocalCharges = "";
 	String TotalRoamingCharges = "Roaming";
-	String TotalResultRoamingCharges = "$0.0";
-	String RoamingMinutesString = "Roaming";
-	String RoamingResultMinutesString = "";
+	static String TotalResultRoamingCharges = "$0.0";
+	static String RoamingMinutesString = "Roaming";
+	static String RoamingResultMinutesString = "";
 	String RoamingMessageString = "Roaming";
-	String RoamingResultMessageString = "";
+	static String RoamingResultMessageString = "";
 	String RoamingDataString = "Roaming (MB)";
-	String RoamingResultDataString = "";
+	static String RoamingResultDataString = "";
 	GridFieldManager LocalChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
 	GridFieldManager RoamingChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
 	GridFieldManager LocationGrid = new GridFieldManager(Position_Rows,Position_Columns,GridFieldManager.USE_ALL_WIDTH);
@@ -134,7 +140,7 @@ public final class UIScreen extends MainScreen
     RichTextField RunningCostText = new RichTextField(TotalRunningCost);
 	RichTextField phonenumberText = new RichTextField("Phone Number : " + Phone.getDevicePhoneNumber(true) );
 	RichTextField roamText = new RichTextField(RoamingString,Field.FIELD_LEFT);
-	RichTextField roamResultText = new RichTextField("");
+	static RichTextField roamResultText = new RichTextField("");
 //	RichTextField FixAckText = new RichTextField(FixString,Field.NON_FOCUSABLE|Field.FIELD_LEFT); 
 	
 	RichTextField LatitudeText = new RichTextField(LatitudeString);
@@ -145,39 +151,39 @@ public final class UIScreen extends MainScreen
 	
 	RichTextField MinutesMonitor = new RichTextField("Minutes usage");
 	RichTextField IncomingUsage = new RichTextField(IncomingString);
-	RichTextField IncomingResultUsage = new RichTextField("");
+	static RichTextField IncomingResultUsage = new RichTextField("");
 	RichTextField OutgoingUsage = new RichTextField(OutgoingString);
-	RichTextField OutgoingResultUsage = new RichTextField("");
+	static RichTextField OutgoingResultUsage = new RichTextField("");
 	RichTextField TotalMinsUsage = new RichTextField(TotalMinString,Field.FIELD_RIGHT);
-	RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT);
+	static RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT);
 	
 	RichTextField MessagingMonitor = new RichTextField("Messaging usage");
 	RichTextField ReceivedMsgUsage = new RichTextField(ReceivedString);
-	RichTextField ReceivedResultMsgUsage = new RichTextField("");
+	static RichTextField ReceivedResultMsgUsage = new RichTextField("");
 	RichTextField SentMsgUsage = new RichTextField(SentString);
-	RichTextField SentResultMsgUsage = new RichTextField("");
+	static RichTextField SentResultMsgUsage = new RichTextField("");
 	RichTextField TotalMsgUsage = new RichTextField(TotalMsgString,Field.FIELD_RIGHT);
-	RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT);
+	static RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT);
 
 	RichTextField DataMonitor = new RichTextField("Data usage");
 	RichTextField DownloadUsage = new RichTextField(DownloadString);
-	RichTextField DownloadResultUsage = new RichTextField(DownloadString);
+	static RichTextField DownloadResultUsage = new RichTextField(DownloadString);
 	RichTextField UploadUsage = new RichTextField(UploadString);
-	RichTextField UploadResultUsage = new RichTextField(UploadString);
+	static RichTextField UploadResultUsage = new RichTextField(UploadString);
 	RichTextField TotalDataUsage = new RichTextField(TotalDataString,Field.FIELD_RIGHT);
-	RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT);
+	static RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT);
 	
 	RichTextField TotalLocal = new RichTextField(TotalLocalCharges,Field.FIELD_HCENTER);
-	RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER);
+	static RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER);
 	RichTextField TotalRoaming = new RichTextField(TotalRoamingCharges,Field.FIELD_HCENTER);
-	RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER);
+	static RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER);
 	
 	RichTextField RoamingMinutes = new RichTextField(RoamingMinutesString);
-	RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString);
+	static RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString);
 	RichTextField RoamingMessages = new RichTextField(RoamingMessageString);
-	RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString);
+	static RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString);
 	RichTextField RoamingData = new RichTextField(RoamingDataString);
-	RichTextField RoamingResultData = new RichTextField(RoamingResultDataString);
+	static RichTextField RoamingResultData = new RichTextField(RoamingResultDataString);
 
 //	ModelFactory theModel = new ModelFactory();
     /**
@@ -188,7 +194,6 @@ public final class UIScreen extends MainScreen
     	super(MainScreen.FIELD_VCENTER|MainScreen.FIELD_HCENTER|
     			MainScreen.VERTICAL_SCROLL|MainScreen.USE_ALL_WIDTH);
        	Application.getApplication().setAcceptEvents(true);
-       	new Thread(new CodeValidator()).start();
     	DeriveApplicationFont();
     	setTitle(AppTitle);		//if required
     	
@@ -203,6 +208,7 @@ public final class UIScreen extends MainScreen
     	String phonenumber = Phone.getDevicePhoneNumber(false);
     	new Logger().LogMessage("#number"+phonenumber);
     	BreathingArea();
+    	AppMenu();
     	
     	CompanyLogo();
 		add(RunningCostText);
@@ -219,7 +225,7 @@ public final class UIScreen extends MainScreen
     	
     	TextInserter();
     	
-    	Application.getApplication().invokeLater(new ScreenTextUpdater(),5*60*1000, true);
+    	Application.getApplication().invokeLater(new ScreenTextUpdater(),60*60*1000, true);
     }
     
     public void DeriveApplicationFont()
@@ -429,7 +435,7 @@ public final class UIScreen extends MainScreen
      * @param value double
     
      * @return xx.xx */
-    public String FormatDecimal(double value)
+    public static String FormatDecimal(double value)
     {
     	String formated = "";
     	String unitDigit = StringBreaker.split(String.valueOf(value), ".")[0];
@@ -461,7 +467,7 @@ public final class UIScreen extends MainScreen
     	return minutes;
     }
     
-    public void TextInserter()
+    public static void TextInserter()
     {
     	synchronized(Application.getEventLock())
     	{
@@ -497,8 +503,8 @@ public final class UIScreen extends MainScreen
 			
 			int totalIncoming = incomingMin + (int)roamInMinutes;
 			int totalOutgoing = outgoingMin + (int)roamOutMinutes;
-			int totalDownload = (int)(downData + roamDownData);
-			int totalUpload = (int)(upData + roamUpData);
+			double totalDownload = downData + roamDownData;
+			double totalUpload = upData + roamUpData;
 			int totalReceived = rcvMsg + (int)roamRcvMsg;
 			int totalSent = sntMsg + (int)roamSntMsg;
 			int totalMin = localTotalMinutes + (int)roamTotalMinutes;
@@ -544,7 +550,7 @@ public final class UIScreen extends MainScreen
      * Updates screen text via java.util.TimerTask
      * @version $Revision: 1.0 $
      */
-    public class ScreenTextUpdater implements Runnable//extends TimerTask
+    public static class ScreenTextUpdater implements Runnable//extends TimerTask
     {
     	/**
     	 * Method run.
@@ -573,10 +579,42 @@ public final class UIScreen extends MainScreen
 		}
     	return true;
     }
+
+    public void clickEventMenu()
+    {
+    	Menu menu = new Menu(Menu.INSTANCE_DEFAULT);
+    	
+    	
+    }
+    
+    public void AppMenu()
+    {
+    	String menuString = "Destroy Persistence";
+    	String menuRefreshString = "Refresh Values";
+    	int menuOrdinal = 0x230000;
+    	int menuRefreshOrdinal = 0x250000;
+    	int menuPriority = 0;
+    	int menuRefreshPriority = 1;
+    	
+//    	MenuItem appmenu = new MenuItem(new StringProvider(menuString),menuOrdinal,menuPriority);
+//    	appmenu.setCommand(new Command(new CommandHandler() {
+//			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+//				ApplicationDB.destroy();
+//			}
+//    	}));
+//    	addMenuItem(appmenu);
+    	
+    	MenuItem refreshScreen = new MenuItem(new StringProvider(menuRefreshString),menuRefreshOrdinal,menuRefreshPriority);
+    	refreshScreen.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
+				new ScreenTextUpdater().run();
+			}
+    	}));
+    	addMenuItem(refreshScreen);
+    }
     
     /**
      * Method onClose.
-    
      * @return boolean */
     public boolean onClose()
     {

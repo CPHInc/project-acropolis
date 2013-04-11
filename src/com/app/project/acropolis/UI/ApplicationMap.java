@@ -53,7 +53,7 @@ public class ApplicationMap extends MapField
 //	/**
 //     * @see net.rim.device.api.ui.Field#navigationMovement(int, int, int, int)
 //     * @param newText String
-     */
+//     */
 //    public boolean navigationMovement(int dx, int dy, int status, int time) 
 //    {
 //        // The map is shifted in relation to the current zoom level.

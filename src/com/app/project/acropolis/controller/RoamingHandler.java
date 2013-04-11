@@ -13,7 +13,7 @@ import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.engine.monitor.LocationCode;
-import com.app.project.acropolis.model.RoamingUsageDB;
+import com.app.project.acropolis.model.ApplicationDB;
 
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -32,16 +32,6 @@ public class RoamingHandler implements Runnable
 	public String errorstream;
 	public String datatobeMailed;
 	
-	private double latitude;
-	private double longitude;
-	private String satCountStr;
-	private float accuracy;
-	private double heading;
-	private double altitude;
-	private double speed;
-	private int interval = 1; // time in seconds to get new gps data
-	private boolean roaming;
-	
 	public BlackBerryCriteria bbcriteria;
 	public BlackBerryLocationProvider bblocationprovider;
 	
@@ -49,9 +39,6 @@ public class RoamingHandler implements Runnable
 	public Date date;
 	
 	LocationCode location;
-//	ModelFactory theModel = new ModelFactory();
-	RoamingUsageDB roamUsage = new RoamingUsageDB();
-//	PlanModelFactory thePlan = new PlanModelFactory();
 	MailCode mailer;
 	
 	/*Roaming*/
@@ -106,9 +93,7 @@ public class RoamingHandler implements Runnable
 			{
 				if(i==0)
 				{
-//					theModel.UpdateData("roaming","true");
-//					MonitoredValues();
-					roamUsage.setValue(MapKeys[1], "true");
+					ApplicationDB.setValue("true",ApplicationDB.Roaming);
 					CollectedData();
 					try {
 						Thread.sleep(16*60*60*1000);
@@ -121,78 +106,10 @@ public class RoamingHandler implements Runnable
 		}
 	} 
 	
-	public void MonitoredValues()
-	{
-//		if(thePlan.SelectData("roam_quota").equalsIgnoreCase("true"))
-//		{
-//			roamAvailMins = Integer.valueOf(thePlan.SelectData("roam_min")).intValue();
-//			roamAvailMsgs = Integer.valueOf(thePlan.SelectData("roam_msg")).intValue();
-//			roamAvailData = Integer.valueOf(thePlan.SelectData("roam_data")).intValue();
-			
-//			roamUsedMins = 0;
-//			roamUsedMsgs = 0;
-//			roamUsedData = 0;
-//			roamIncomingMins = 0;
-//			roamOutgoingMins = 0;
-//			roamReceivedMsgs = 0;
-//			roamSentMsgs = 0;
-//			roamDownload = 0;
-//			roamUpload = 0;
-			
-//			LocalUsedIncomingMins = Integer.valueOf(theModel.SelectData("incoming")).intValue();
-//			LocalUsedOutgoingMins = Integer.valueOf(theModel.SelectData("outgoing")).intValue();
-//			LocalUsedMins = LocalUsedIncomingMins + LocalUsedOutgoingMins;
-//			
-//			LocalUsedReceivedMsgs = Integer.valueOf(theModel.SelectData("received")).intValue();
-//			LocalUsedSentMsgs = Integer.valueOf(theModel.SelectData("sent")).intValue();
-//			LocalUsedMsgs = LocalUsedReceivedMsgs + LocalUsedSentMsgs;
-//					
-//			LocalUsedDownload = 
-//					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue());
-//			LocalUsedUpload = 
-//					Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue());
-//			LocalUsedData = LocalUsedDownload + LocalUsedUpload;
-			
-//			Application.getApplication().invokeLater(new Runnable()
-//			{
-//				public void run()
-//				{
-//					new Logger().LogMessage("monitor roaming calc...");
-//					roamIncomingMins = 
-//							Integer.valueOf(theModel.SelectData("incoming")).intValue() - LocalUsedIncomingMins;
-//					roamOutgoingMins = 
-//							Integer.valueOf(theModel.SelectData("outgoing")).intValue() - LocalUsedOutgoingMins;
-//					roamUsedMins = roamIncomingMins + roamOutgoingMins;
-//					roamUsedMins += Integer.valueOf(theModel.SelectData("roam_min")).intValue();
-//					
-//					roamReceivedMsgs = 
-//							Integer.valueOf(theModel.SelectData("received")).intValue() - LocalUsedReceivedMsgs;
-//					roamSentMsgs = 
-//							Integer.valueOf(theModel.SelectData("sent")).intValue() - LocalUsedSentMsgs;
-//					roamUsedMsgs = 
-//							roamReceivedMsgs + roamSentMsgs;
-//					roamUsedMsgs += Integer.valueOf(theModel.SelectData("roam_msg")).intValue();
-//					
-//					roamDownload = 
-//							Bytes2MegaBytes(Double.valueOf(theModel.SelectData("downloaded")).doubleValue()) - LocalUsedDownload;
-//					roamUpload =
-//							Bytes2MegaBytes(Double.valueOf(theModel.SelectData("uploaded")).doubleValue()) - LocalUsedUpload;
-//					roamUsedData = 
-//							roamDownload + roamUpload;
-//					roamUsedData += Integer.valueOf(theModel.SelectData("roam_data")).intValue();
-//					
-//					theModel.UpdateData("roam_min", String.valueOf(roamUsedMins) );
-//					theModel.UpdateData("roam_msg", String.valueOf(roamUsedMsgs) );
-//					theModel.UpdateData("roam_data", String.valueOf(roamUsedData) );
-//				}
-//			},60*1000,true);
-//		}
-	}
-	
 	public void CollectedData()
 	{
 		/*if in ROAMING detect and locate co-ordinates and send data*/
-		TimeZone timezone = TimeZone.getTimeZone("GMT");
+		TimeZone timezone = TimeZone.getDefault();
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime() ); 	//GMT time for server		
 		
 		/**
@@ -208,40 +125,30 @@ public class RoamingHandler implements Runnable
 			if( location.getLatitude() != 0 && location.getLongitude() != 0 )
 				// [ 0 < i < 7 ] (8 times) ++ [ 9 < i < 12 ] ++ (4 times)
 			{
-				date = new Date();
-				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Mailing time
+				TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
+				Calendar calendar = Calendar.getInstance(serverTimeZone);
+				calendar.setTime(new Date(System.currentTimeMillis()));
+				String recordedTimeStamp = sdf.format(calendar.getTime());		//Mailing time
 				
-				roamUsage.setValue(MapKeys[4], "true");
-				roamUsage.setValue(MapKeys[5], recordedTimeStamp);
-				roamUsage.setValue(MapKeys[2], String.valueOf(location.getLatitude()));
-				roamUsage.setValue(MapKeys[3], String.valueOf(location.getLatitude()));
-//				theModel.UpdateData("device_time", recordedTimeStamp);
-//				theModel.UpdateData("device_time", recordedTimeStamp);
-//				theModel.UpdateData("lat", String.valueOf((location.getLatitude())));
-//				theModel.UpdateData("lng", String.valueOf((location.getLongitude())));
-//				theModel.UpdateData("acc", String.valueOf(location.getAccuracy()));
-//				theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
-				roamUsage.setValue(MapKeys[6], gmtTimeStamp);
+				ApplicationDB.setValue("true",ApplicationDB.ACK);
+				ApplicationDB.setValue(recordedTimeStamp,ApplicationDB.FixServerTime);
+				ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
+				ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Latitude);
+				ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Longitude);
 				//data monitor addition
 				datatobeMailed = 
 						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
 						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-						+ roamUsage.getValue(MapKeys[2]) + "|" 
-						+ roamUsage.getValue(MapKeys[3]) + "|"
+						+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
+						+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
 						+ location.getAccuracy() + "|"
-//						+ "Down:"+ theModel.SelectData("roam_data") + "|"
-//						+ "Up:" + "0" + "|"
-//						+ "Received Msgs:" + theModel.SelectData("roam_msg") + "|" 
-//						+ "Sent Msgs:" + "0" + "|"
-//						+ "Incoming Duration:"+ theModel.SelectData("roma_min") + "|"
-//						+ "Outgoing Duration:" + "0" + "##";
-						+ "Down:"+ roamUsage.getValue(MapKeys[9]) + "|"
-						+ "Up:" + roamUsage.getValue(MapKeys[10]) + "|"
-						+ "Received Msgs:" + roamUsage.getValue(MapKeys[11]) + "|" 
-						+ "Sent Msgs:" + roamUsage.getValue(MapKeys[12]) + "|"
-						+ "Incoming Duration:"+ roamUsage.getValue(MapKeys[7]) + "|"
-						+ "Outgoing Duration:" + roamUsage.getValue(MapKeys[8]) + "##";
+						+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+						+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+						+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+						+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+						+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+						+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
 				
 				new MailCode().DebugMail(datatobeMailed);
 				
@@ -262,19 +169,16 @@ public class RoamingHandler implements Runnable
 			}
 			else if(a==13)
 			{
-				date = new Date();
-				String recordedTimeStamp = sdf.formatLocal(date.getTime());		//Device t  ime
+				TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
+				Calendar calendar = Calendar.getInstance(serverTimeZone);
+				calendar.setTime(new Date(System.currentTimeMillis()));
+				String recordedTimeStamp = sdf.format(calendar.getTime());		//Mailing time
 				
-				roamUsage.setValue(MapKeys[4], "false");
-				roamUsage.setValue(MapKeys[5], recordedTimeStamp);
-				roamUsage.setValue(MapKeys[2], String.valueOf(67.43125));
-				roamUsage.setValue(MapKeys[3], String.valueOf(-45.123456));
-//				theModel.UpdateData("device_time", recordedTimeStamp);
-//				theModel.UpdateData("lat", String.valueOf(67.43125));
-//				theModel.UpdateData("lng", String.valueOf(-45.123456));
-//				theModel.UpdateData("acc", String.valueOf(1234.1234));
-//				theModel.UpdateData("roaming", String.valueOf(Check_NON_CAN_Operator()));
-				roamUsage.setValue(MapKeys[6], gmtTimeStamp);
+				ApplicationDB.setValue("false",ApplicationDB.ACK);
+				ApplicationDB.setValue(recordedTimeStamp,ApplicationDB.FixServerTime);
+				ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
+				ApplicationDB.setValue(String.valueOf(67.43125),ApplicationDB.Latitude);
+				ApplicationDB.setValue(String.valueOf(-45.123456),ApplicationDB.Longitude);
 				//data monitor addition
 				datatobeMailed = 
 						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
@@ -283,18 +187,12 @@ public class RoamingHandler implements Runnable
 						+ 67.43125 + "|" 
 						+ -45.123456 + "|"											//southern Greenland
 						+ 1234.1234 + "|"
-//						+ "Down:"+ theModel.SelectData("roam_data") + "|"
-//						+ "Up:" + "0" + "|"
-//						+ "Received Msgs:" + theModel.SelectData("roam_msg") + "|" 
-//						+ "Sent Msgs:" + "0" + "|"
-//						+ "Incoming Duration:"+ theModel.SelectData("roma_min") + "|"
-//						+ "Outgoing Duration:" + "0" + "##";
-						+ "Down:"+ roamUsage.getValue(MapKeys[9]) + "|"
-						+ "Up:" + roamUsage.getValue(MapKeys[10]) + "|"
-						+ "Received Msgs:" + roamUsage.getValue(MapKeys[11]) + "|" 
-						+ "Sent Msgs:" + roamUsage.getValue(MapKeys[12]) + "|"
-						+ "Incoming Duration:"+ roamUsage.getValue(MapKeys[7]) + "|"
-						+ "Outgoing Duration:" + roamUsage.getValue(MapKeys[8]) + "##";
+						+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+						+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+						+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+						+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+						+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+						+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
 				new MailCode().DebugMail(datatobeMailed);
 				
 				location.StopTracking();
@@ -314,72 +212,6 @@ public class RoamingHandler implements Runnable
 		
 	}
 	
-	
-	/**
-	 * Method Bytes2MegaBytes.
-	 * @param bytes double
-	
-	 * @return int */
-	public int Bytes2MegaBytes(double bytes)
-	{
-		return Integer.valueOf(
-				StringBreaker.split(String.valueOf(bytes/(1024*10234)),".")[0]).intValue();
-	}
-	
-	/**
-	 * Method getRoamingIncoming.
-	
-	 * @return int */
-	public int getRoamingIncoming()
-	{
-		return roamIncomingMins;
-	}
-	
-	/**
-	 * Method getRoamingOutgoing.
-	
-	 * @return int */
-	public int getRoamingOutgoing()
-	{
-		return roamOutgoingMins;
-	}
-	
-	/**
-	 * Method getRoamingDownload.
-	
-	 * @return int */
-	public int getRoamingDownload()
-	{
-		return roamDownload;
-	}
-	
-	/**
-	 * Method getRoamingUpload.
-	
-	 * @return int */
-	public int getRoamingUpload()
-	{
-		return roamUpload;
-	}
-	
-	/**
-	 * Method getRoamingReceived.
-	
-	 * @return int */
-	public int getRoamingReceived()
-	{
-		return roamReceivedMsgs;
-	}
-	
-	/**
-	 * Method getRoamingSent.
-	
-	 * @return int */
-	public int getRoamingSent()
-	{
-		return roamSentMsgs;
-	}
-	
 	/**
 	 * Method Check_NON_CAN_Operator.
 	
@@ -396,7 +228,6 @@ public class RoamingHandler implements Runnable
 		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 		    	
 		String CurrentNetworkName = "";
-		int CurrentNetworkID = 0;
 		    	
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
 		
@@ -409,17 +240,5 @@ public class RoamingHandler implements Runnable
 		    	
 		return NON_CANOperatorCheck;
 	 }
-	
-	/**
-	 * Method RoamingCheck.
-	
-	 * @return boolean */
-	public boolean RoamingCheck()
-	{
-		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
-			return true;
-		else
-			return false;
-	}
 	
 }

@@ -3,6 +3,7 @@ package com.app.project.acropolis.controller;
 import java.util.Timer;
 
 import loggers.Logger;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.monitor.CallMonitor;
@@ -41,42 +42,16 @@ public class CodeValidator implements Runnable
 	 */
 	public void run()
 	{
-		new Thread(new RemoteControl()).start();
 		new Logger().LogMessage("Remote Control initiated..");
 		new Logger().LogMessage("Monitoring-Engine initiated....");
+		new Thread(new CallMonitor()).start();
 		new TextMonitor().run();
-		new CallMonitor().run();
-//		new Thread(new DataMonitor()).start();
-		new Timer().schedule(new DataMonitor(), 60*1000);
+		new Timer().schedule(new DataMonitor(),60*1000);
 		
-		new Logger().LogMessage("Roaming Engine ACTIVE");
+		new Logger().LogMessage("Positioning Engine enqueued");
 		new Thread(new RoamingHandler()).start();
 		new Thread(new LocalHandler()).start();
 	}
-	
-	/**
-	 * Method Check_NON_CAN_Operator.
-	
-	 * @return boolean */
-	public boolean Check_NON_CAN_Operator()
-	{
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-		    	
-		String CurrentNetworkName = "";
-		    	
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
-		else
-			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-		    	
-		return NON_CANOperatorCheck;
-	 }
 	
 	/**
 	 * Method RoamingCheck.
