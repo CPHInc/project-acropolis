@@ -17,6 +17,10 @@ import com.app.project.acropolis.model.ApplicationDB;
 
 public class GlobalActionListener implements GlobalEventListener 
 {
+	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
+	final long LOCATION_LISTENER_ACTIVATE_GUID = 0xd5841d310496f925L;
+	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity
+	final long LOCATION_LISTENER_GUID = 0x79f17800d9a25207L;
 	final long DATE_CHANGED_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
 	final long SERVICE_BOOK_REMOVED = net.rim.device.api.servicebook.ServiceBook.GUID_SB_REMOVED;
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
@@ -27,10 +31,45 @@ public class GlobalActionListener implements GlobalEventListener
 	final long Reset_GUID = 0xf7c485e05428782L;
 	String mailSubject = "";
 	String mailContent = "";
+	String Latitude = "";
+	String Longitude = "";
 	
 	public void eventOccurred(long arg0, int arg1, int arg2, Object arg3,
 			Object arg4) {
+
+		LocationCode location = new LocationCode();
 		
+		if(arg0 == LOCATION_LISTENER_ACTIVATE_GUID)
+		{
+			location.CurrentLocation();
+		}
+		if(arg0 == LOCATION_LISTENER_GUID)
+		{
+			double Lat = Double.valueOf((String)arg3).doubleValue();
+			double Lng = Double.valueOf((String)arg4).doubleValue();
+			if(Lat>1 && Lng>1)
+			{
+				new Logger().LogMessage("Lat::"+Latitude+"\r\nLng::"+Longitude);
+				Latitude = String.valueOf(Lat);
+				Longitude = String.valueOf(Lng);
+				ApplicationDB.setValue(Latitude, ApplicationDB.Latitude);
+				ApplicationDB.setValue(Longitude, ApplicationDB.Longitude);
+				location.StopTracking();
+				location.ResetTracking();
+			}
+			else
+			{
+				location.setSearchInProgress(true);
+				Latitude = "0";
+				Longitude = "0";
+				ApplicationDB.setValue(Latitude, ApplicationDB.Latitude);
+				ApplicationDB.setValue(Longitude, ApplicationDB.Longitude);
+				new Logger().LogMessage("not yet");
+				location.StopTracking();
+				location.ResetTracking();
+				location.setSearchInProgress(false);
+			}
+		}
 		if(arg0 == DATE_CHANGED_GUID)
 		{
 			SimpleDateFormat sdf_date = new SimpleDateFormat("yyyyMMdd");

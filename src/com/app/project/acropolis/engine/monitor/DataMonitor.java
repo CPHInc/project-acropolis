@@ -9,8 +9,6 @@ import net.rim.device.api.system.WLANInfo;
 import net.rim.device.api.system.WLANListener;
 
 import com.app.project.acropolis.model.ApplicationDB;
-import com.app.project.acropolis.model.ApplicationStoreDetails;
-import com.app.project.acropolis.model.RoamingUsageDB;
 
 /**
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -98,14 +96,8 @@ public class DataMonitor extends TimerTask
 				public void networkConnected() 
 				{
 					WIFI_Connected = true;
-					if(RadioInfo.getNumberOfPacketsReceived() >= MDS_download)
-						wifi_down = RadioInfo.getNumberOfPacketsReceived() - MDS_download;
-					else
-						wifi_down = MDS_download - RadioInfo.getNumberOfPacketsReceived();
-					if(RadioInfo.getNumberOfPacketsSent() >= MDS_upload)
-						wifi_up = RadioInfo.getNumberOfPacketsSent() - MDS_upload;
-					else
-						wifi_up = MDS_upload - RadioInfo.getNumberOfPacketsSent();
+					wifi_down = RadioInfo.getNumberOfPacketsReceived() - MDS_download;
+					wifi_up = RadioInfo.getNumberOfPacketsSent() - MDS_upload;
 					new Logger().LogMessage("WLAN Download::"+wifi_down);
 					new Logger().LogMessage("WLAN Upload::"+wifi_up);
 				}

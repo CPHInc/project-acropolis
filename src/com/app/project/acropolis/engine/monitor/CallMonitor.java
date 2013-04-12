@@ -11,7 +11,7 @@ import com.app.project.acropolis.model.ApplicationDB;
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  * @version $Revision: 1.0 $
  */
-public class CallMonitor implements Runnable
+public class CallMonitor //implements Runnable
 {
 	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
 			"FixAck","FixDeviceTime","FixServerTime","Incoming",
@@ -35,16 +35,17 @@ public class CallMonitor implements Runnable
 	public CallMonitor()
 	{
 		new Logger().LogMessage(">CallMonitor<");
+		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
 	}
 	
 	/**
 	 * Method run.
 	 * @see java.lang.Runnable#run()
 	 */
-	public void run()
-	{
-		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
-	}
+//	public void run()
+//	{
+//		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
+//	}
 	
 	/**
 	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -267,18 +268,15 @@ public class CallMonitor implements Runnable
 		 * @see net.rim.blackberry.api.phone.PhoneListener#conferenceCallDisconnected(int) */
 		public void conferenceCallDisconnected(int arg0) {
 			// TODO Auto-generated method stub
-			
 		}
 		
 	}
 	
 	/**
      * Convert seconds to minutes
-    
-    
      * @param seconds int
 	 * @return Minutes */
-    public int Seconds2Minutes(int seconds)
+    protected int Seconds2Minutes(int seconds)
     {
     	int minutes=0;
     	if(seconds == 0)

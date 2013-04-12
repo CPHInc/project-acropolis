@@ -471,11 +471,8 @@ public final class UIScreen extends MainScreen
     	{
     		/* * Local * */
 			//Java AutoBoxing used for parsing String to int(via Integer) 
-    		new Logger().LogMessage("test1");
     		int incomingMin = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalIncoming)).intValue();
-    		new Logger().LogMessage("test2");
 			int outgoingMin = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalOutgoing)).intValue();
-			new Logger().LogMessage("test3");
     		int localTotalMinutes = incomingMin+outgoingMin;
 			int rcvMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived))).intValue();
 			int sntMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent))).intValue();

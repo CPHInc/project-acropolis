@@ -23,7 +23,7 @@ import com.app.project.acropolis.model.ApplicationDB;
  * @version $Revision: 1.0 $
  */
 
-public class TextMonitor implements Runnable
+public class TextMonitor //implements Runnable
 {
 	
 	/**
@@ -79,14 +79,6 @@ public class TextMonitor implements Runnable
 	public TextMonitor()
 	{
 		new Logger().LogMessage(">TextMonitor<");
-	}
-	
-	/**
-	 * Method run.
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run()
-	{
 		HandleMessageConnection();
 	}
 	
