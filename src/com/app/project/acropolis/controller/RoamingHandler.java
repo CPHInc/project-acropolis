@@ -9,6 +9,7 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
@@ -79,28 +80,36 @@ public class RoamingHandler implements Runnable
 	 */
 	public void run() 
 	{
-		location = new LocationCode();
-		location.run();
-		int i=0;
 		for(;;)
 		{
-			try {
-				Thread.sleep(10*1000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
 			if(Check_NON_CAN_Operator())
 			{
-				if(i==0)
+				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
-					ApplicationDB.setValue("true",ApplicationDB.Roaming);
-					CollectedData();
-					try {
-						Thread.sleep(16*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					i++;
+					case 0:	//Radio OFF
+					{
+						try {
+							new Logger().LogMessage("Radio OFF");
+							new Logger().LogMessage("woke up ..");
+							Thread.sleep(1*20*1000);
+							new Logger().LogMessage("sleeping ..");
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					};
+					case 1:
+					{
+						new Logger().LogMessage("Radio ON");
+						new Logger().LogMessage("woke up ..");
+						ApplicationDB.setValue("true",ApplicationDB.Roaming);
+						CollectedData();
+						new Logger().LogMessage("sleeping ..");
+						try {
+							Thread.sleep(16*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					};
 				}
 			}
 		}
@@ -121,90 +130,96 @@ public class RoamingHandler implements Runnable
 		
 		for(int a=0 ; a<=14 ; a++)
 		{
-			new Logger().LogMessage("Operator::"+RadioInfo.getCurrentNetworkName());
-			if( location.getLatitude() != 0 && location.getLongitude() != 0 )
+			synchronized(Application.getApplication().getAppEventLock())
 			{
-				TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
-				Calendar calendar = Calendar.getInstance(serverTimeZone);
-				calendar.setTime(new Date(System.currentTimeMillis()));
-				String recordedTimeStamp = sdf.format(calendar.getTime());		//Mailing time
-				
-				ApplicationDB.setValue("true",ApplicationDB.ACK);
-				ApplicationDB.setValue(recordedTimeStamp,ApplicationDB.FixServerTime);
-				ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
-				ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Latitude);
-				ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Longitude);
-				//data monitor addition
-				datatobeMailed = 
-						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-						+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
-						+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
-						+ location.getAccuracy() + "|"
-						+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
-						+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
-						+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
-						+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
-						+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
-						+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
-				
-				new MailCode().DebugMail(datatobeMailed);
-				
-				location.StopTracking();
-				location.ResetTracking();
-				
-				break;
-			}
-			else if(a==8)
-			{
-				try {
-					location.PauseTracking(20*1000);
-					location.ResumeTracking();
-					Thread.sleep(30*1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			else if(a==13)
-			{
-				TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
-				Calendar calendar = Calendar.getInstance(serverTimeZone);
-				calendar.setTime(new Date(System.currentTimeMillis()));
-				String recordedTimeStamp = sdf.format(calendar.getTime());		//Mailing time
-				
-				ApplicationDB.setValue("false",ApplicationDB.ACK);
-				ApplicationDB.setValue(recordedTimeStamp,ApplicationDB.FixServerTime);
-				ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
-				ApplicationDB.setValue(String.valueOf(67.43125),ApplicationDB.Latitude);
-				ApplicationDB.setValue(String.valueOf(-45.123456),ApplicationDB.Longitude);
-				//data monitor addition
-				datatobeMailed = 
-						"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-						+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-						+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-						+ 67.43125 + "|" 
-						+ -45.123456 + "|"											//southern Greenland
-						+ 1234.1234 + "|"
-						+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
-						+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
-						+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
-						+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
-						+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
-						+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
-				new MailCode().DebugMail(datatobeMailed);
-				
-				location.StopTracking();
-				location.ResetTracking();
-				
-				break;
-			}
-			else
-			{
-				try {
-					Thread.sleep(30*1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if(LocationCode.Check_NON_CAN_Operator())
+				{
+					new Logger().LogMessage("Operator::"+RadioInfo.getCurrentNetworkName());
+					if( LocationCode.getLatitude() != 0 && LocationCode.getLongitude() != 0 )
+					{
+						TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
+						Calendar calendar = Calendar.getInstance(serverTimeZone);
+						calendar.setTime(new Date(System.currentTimeMillis()));
+						String recordedTimeStamp = sdf.format(calendar.getTime());		//Mailing time
+						
+						ApplicationDB.setValue("true",ApplicationDB.ACK);
+						ApplicationDB.setValue(recordedTimeStamp,ApplicationDB.FixServerTime);
+						ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
+						ApplicationDB.setValue(String.valueOf(LocationCode.getLatitude()),ApplicationDB.Latitude);
+						ApplicationDB.setValue(String.valueOf(LocationCode.getLatitude()),ApplicationDB.Longitude);
+						//data monitor addition
+						datatobeMailed = 
+								"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+								+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+								+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+								+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
+								+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
+								+ LocationCode.getAccuracy() + "|"
+								+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+								+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+								+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+								+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+								+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+								+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
+						
+						new MailCode().DebugMail(datatobeMailed);
+						
+		//				location.StopTracking();
+						LocationCode.ResetTracking();
+						
+						break;
+					}
+					else if(a==8)
+					{
+						try {
+		//					location.PauseTracking(20*1000);
+		//					location.ResumeTracking();
+							Thread.sleep(30*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					else if(a==13)
+					{
+						TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
+						Calendar calendar = Calendar.getInstance(serverTimeZone);
+						calendar.setTime(new Date(System.currentTimeMillis()));
+						String recordedTimeStamp = sdf.format(calendar.getTime());		//Mailing time
+						
+						ApplicationDB.setValue("false",ApplicationDB.ACK);
+						ApplicationDB.setValue(recordedTimeStamp,ApplicationDB.FixServerTime);
+						ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
+						ApplicationDB.setValue(String.valueOf(67.43125),ApplicationDB.Latitude);
+						ApplicationDB.setValue(String.valueOf(-45.123456),ApplicationDB.Longitude);
+						//data monitor addition
+						datatobeMailed = 
+								"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+								+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+								+ String.valueOf(LocationCode.Check_NON_CAN_Operator()) + "|"
+								+ 67.43125 + "|" 
+								+ -45.123456 + "|"											//southern Greenland
+								+ 1234.1234 + "|"
+								+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+								+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+								+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+								+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+								+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+								+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
+						new MailCode().DebugMail(datatobeMailed);
+						
+		//				location.StopTracking();
+						LocationCode.ResetTracking();
+						
+						break;
+					}
+					else
+					{
+						try {
+							Thread.sleep(30*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		}

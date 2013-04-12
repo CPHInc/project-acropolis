@@ -13,9 +13,6 @@ import javax.microedition.location.QualifiedCoordinates;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
-import net.rim.device.api.gps.BlackBerryCriteria;
-import net.rim.device.api.gps.BlackBerryLocationProvider;
-import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.RadioInfo;
 
@@ -28,22 +25,21 @@ import com.app.project.acropolis.engine.mail.MailCode;
  */
 
 public class LocationCode implements Runnable{
-	public String errorstream;
-	private double latitude;
-	private double longitude;
-	private String satCountStr;
-	private float accuracy;
-	private double heading;
-	private double altitude;
-	private double speed;
-	private int interval = 1; // time in seconds to get new gps data
-	private boolean roaming;
 	
-	public BlackBerryCriteria bbcriteria;
-	public BlackBerryLocationProvider bblocationprovider;
+	public static int interval = 1;
+	public static String errorstream;
+	private static double latitude;
+	private static double longitude;
+	private static float accuracy;
+	private static boolean roaming;
 	
-	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-	public Date date;
+//	public BlackBerryCriteria bbcriteria;
+//	public BlackBerryLocationProvider bblocationprovider;
+	public static Criteria bbcriteria;
+	public static LocationProvider bblocationprovider;
+	
+	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+	public static Date date;
 	
 	public static boolean NON_CANOperatorCheck = true;
 	public final static String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
@@ -61,25 +57,32 @@ public class LocationCode implements Runnable{
 	
 	/**
 	 * Method CurrentLocation.
-	
 	 * @return boolean */
-	public boolean CurrentLocation() {
+	public static boolean CurrentLocation() {
 		boolean retval = true;
 		try {
 			new Logger().LogMessage("Autonomous scanning initiated...");
-			bbcriteria = new BlackBerryCriteria(GPSInfo.getDefaultGPSMode());
-			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
-			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
-//			bbcriteria.setFailoverMode(GPSInfo.GPS_MODE_CELLSITE, 2, 120);
-			bbcriteria.setCostAllowed(true);		//default "TRUE" dependent on device-cum-operator 
-			bbcriteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
+//			bbcriteria = new BlackBerryCriteria(GPSInfo.getDefaultGPSMode());
+			bbcriteria = new Criteria();	
+			/*
+			 *	HorizontalAccuracy	N/A			N/A				No_Req
+			 *	VerticalAccuracy 	N/A			N/A				No_Req
+			 *	Cost				false		true			true
+			 *	Power				N/A			Med/High/No_Req	Low
+			 *						Autonomous	Assisted		Cellsite
+			 */
+//			bbcriteria.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
+//			bbcriteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
+			bbcriteria.setCostAllowed(false);		//default "TRUE" dependent on device-cum-operator
+//			bbcriteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_HIGH);
+			//applicable in net.rim.device.api.gps.BlackBerryCriteria
 			//HIGH == autonomous
 			//MEDIUM == assist
 			//LOW == cell site
-			
-//			LocationProvider locationprovider = LocationProvider.getInstance(null);
-			bblocationprovider = (BlackBerryLocationProvider) LocationProvider.getInstance(bbcriteria);
-			if(bblocationprovider.getState() == BlackBerryLocationProvider.AVAILABLE)
+			bbcriteria.setAddressInfoRequired(true);
+//			bblocationprovider = (BlackBerryLocationProvider) LocationProvider.getInstance(bbcriteria);
+			bblocationprovider = (LocationProvider) LocationProvider.getInstance(bbcriteria);
+			if(bblocationprovider.getState() == LocationProvider.AVAILABLE)
 			{
 				bblocationprovider.setLocationListener(new LocationListenerActivity(), interval, 1, 1);
 				retval = true;
@@ -113,19 +116,17 @@ public class LocationCode implements Runnable{
 	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
 	 * @version $Revision: 1.0 $
 	 */
-	public class LocationListenerActivity implements LocationListener {
+	public static class LocationListenerActivity implements LocationListener {
 		/**
 		 * Method locationUpdated.
 		 * @param provider LocationProvider
 		 * @param location Location
-		
 		 * @see javax.microedition.location.LocationListener#locationUpdated(LocationProvider, Location) */
 		public void locationUpdated(LocationProvider provider, Location location) {
 			if (location.isValid()) {
 				longitude = location.getQualifiedCoordinates().getLongitude();
 				latitude = location.getQualifiedCoordinates().getLatitude();
-				speed = location.getSpeed();
- 
+				new Logger().LogMessage("Lat::"+latitude+"\r\nLon::"+longitude);
 				// this is to get the accuracy of the GPS Cords
 				QualifiedCoordinates qc = location.getQualifiedCoordinates();
 				accuracy = qc.getHorizontalAccuracy();
@@ -147,26 +148,26 @@ public class LocationCode implements Runnable{
 		}
 	}
 	
-	/**
-	 * Method PauseTracking.
-	 * @param interval int
-	 */
-	public void PauseTracking(int interval)
-	{
-		bblocationprovider.pauseLocationTracking(interval);
-	}
+//	/**
+//	 * Method PauseTracking.
+//	 * @param interval int
+//	 */
+//	public void PauseTracking(int interval)
+//	{
+//		bblocationprovider.pauseLocationTracking(interval);
+//	}
+//	
+//	public void ResumeTracking()
+//	{
+//		bblocationprovider.resumeLocationTracking();
+//	}
+//	
+//	public void StopTracking()
+//	{
+//		bblocationprovider.stopLocationTracking();
+//	}
 	
-	public void ResumeTracking()
-	{
-		bblocationprovider.resumeLocationTracking();
-	}
-	
-	public void StopTracking()
-	{
-		bblocationprovider.stopLocationTracking();
-	}
-	
-	public void ResetTracking()
+	public static void ResetTracking()
 	{
 		bblocationprovider.reset();
 	}
@@ -175,7 +176,7 @@ public class LocationCode implements Runnable{
 	 * Method getLatitude.
 	
 	 * @return double */
-	public double getLatitude()
+	public static double getLatitude()
 	{
 		return latitude;
 	}
@@ -184,7 +185,7 @@ public class LocationCode implements Runnable{
 	 * Method getLongitude.
 	
 	 * @return double */
-	public double getLongitude()
+	public static double getLongitude()
 	{
 		return longitude;
 	}
@@ -193,7 +194,7 @@ public class LocationCode implements Runnable{
 	 * Method getAccuracy.
 	
 	 * @return double */
-	public double getAccuracy()
+	public static double getAccuracy()
 	{
 		return accuracy;
 	}

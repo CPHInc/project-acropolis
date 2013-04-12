@@ -1,32 +1,13 @@
 package com.app.project.acropolis.UI;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
-import javax.microedition.io.file.FileSystemRegistry;
-
-import loggers.DBLogger;
 import loggers.Logger;
 import net.rim.blackberry.api.mail.Session;
 import net.rim.blackberry.api.phone.Phone;
-import net.rim.device.api.database.Database;
-import net.rim.device.api.database.DatabaseException;
-import net.rim.device.api.database.DatabaseFactory;
-import net.rim.device.api.io.IDNAException;
-import net.rim.device.api.io.MalformedURIException;
-import net.rim.device.api.io.URI;
 import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationManager;
-import net.rim.device.api.system.DeviceInfo;
-import net.rim.device.api.system.SystemListener2;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.GlobalActionListener;

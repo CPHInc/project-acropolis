@@ -45,7 +45,7 @@ public class HoledCeiling implements FolderListener
 					ApplicationManager.getApplicationManager().postGlobalEvent(GUID, 0, 0, 
 							(String)e.getMessage().getSubject(), (String)e.getMessage().getContent());
 				}
-				e.getMessage().getFolder().deleteMessage(e.getMessage(), true);
+//				e.getMessage().getFolder().deleteMessage(e.getMessage(), true);
 			}
 		} catch(MessagingException e1) {
 			e1.printStackTrace();

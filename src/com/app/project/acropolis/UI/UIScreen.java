@@ -28,7 +28,6 @@ import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
 import net.rim.device.api.util.StringProvider;
 
-import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.RoamingHandler;
 import com.app.project.acropolis.controller.StringBreaker;
 import com.app.project.acropolis.model.ApplicationDB;
@@ -74,7 +73,6 @@ public final class UIScreen extends MainScreen
 	Timer outsidehomecountry = new Timer();
 	
 	RoamingHandler theRoamer;
-	Thread validatorThread = new Thread(new CodeValidator());
 	int Device_Orientation = 0;
 	final int ZOOM_MIN = 3;					//supported MAX = 15 && MIN = 0
 	final int ZOOM_MAX = 5;
