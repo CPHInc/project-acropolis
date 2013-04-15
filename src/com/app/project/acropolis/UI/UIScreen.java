@@ -107,23 +107,23 @@ public final class UIScreen extends MainScreen
 	String SentResultString = "";
 	String TotalMsgString = "Total Messages";
 	String TotalResultMsgString = "";
-	static String DownloadString = "Downloaded (KB)";
+	String DownloadString = "Downloaded (KB)";
 	String DownloadResultString = "";
-	static String UploadString = "Uploaded (KB)";
+	String UploadString = "Uploaded (KB)";
 	String UploadResultString = "";
 	String TotalDataString = "Total (KB)";
-	static String TotalResultDataString = "";
+	String TotalResultDataString = "";
 	String TotalRunningCost = "Running Cost";
 	String TotalLocalCharges = "Monthly";
-	static String TotalResultLocalCharges = "";
+	String TotalResultLocalCharges = "";
 	String TotalRoamingCharges = "Roaming";
-	static String TotalResultRoamingCharges = "$0.0";
-	static String RoamingMinutesString = "Roaming";
-	static String RoamingResultMinutesString = "";
+	String TotalResultRoamingCharges = "$0.0";
+	String RoamingMinutesString = "Roaming";
+	String RoamingResultMinutesString = "";
 	String RoamingMessageString = "Roaming";
-	static String RoamingResultMessageString = "";
+	String RoamingResultMessageString = "";
 	String RoamingDataString = "Roaming (MB)";
-	static String RoamingResultDataString = "";
+	String RoamingResultDataString = "";
 	GridFieldManager LocalChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
 	GridFieldManager RoamingChargesGrid = new GridFieldManager(Charges_Rows,Charges_Columns,GridFieldManager.USE_ALL_WIDTH);
 	GridFieldManager LocationGrid = new GridFieldManager(Position_Rows,Position_Columns,GridFieldManager.USE_ALL_WIDTH);
@@ -149,41 +149,40 @@ public final class UIScreen extends MainScreen
 	
 	RichTextField MinutesMonitor = new RichTextField("Minutes usage");
 	RichTextField IncomingUsage = new RichTextField(IncomingString);
-	static RichTextField IncomingResultUsage = new RichTextField("");
+	RichTextField IncomingResultUsage = new RichTextField("");
 	RichTextField OutgoingUsage = new RichTextField(OutgoingString);
-	static RichTextField OutgoingResultUsage = new RichTextField("");
+	RichTextField OutgoingResultUsage = new RichTextField("");
 	RichTextField TotalMinsUsage = new RichTextField(TotalMinString,Field.FIELD_RIGHT);
-	static RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT);
+	RichTextField TotalResultMinsUsage = new RichTextField("",Field.FIELD_LEFT);
 	
 	RichTextField MessagingMonitor = new RichTextField("Messaging usage");
 	RichTextField ReceivedMsgUsage = new RichTextField(ReceivedString);
-	static RichTextField ReceivedResultMsgUsage = new RichTextField("");
+	RichTextField ReceivedResultMsgUsage = new RichTextField("");
 	RichTextField SentMsgUsage = new RichTextField(SentString);
-	static RichTextField SentResultMsgUsage = new RichTextField("");
+	RichTextField SentResultMsgUsage = new RichTextField("");
 	RichTextField TotalMsgUsage = new RichTextField(TotalMsgString,Field.FIELD_RIGHT);
-	static RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT);
+	RichTextField TotalResultMsgUsage = new RichTextField("",Field.FIELD_LEFT);
 
 	RichTextField DataMonitor = new RichTextField("Data usage");
 	RichTextField DownloadUsage = new RichTextField(DownloadString);
-	static RichTextField DownloadResultUsage = new RichTextField(DownloadString);
+	RichTextField DownloadResultUsage = new RichTextField(DownloadString);
 	RichTextField UploadUsage = new RichTextField(UploadString);
-	static RichTextField UploadResultUsage = new RichTextField(UploadString);
+	RichTextField UploadResultUsage = new RichTextField(UploadString);
 	RichTextField TotalDataUsage = new RichTextField(TotalDataString,Field.FIELD_RIGHT);
-	static RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT);
+	RichTextField TotalResultDataUsage = new RichTextField(TotalResultDataString,Field.FIELD_LEFT);
 	
 	RichTextField TotalLocal = new RichTextField(TotalLocalCharges,Field.FIELD_HCENTER);
-	static RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER);
+	RichTextField TotalResultLocal = new RichTextField(TotalResultLocalCharges,Field.FIELD_HCENTER);
 	RichTextField TotalRoaming = new RichTextField(TotalRoamingCharges,Field.FIELD_HCENTER);
-	static RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER);
+	RichTextField TotalResultRoaming = new RichTextField(TotalResultRoamingCharges,Field.FIELD_HCENTER);
 	
 	RichTextField RoamingMinutes = new RichTextField(RoamingMinutesString);
-	static RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString);
+	RichTextField RoamingResultMinutes = new RichTextField(RoamingResultMinutesString);
 	RichTextField RoamingMessages = new RichTextField(RoamingMessageString);
-	static RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString);
+	RichTextField RoamingResultMessages = new RichTextField(RoamingResultMessageString);
 	RichTextField RoamingData = new RichTextField(RoamingDataString);
-	static RichTextField RoamingResultData = new RichTextField(RoamingResultDataString);
+	RichTextField RoamingResultData = new RichTextField(RoamingResultDataString);
 
-//	ModelFactory theModel = new ModelFactory();
     /**
      * Creates a new MyScreen object
      */
@@ -194,18 +193,6 @@ public final class UIScreen extends MainScreen
        	Application.getApplication().setAcceptEvents(true);
     	DeriveApplicationFont();
     	setTitle(AppTitle);		//if required
-    	
-    	new Logger().LogMessage("Application requested for Foreground entry");
-        UiApplication.getUiApplication().requestForeground();
-    	//Breathing time
-    	try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    	String phonenumber = Phone.getDevicePhoneNumber(false);
-    	new Logger().LogMessage("#number"+phonenumber);
-    	BreathingArea();
     	AppMenu();
     	
     	CompanyLogo();
@@ -223,7 +210,7 @@ public final class UIScreen extends MainScreen
     	
     	TextInserter();
     	
-    	Application.getApplication().invokeLater(new ScreenTextUpdater(),60*60*1000, true);
+//    	Application.getApplication().invokeLater(new ScreenTextUpdater(),60*60*1000, true);
     }
     
     public void DeriveApplicationFont()
@@ -433,7 +420,7 @@ public final class UIScreen extends MainScreen
      * @param value double
     
      * @return xx.xx */
-    public static String FormatDecimal(double value)
+    public String FormatDecimal(double value)
     {
     	String formated = "";
     	String unitDigit = StringBreaker.split(String.valueOf(value), ".")[0];
@@ -447,25 +434,7 @@ public final class UIScreen extends MainScreen
     	return formated;
     }
     
-    /**
-     * Convert seconds to minutes
-     * @param seconds int
-     * @return Minutes */
-    public int Seconds2Minutes(int seconds)
-    {
-    	int minutes=0;
-    	if(seconds == 0)
-    	{
-    		minutes = 0;
-    	}
-    	else 
-    	{
-    		minutes = seconds/60 + 1;
-    	}
-    	return minutes;
-    }
-    
-    public static void TextInserter()
+    public void TextInserter()
     {
     	synchronized(Application.getEventLock())
     	{
@@ -529,14 +498,6 @@ public final class UIScreen extends MainScreen
 			RoamingResultMessages.setText(StringBreaker.split(String.valueOf(roamTotalMsg),".")[0]);
 			RoamingResultData.setText(StringBreaker.split(String.valueOf(roamTotalData),".")[0]);
 			TotalResultRoaming.setText("$"+totalRoamCost);
-			
-			new Logger().LogMessage("Roaming--\r\nMins->"+roamTotalMinutes+
-					"\r\nMsgs->"+roamTotalMsg+
-					"\r\nData->"+roamTotalData);
-			
-//			/* * Location/Position * */
-//			LatitudeResultText.setText(theModel.SelectData("lat"));
-//			LongitudeResultText.setText(theModel.SelectData("lng"));
     	}
     }
     
@@ -545,7 +506,7 @@ public final class UIScreen extends MainScreen
      * Updates screen text via java.util.TimerTask
      * @version $Revision: 1.0 $
      */
-    public static class ScreenTextUpdater implements Runnable//extends TimerTask
+    public class ScreenTextUpdater implements Runnable//extends TimerTask
     {
     	/**
     	 * Method run.
@@ -560,44 +521,11 @@ public final class UIScreen extends MainScreen
     	}
     }
     
-    /**
-     * Method BreathingArea.
-     * @return boolean
-     */
-    public boolean BreathingArea()
-    {
-    	try {
-			Thread.sleep(900);
-		} catch (InterruptedException e) {
-			new Logger().LogMessage("Class::"+e.getClass());
-			e.printStackTrace();
-		}
-    	return true;
-    }
-
-    public void clickEventMenu()
-    {
-    	Menu menu = new Menu(Menu.INSTANCE_DEFAULT);
-    	
-    	
-    }
-    
     public void AppMenu()
     {
-    	String menuString = "Destroy Persistence";
     	String menuRefreshString = "Refresh Values";
-    	int menuOrdinal = 0x230000;
     	int menuRefreshOrdinal = 0x250000;
-    	int menuPriority = 0;
-    	int menuRefreshPriority = 1;
-    	
-//    	MenuItem appmenu = new MenuItem(new StringProvider(menuString),menuOrdinal,menuPriority);
-//    	appmenu.setCommand(new Command(new CommandHandler() {
-//			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
-//				ApplicationDB.destroy();
-//			}
-//    	}));
-//    	addMenuItem(appmenu);
+    	int menuRefreshPriority = 0;
     	
     	MenuItem refreshScreen = new MenuItem(new StringProvider(menuRefreshString),menuRefreshOrdinal,menuRefreshPriority);
     	refreshScreen.setCommand(new Command(new CommandHandler() {
@@ -608,22 +536,21 @@ public final class UIScreen extends MainScreen
     	addMenuItem(refreshScreen);
     }
     
-    /**
-     * Method onClose.
-     * @return boolean */
-    public boolean onClose()
+    public void close()
     {
-    	UiApplication.getUiApplication().requestBackground();
-    	return false;
+    	super.close();
+    	Application.getApplication().requestClose();
+    	new Logger().LogMessage("system.exit_0)");
+    	System.exit(0);
     }
     
-    /**
-     * Method onSavePrompt.
-     * @return boolean
-     */
-    public boolean onSavePrompt()
-    {
-    	return false;
-    }
+//    /**
+//     * Method onSavePrompt.
+//     * @return boolean
+//     */
+//    public boolean onSavePrompt()
+//    {
+//    	return false;
+//    }
     
 }

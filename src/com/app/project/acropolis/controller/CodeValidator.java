@@ -2,8 +2,11 @@ package com.app.project.acropolis.controller;
 
 import java.util.Timer;
 
+import net.rim.blackberry.api.mail.Session;
+
 import loggers.Logger;
 
+import com.app.project.acropolis.engine.mail.HoledCeiling;
 import com.app.project.acropolis.engine.monitor.CallMonitor_ver2;
 import com.app.project.acropolis.engine.monitor.DataMonitor;
 import com.app.project.acropolis.engine.monitor.LocationCode;
@@ -28,12 +31,21 @@ public class CodeValidator implements Runnable
 	 */
 	public void run()
 	{
+		InboxScanner();
 		new Logger().LogMessage("Engine ready steady GOO!!..");
-//		new Thread(new CallMonitor()).start();		//for application permission first run
+//		new CallMonitor();
 		new CallMonitor_ver2();
 		new TextMonitor();
 		new Timer().schedule(new DataMonitor(),60*1000);
 		new Thread(new RoamingHandler()).start();
 		new Thread(new LocalHandler()).start();
 	}
+	
+    public boolean InboxScanner()
+    {
+    	Session.getDefaultInstance().getStore().addFolderListener(new HoledCeiling());
+    	return true;
+    }
+
+	
 }

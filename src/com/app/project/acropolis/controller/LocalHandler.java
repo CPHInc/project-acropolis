@@ -27,9 +27,6 @@ import com.app.project.acropolis.model.ApplicationDB;
  */
 public class LocalHandler implements Runnable
 {
-	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
-	final long LOCATION_ACTIVATE_GUID = 0xd5841d310496f925L;
-	
 	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
 			"FixAck","FixDeviceTime","FixServerTime","Incoming",
 			"Outgoing","Download","Upload","Received","Sent"};
@@ -94,6 +91,8 @@ public class LocalHandler implements Runnable
 				}
 			}
 	}
+//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.HALT
+	final long HALT_LOCATION_LISTENER_GUID = 0xf91f80b240914990L;
 	
 	public void CollectedData()
 	{
@@ -104,14 +103,17 @@ public class LocalHandler implements Runnable
 		/**
 		 * Standard -- fix within 10minutes
 		 */
-		ApplicationManager.getApplicationManager().postGlobalEvent(LOCATION_ACTIVATE_GUID);
+		LocationCode location = new LocationCode();
 		new Logger().LogMessage("location requested");
 		try {
 			Thread.sleep(10*60*1000);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		if(!ApplicationDB.getValue(ApplicationDB.Latitude).equalsIgnoreCase("0"))
+		location.StopTracking();
+		ApplicationManager.getApplicationManager().postGlobalEvent(HALT_LOCATION_LISTENER_GUID);
+		if(!ApplicationDB.getValue(ApplicationDB.Latitude).equalsIgnoreCase("0") || 
+				!ApplicationDB.getValue(ApplicationDB.Latitude).equalsIgnoreCase("0.0") )
 		{
 			new Logger().LogMessage("Operator available::" + RadioInfo.getCurrentNetworkName());
 			TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
@@ -165,50 +167,6 @@ public class LocalHandler implements Runnable
 					+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
 			new MailCode().DebugMail(datatobeMailed);
 		}
-	}
-	
-	/**
-	 * Method Check_NON_CAN_Operator.
-	
-	 * @return boolean */
-	public boolean Check_NON_CAN_Operator()
-	{
-		try {
-			Thread.sleep(10*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
-		    	
-		if(CurrentNetworkName == null)
-		{
-			new Logger().LogMessage("no network found");
-		}
-		else
-		{
-			new Logger().LogMessage("Device registered on " + CurrentNetworkName);
-			if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-			  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-			   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-				NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
-			else
-				NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-			    
-		}
-		return NON_CANOperatorCheck;
-	 }
-
-	
-	/**
-	 * Method RoamingCheck.
-	
-	 * @return boolean */
-	public boolean RoamingCheck()
-	{
-		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
-			return true;
-		else
-			return false;
 	}
 	
 }

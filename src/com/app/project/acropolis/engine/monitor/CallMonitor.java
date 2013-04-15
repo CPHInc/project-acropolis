@@ -22,15 +22,12 @@ public class CallMonitor //implements Runnable
 	public boolean CallConnected = false;
 	
 	public PhoneCall call=null;
-	public Phone phone=null;
 	public int callID=0;
 	
 	public int IN_minutes = 0;
 	public int OUT_minutes = 0;
 	public int R_IN_minutes = 0;
 	public int R_OUT_minutes = 0;
-//	ModelFactory theModel = new ModelFactory();
-//	ApplicationStoreDetails DBDetails = new ApplicationStoreDetails();
 		
 	public CallMonitor()
 	{
@@ -42,10 +39,6 @@ public class CallMonitor //implements Runnable
 	 * Method run.
 	 * @see java.lang.Runnable#run()
 	 */
-//	public void run()
-//	{
-//		Phone.addPhoneListener((AbstractPhoneListener)new CallAbstractListner());
-//	}
 	
 	/**
 	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>

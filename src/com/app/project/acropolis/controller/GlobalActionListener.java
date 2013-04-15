@@ -17,11 +17,9 @@ import com.app.project.acropolis.model.ApplicationDB;
 
 public class GlobalActionListener implements GlobalEventListener 
 {
-	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
-	final long LOCATION_LISTENER_ACTIVATE_GUID = 0xd5841d310496f925L;
-	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity
-	final long LOCATION_LISTENER_GUID = 0x79f17800d9a25207L;
+	//net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED
 	final long DATE_CHANGED_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
+	//net.rim.device.api.servicebook.ServiceBook.GUID_SB_REMOVED
 	final long SERVICE_BOOK_REMOVED = net.rim.device.api.servicebook.ServiceBook.GUID_SB_REMOVED;
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
@@ -37,39 +35,6 @@ public class GlobalActionListener implements GlobalEventListener
 	public void eventOccurred(long arg0, int arg1, int arg2, Object arg3,
 			Object arg4) {
 
-		LocationCode location = new LocationCode();
-		
-		if(arg0 == LOCATION_LISTENER_ACTIVATE_GUID)
-		{
-			location.CurrentLocation();
-		}
-		if(arg0 == LOCATION_LISTENER_GUID)
-		{
-			double Lat = Double.valueOf((String)arg3).doubleValue();
-			double Lng = Double.valueOf((String)arg4).doubleValue();
-			if(Lat>1 && Lng>1)
-			{
-				new Logger().LogMessage("Lat::"+Latitude+"\r\nLng::"+Longitude);
-				Latitude = String.valueOf(Lat);
-				Longitude = String.valueOf(Lng);
-				ApplicationDB.setValue(Latitude, ApplicationDB.Latitude);
-				ApplicationDB.setValue(Longitude, ApplicationDB.Longitude);
-				location.StopTracking();
-				location.ResetTracking();
-			}
-			else
-			{
-				location.setSearchInProgress(true);
-				Latitude = "0";
-				Longitude = "0";
-				ApplicationDB.setValue(Latitude, ApplicationDB.Latitude);
-				ApplicationDB.setValue(Longitude, ApplicationDB.Longitude);
-				new Logger().LogMessage("not yet");
-				location.StopTracking();
-				location.ResetTracking();
-				location.setSearchInProgress(false);
-			}
-		}
 		if(arg0 == DATE_CHANGED_GUID)
 		{
 			SimpleDateFormat sdf_date = new SimpleDateFormat("yyyyMMdd");
@@ -85,12 +50,21 @@ public class GlobalActionListener implements GlobalEventListener
 		}
 		if(arg0 == Request_GUID)
 		{
-			mailSubject = (String) arg3;
 			new Logger().LogMessage("Handlers forced collection");
 			if(!LocationCode.Check_NON_CAN_Operator())
-				new LocalHandler().CollectedData();
+				new Thread(new Runnable() {
+					public void run()
+					{
+						new LocalHandler().CollectedData();
+					}
+				}).start();
 			else
-				new RoamingHandler().CollectedData();
+				new Thread(new Runnable() {
+					public void run()
+					{
+						new RoamingHandler().CollectedData();
+					}
+				}).start();
 		}
 		if(arg0 == Update_GUID)
 		{
@@ -135,8 +109,6 @@ public class GlobalActionListener implements GlobalEventListener
 		if(arg0 == Reset_GUID)
 		{
 			new Logger().LogMessage("DB forced reset");
-			mailSubject = (String) arg3;
-			mailContent = (String) arg4;
 			ApplicationDB.reset();
 		}
 	}

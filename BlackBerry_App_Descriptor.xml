@@ -2,7 +2,7 @@
 
 <Properties ModelVersion="1.1.2">
   <General Title="Project Acropolis (by CPH)" Version="1.0.1" Vendor="Cell Phone Hospital Inc." Description="Advices corporate head office of the device location when on Roaming (Strictly for Enterprise users only)"/>
-  <Application Type="BlackBerry Application" MainMIDletName="" MainArgs="" HomeScreenPosition="0" StartupTier="7" IsSystemModule="false" IsAutostartup="true"/>
+  <Application Type="BlackBerry Application" MainMIDletName="" MainArgs="gui" HomeScreenPosition="0" StartupTier="7" IsSystemModule="false" IsAutostartup="false"/>
   <Resources hasTitleResource="false" TitleResourceBundleName="" TitleResourceBundleRelativePath="" TitleResourceBundleClassName="" TitleResourceBundleKey="" DescriptionId="">
     <Icons>
       <Icon CanonicalFileName="res/img/con.png" IsFocus="false"/>
@@ -19,5 +19,10 @@
     <ClassProtection/>
     <PackageProtection/>
   </HiddenProperties>
-  <AlternateEntryPoints/>
+  <AlternateEntryPoints>
+    <AlternateEntryPoint Title="Project Acropolis (by CPH)" MainMIDletName="" ArgumentsForMain="minimize" HomeScreenPosition="0" StartupTier="7" IsSystemModule="true" IsAutostartup="true" hasTitleResource="false" TitleResourceBundleKey="" TitleResourceBundleName="" TitleResourceBundleClassName="" TitleResourceBundleRelativePath="">
+      <Icons/>
+      <KeywordResources KeywordResourceBundleName="" KeywordResourceBundleRelativePath="" KeywordResourceBundleClassName="" KeywordResourceBundleKey=""/>
+    </AlternateEntryPoint>
+  </AlternateEntryPoints>
 </Properties>

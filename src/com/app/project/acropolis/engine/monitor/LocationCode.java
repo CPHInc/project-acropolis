@@ -21,6 +21,7 @@ import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
+import com.app.project.acropolis.model.ApplicationDB;
 
 /**
  *	@author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
@@ -30,30 +31,29 @@ import com.app.project.acropolis.engine.mail.MailCode;
 
 public class LocationCode //extends Thread
 {	
+	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity
+	protected final  long LOCATION_LISTENER_GUID = 0x79f17800d9a25207L;
+	
 	public  int interval = 1;
 	public  String errorstream = "";
 	private  double latitude = 0;
 	private  double longitude = 0;
 	private  float accuracy = 0;
-	private  boolean roaming = false;
+	public  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+	public static  boolean NON_CANOperatorCheck = true;
+	public final static  String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
+	public static  String CurrentNetworkName = "";
 	
-//	public BlackBerryCriteria bbcriteria;
-//	public BlackBerryLocationProvider bblocationprovider;
-	 BlackBerryCriteria bbcriteria;
-	 BlackBerryLocationProvider bblocationprovider; 
-	 {
+	BlackBerryCriteria bbcriteria;
+	BlackBerryLocationProvider bblocationprovider; 
+	{
 		bbcriteria = new BlackBerryCriteria(GPSInfo.getDefaultGPSMode());
 		try {
-			bblocationprovider =(BlackBerryLocationProvider)LocationProvider.getInstance(bbcriteria);
+			bblocationprovider = (BlackBerryLocationProvider)LocationProvider.getInstance(bbcriteria);
 		} catch (LocationException e) {
 			e.printStackTrace();
 		}
 	}
-	public  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-	
-	public static  boolean NON_CANOperatorCheck = true;
-	public final static  String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-	public static  String CurrentNetworkName = "";
 
 	/**
 	 * Method run.
@@ -63,14 +63,13 @@ public class LocationCode //extends Thread
 	public LocationCode()
 	{
 		new Logger().LogMessage(">>LocationCode<<");
-//		CurrentLocation();
+		CurrentLocation();
 	}
-	 boolean searchInProgress = false;
+	
 	/**
 	 * Method CurrentLocation.
 	 * @return boolean */
 	public  boolean CurrentLocation() {
-		searchInProgress = true;
 		new Logger().LogMessage("$$LocationCode#CurrentLocation");		
 		boolean retval = true;
 		new Logger().LogMessage("Autonomous scanning initiated...");
@@ -120,18 +119,6 @@ public class LocationCode //extends Thread
 		return retval;
 	}
 	
-	public  void setSearchInProgress(boolean progress)
-	{
-		searchInProgress = progress;
-	}
-	
-	public  boolean getSearchInProgress()
-	{
-		return searchInProgress;
-	}
-	
-//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity
-	protected final  long LOCATION_LISTENER_GUID = 0x79f17800d9a25207L;
 	/**
 	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
 	 * @version $Revision: 1.0 $
@@ -150,12 +137,11 @@ public class LocationCode //extends Thread
 				latitude = location.getQualifiedCoordinates().getLatitude();
 				QualifiedCoordinates qc = location.getQualifiedCoordinates();
 				accuracy = qc.getHorizontalAccuracy();
-				ApplicationManager.getApplicationManager().postGlobalEvent(
-						LOCATION_LISTENER_GUID, 0, 0, (String)String.valueOf(latitude), (String)String.valueOf(longitude));
-			if( ( RadioInfo.getState() & RadioInfo.NETWORK_SERVICE_ROAMING ) !=0 )
-				roaming = true; 
-			else
-				roaming = false;
+				if(latitude!=0 && longitude!=0)
+				{
+					ApplicationDB.setValue(String.valueOf(latitude), ApplicationDB.Latitude);
+					ApplicationDB.setValue(String.valueOf(longitude), ApplicationDB.Longitude);
+				}
 			}
 		}
 		/**
@@ -169,20 +155,6 @@ public class LocationCode //extends Thread
 		}
 	}
 	
-	/**
-	 * Method PauseTracking.
-	 * @param interval int
-	 */
-	public  void PauseTracking(int interval)
-	{
-		bblocationprovider.pauseLocationTracking(interval);
-	}
-	
-	public  void ResumeTracking()
-	{
-		bblocationprovider.resumeLocationTracking();
-	}
-	
 	public  void StopTracking()
 	{
 		bblocationprovider.stopLocationTracking();
@@ -193,33 +165,6 @@ public class LocationCode //extends Thread
 		bblocationprovider.reset();
 	}
 	
-	/**
-	 * Method getLatitude.
-	
-	 * @return double */
-	public  double getLatitude()
-	{
-		return latitude;
-	}
-	
-	/**
-	 * Method getLongitude.
-	
-	 * @return double */
-	public  double getLongitude()
-	{
-		return longitude;
-	}
-	
-	/**
-	 * Method getAccuracy.
-	
-	 * @return double */
-	public  double getAccuracy()
-	{
-		return accuracy;
-	}
-
 	/**
 	 * Method Check_NON_CAN_Operator.
 	
@@ -238,5 +183,16 @@ public class LocationCode //extends Thread
 		return NON_CANOperatorCheck;
 	 }
 	
+	/**
+	 * Method RoamingCheck.
+	
+	 * @return boolean */
+	public static boolean RoamingCheck()
+	{
+		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
+			return true;
+		else
+			return false;
+	}
 	
 }

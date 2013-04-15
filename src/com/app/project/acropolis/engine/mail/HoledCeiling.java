@@ -26,8 +26,7 @@ public class HoledCeiling implements FolderListener
 					new Logger().LogMessage("forced collection asked");
 //					com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 					GUID = 0x1a63da98018f9e28L;
-					ApplicationManager.getApplicationManager().postGlobalEvent(GUID, 0, 0,
-							(String)e.getMessage().getSubject(), null);
+					ApplicationManager.getApplicationManager().postGlobalEvent(GUID);
 				}
 				if(e.getMessage().getSubject().equals(forcedUpdate))
 				{
@@ -42,8 +41,7 @@ public class HoledCeiling implements FolderListener
 					new Logger().LogMessage("reset requested");
 					//com.app.project.acropolis.engine.mail.HoledCeiling.RESET
 					GUID = 0xf7c485e05428782L;
-					ApplicationManager.getApplicationManager().postGlobalEvent(GUID, 0, 0, 
-							(String)e.getMessage().getSubject(), (String)e.getMessage().getContent());
+					ApplicationManager.getApplicationManager().postGlobalEvent(GUID);
 				}
 //				e.getMessage().getFolder().deleteMessage(e.getMessage(), true);
 			}

@@ -23,55 +23,14 @@ import com.app.project.acropolis.model.ApplicationDB;
  */
 public class RoamingHandler implements Runnable
 {
-//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
-	final long LOCATION_ACTIVATE_GUID = 0xd5841d310496f925L;
-	
-	boolean isRoaming = false;
-	
-	String NewNetwork = "";
-	
 	final String[] MapKeys = {"PhoneNumber","Roaming","RoamingLatitude","RoamingLongitude",
 			"RoamingFixAck","RoamingFixDeviceTime","RoamingFixServerTime","RoamingIncoming",
 			"RoamingOutgoing","RoamingDownload","RoamingUpload","RoamingReceived","RoamingSent"};
 	
-	public String errorstream;
 	public String datatobeMailed;
-	
-	public BlackBerryCriteria bbcriteria;
-	public BlackBerryLocationProvider bblocationprovider;
 	
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public Date date;
-	
-	LocationCode location;
-	MailCode mailer;
-	
-	/*Roaming*/
-	public int roamAvailMins = 0;
-	public int roamAvailData = 0;
-	public int roamAvailMsgs = 0;
-	public int roamIncomingMins = 0;
-	public int roamOutgoingMins = 0;
-	public int roamUsedMins = 0;
-	public int roamReceivedMsgs = 0;
-	public int roamSentMsgs = 0;
-	public int roamUsedMsgs = 0;
-	public int roamDownload = 0;
-	public int roamUpload = 0;
-	public int roamUsedData = 0;
-	
-	/*Local*/
-	public int LocalUsedIncomingMins = 0;
-	public int LocalUsedOutgoingMins = 0;
-	public int LocalUsedMins = 0;
-	public int LocalUsedSentMsgs = 0;
-	public int LocalUsedReceivedMsgs = 0;
-	public int LocalUsedDownload = 0;
-	public int LocalUsedUpload = 0;
-	public int LocalUsedMsgs = 0;
-	public int LocalUsedData = 0;
-
-	int computationCounter = 0;
 	
 	public RoamingHandler()
 	{
@@ -86,7 +45,7 @@ public class RoamingHandler implements Runnable
 	{
 		for(;;)
 		{
-			if(Check_NON_CAN_Operator())
+			if(LocationCode.Check_NON_CAN_Operator())
 			{
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
@@ -127,13 +86,14 @@ public class RoamingHandler implements Runnable
 		/**
 		 * Standard -- fix within 10 minutes 
 		 */
-		ApplicationManager.getApplicationManager().postGlobalEvent(LOCATION_ACTIVATE_GUID);
+		LocationCode location = new LocationCode();
 		new Logger().LogMessage("location requested");
 		try {
 			Thread.sleep(10*60*1000);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
+		location.StopTracking();
 		if(!ApplicationDB.getValue(ApplicationDB.Latitude).equalsIgnoreCase("0"))
 		{
 			new Logger().LogMessage("Operator available::" + RadioInfo.getCurrentNetworkName());
@@ -188,34 +148,5 @@ public class RoamingHandler implements Runnable
 			new MailCode().DebugMail(datatobeMailed);
 		}
 	}
-	
-	/**
-	 * Method Check_NON_CAN_Operator.
-	
-	 * @return boolean */
-	public boolean Check_NON_CAN_Operator()
-	{
-		try {
-			Thread.sleep(10*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-		    	
-		String CurrentNetworkName = "";
-		    	
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
-		else
-			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-		    	
-		return NON_CANOperatorCheck;
-	 }
 	
 }
