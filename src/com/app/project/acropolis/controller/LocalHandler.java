@@ -111,6 +111,7 @@ public class LocalHandler implements Runnable
 			e1.printStackTrace();
 		}
 		location.StopTracking();
+//		location.ResetTracking();
 		ApplicationManager.getApplicationManager().postGlobalEvent(HALT_LOCATION_LISTENER_GUID);
 		if(!ApplicationDB.getValue(ApplicationDB.Latitude).equalsIgnoreCase("0") || 
 				!ApplicationDB.getValue(ApplicationDB.Latitude).equalsIgnoreCase("0.0") )

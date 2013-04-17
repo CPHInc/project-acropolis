@@ -45,8 +45,8 @@ import com.app.project.acropolis.model.ApplicationDB;
  */
 public final class UIScreen extends MainScreen
 {
-//	final String AppTitle = "Carillion Wireless Monitoring System";
-	final String AppTitle = "BLUE GIANT Wireless Monitoring System";
+	final String AppTitle = "Carillion Wireless Monitoring System";
+//	final String AppTitle = "BLUE GIANT Wireless Monitoring System";
 	
 	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
 			"FixAck","FixDeviceTime","FixServerTime","Incoming",
@@ -255,8 +255,8 @@ public final class UIScreen extends MainScreen
     
     public void CompanyLogo()
     {
-//    	Bitmap companyBMP = Bitmap.getBitmapResource("carillion.png");
-    	Bitmap companyBMP = Bitmap.getBitmapResource("bluegiant.png");
+    	Bitmap companyBMP = Bitmap.getBitmapResource("carillion.png");
+//    	Bitmap companyBMP = Bitmap.getBitmapResource("bluegiant.png");
     	LogoField = new BitmapField(companyBMP,BitmapField.HCENTER);
     	add(LogoField);
     }
