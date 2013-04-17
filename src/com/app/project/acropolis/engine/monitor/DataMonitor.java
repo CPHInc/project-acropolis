@@ -49,17 +49,17 @@ public class DataMonitor extends TimerTask
 	{
 		MDS_download = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalDownload));
 		MDS_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalUpload));
-		r_db_download = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingDownload));
 		r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
-		
+		r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
 		WLANMonitor wlan = new WLANMonitor();
 		wlan.run();
 		if(!Check_NON_CAN_Operator())
 		{
 			if( !wlan.getWLANConnection() )
 			{//on MDS
-				MDS_download =+ RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload();
-				MDS_upload =+ RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload();
+				
+				MDS_download =+ (RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload());
+				MDS_upload =+ (RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload());
 				ApplicationDB.setValue(String.valueOf(MDS_download),ApplicationDB.LocalDownload);
 				ApplicationDB.setValue(String.valueOf(MDS_upload),ApplicationDB.LocalUpload);
 			}
@@ -72,6 +72,7 @@ public class DataMonitor extends TimerTask
 		{
 			if( !wlan.getWLANConnection() )
 			{//on MDS
+			
 				r_db_download += RadioInfo.getNumberOfPacketsReceived() - wlan.getWLANDownload();
 				r_db_upload += RadioInfo.getNumberOfPacketsSent() - wlan.getWLANUpload();
 				ApplicationDB.setValue(String.valueOf(r_db_download),ApplicationDB.RoamingDownload);

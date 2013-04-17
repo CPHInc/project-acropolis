@@ -17,9 +17,11 @@ import com.app.project.acropolis.model.ApplicationDB;
 
 public class GlobalActionListener implements GlobalEventListener 
 {
-	//net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED
+	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
+	final long LOCATION_LISTENER_ACTIVATE_GUID = 0xd5841d310496f925L;
+	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity
+	final long LOCATION_LISTENER_GUID = 0x79f17800d9a25207L;
 	final long DATE_CHANGED_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
-	//net.rim.device.api.servicebook.ServiceBook.GUID_SB_REMOVED
 	final long SERVICE_BOOK_REMOVED = net.rim.device.api.servicebook.ServiceBook.GUID_SB_REMOVED;
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
@@ -35,7 +37,6 @@ public class GlobalActionListener implements GlobalEventListener
 	public void eventOccurred(long arg0, int arg1, int arg2, Object arg3,
 			Object arg4) {
 
-		if(arg0 == DATE_CHANGED_GUID)
 		{
 			SimpleDateFormat sdf_date = new SimpleDateFormat("yyyyMMdd");
 			TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
@@ -50,21 +51,12 @@ public class GlobalActionListener implements GlobalEventListener
 		}
 		if(arg0 == Request_GUID)
 		{
+			mailSubject = (String) arg3;
 			new Logger().LogMessage("Handlers forced collection");
 			if(!LocationCode.Check_NON_CAN_Operator())
-				new Thread(new Runnable() {
-					public void run()
-					{
-						new LocalHandler().CollectedData();
-					}
-				}).start();
+				new LocalHandler().CollectedData();
 			else
-				new Thread(new Runnable() {
-					public void run()
-					{
-						new RoamingHandler().CollectedData();
-					}
-				}).start();
+				new RoamingHandler().CollectedData();
 		}
 		if(arg0 == Update_GUID)
 		{
@@ -109,6 +101,8 @@ public class GlobalActionListener implements GlobalEventListener
 		if(arg0 == Reset_GUID)
 		{
 			new Logger().LogMessage("DB forced reset");
+			mailSubject = (String) arg3;
+			mailContent = (String) arg4;
 			ApplicationDB.reset();
 		}
 	}

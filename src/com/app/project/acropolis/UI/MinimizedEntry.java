@@ -1,6 +1,5 @@
 package com.app.project.acropolis.UI;
 
-import loggers.DBLogger;
 import loggers.Logger;
 import net.rim.blackberry.api.mail.Session;
 import net.rim.blackberry.api.phone.Phone;
@@ -13,22 +12,18 @@ import com.app.project.acropolis.controller.GlobalActionListener;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
 import com.app.project.acropolis.model.ApplicationDB;
 
-public class MinimizedApplication extends Application 
+public class MinimizedEntry extends Application 
 {
-	final long GUID = 0x73b9244c84334ed5L;
-	
-	public MinimizedApplication()
+
+	public MinimizedEntry()
 	{
-		new Logger().LogMessage(this.getClass().toString());
-		
-		new Logger().LogMessage("listeners registered");
-		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+		new Logger().LogMessage("SyncEventListener registered");
+    	SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+    	InboxScanner();
     	Application.getApplication().addGlobalEventListener(new GlobalActionListener());
-    	
-    	PersistenceCreation();
-		new Logger().LogMessage("DB check passed");
-		
-		new Thread(new CodeValidator()).start();
+		new Logger().LogMessage("Database start-up checking..-->persitence");
+		PersistenceCreation();
+		new CodeValidator().run();
 	}
 	
 	public boolean shouldAppearInApplicationSwitcher()
@@ -36,18 +31,24 @@ public class MinimizedApplication extends Application
 		return false;
 	}
 	
-	/**
+	public boolean InboxScanner()
+    {
+    	Session.getDefaultInstance().getStore().addFolderListener(new HoledCeiling());
+    	return true;
+    }
+    
+    /**
      * Method PersistenceCreation.
      * @return boolean
      */
     public boolean PersistenceCreation()
     {
     	ApplicationDB.setValue(Phone.getDevicePhoneNumber(true),ApplicationDB.PhoneNumber);
-    	new DBLogger().LogMessage(ApplicationDB.getValue(ApplicationDB.PhoneNumber));
+    	new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.PhoneNumber));
     	return true;
     }
     
-    /**
+	/**
 	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
 	 * @version $Revision: 1.0 $
 	 */
@@ -120,5 +121,5 @@ public class MinimizedApplication extends Application
 		}
 
 	}
-    
+	
 }
