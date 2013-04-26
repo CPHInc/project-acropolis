@@ -11,12 +11,16 @@ import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.servicebook.ServiceBook;
 import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.system.GlobalEventListener;
+import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.WLANInfo;
 
 import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
 public class GlobalActionListener implements GlobalEventListener 
 {
+	//com.app.project.acropolis.controller.PlanReducer.PLANEND
+	final long PLAN_END_GUID = 0xcace26796909dc44L;
 	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
 	final long LOCATION_LISTENER_ACTIVATE_GUID = 0xd5841d310496f925L;
 	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity
@@ -36,7 +40,16 @@ public class GlobalActionListener implements GlobalEventListener
 	
 	public void eventOccurred(long arg0, int arg1, int arg2, Object arg3,
 			Object arg4) {
-
+		
+		if(arg0 == PLAN_END_GUID)
+		{
+			new Logger().LogMessage("Plan ended");
+			if(!LocationCode.Check_NON_CAN_Operator())
+				new LocalHandler().CollectedData();
+			else
+				new RoamingHandler().CollectedData();
+		}
+		if(arg0 == DATE_CHANGED_GUID)
 		{
 			SimpleDateFormat sdf_date = new SimpleDateFormat("yyyyMMdd");
 			TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
@@ -45,8 +58,21 @@ public class GlobalActionListener implements GlobalEventListener
 			String currentDate = sdf_date.format(calendar.getTime());
 			if(currentDate.equalsIgnoreCase(ApplicationDB.getValue(ApplicationDB.BillDate)))
 			{
-				ApplicationDB.reset();
-				new Logger().LogMessage("Bill date reset");
+				if ((RadioInfo.getActiveWAFs() == RadioInfo.WAF_3GPP) || 
+						(WLANInfo.getWLANState() == WLANInfo.WLAN_STATE_CONNECTED))
+				{
+					RadioStateListener.IsItInNeed(false);
+					if(!LocationCode.Check_NON_CAN_Operator())
+						new LocalHandler().CollectedData();
+					else
+						new RoamingHandler().CollectedData();
+					ApplicationDB.reset();
+					new Logger().LogMessage("Bill date reset");
+				}
+				else
+				{
+					RadioStateListener.IsItInNeed(true);
+				}
 			}
 		}
 		if(arg0 == Request_GUID)

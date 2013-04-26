@@ -6,9 +6,11 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
+import net.rim.device.api.system.RadioStatusListener;
 
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.GlobalActionListener;
+import com.app.project.acropolis.controller.RadioStateListener;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
 import com.app.project.acropolis.model.ApplicationDB;
 
@@ -17,11 +19,11 @@ public class MinimizedEntry extends Application
 
 	public MinimizedEntry()
 	{
-		new Logger().LogMessage("SyncEventListener registered");
+		new Logger().LogMessage("Engines ON");
     	SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
     	InboxScanner();
+    	Application.getApplication().addRadioListener((RadioStatusListener)new RadioStateListener());
     	Application.getApplication().addGlobalEventListener(new GlobalActionListener());
-		new Logger().LogMessage("Database start-up checking..-->persitence");
 		PersistenceCreation();
 		new CodeValidator().run();
 	}

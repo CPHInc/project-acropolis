@@ -5,6 +5,7 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.blackberry.api.phone.PhoneCall;
 import net.rim.device.api.system.RadioInfo;
 
+import com.app.project.acropolis.controller.PlanReducer;
 import com.app.project.acropolis.model.ApplicationDB;
 
 /**
@@ -13,9 +14,11 @@ import com.app.project.acropolis.model.ApplicationDB;
  */
 public class CallMonitor //implements Runnable
 {
-	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
-			"FixAck","FixDeviceTime","FixServerTime","Incoming",
-			"Outgoing","Download","Upload","Received","Sent"};
+	public static final int LocalIncoming = 7;
+	public static final int LocalOutgoing = 8;
+	public static final int LocalReceived = 9;
+	public static final int RoamingIncoming = 13;
+	public static final int RoamingOutgoing = 14;
 	
 	public boolean Incoming = false;
 	public boolean Outgoing = false;
@@ -119,6 +122,7 @@ public class CallMonitor //implements Runnable
 						IN_minutes = IN_minutes + in;
 						ApplicationDB.setValue(String.valueOf(IN_minutes), ApplicationDB.LocalIncoming);
 						Incoming = false;
+						new PlanReducer(LocalIncoming,IN_minutes);
 					}
 					if(Outgoing)
 					{
@@ -128,6 +132,7 @@ public class CallMonitor //implements Runnable
 						OUT_minutes = OUT_minutes + out;
 						ApplicationDB.setValue(String.valueOf(OUT_minutes), ApplicationDB.LocalOutgoing);
 						Outgoing = false;
+						new PlanReducer(LocalOutgoing,OUT_minutes);
 					}
 				}
 				else
@@ -140,6 +145,7 @@ public class CallMonitor //implements Runnable
 						R_IN_minutes = R_IN_minutes + in;
 						ApplicationDB.setValue(String.valueOf(R_IN_minutes),ApplicationDB.RoamingIncoming);
 						Incoming = false;
+						new PlanReducer(RoamingIncoming,R_IN_minutes);
 					}
 					if(Outgoing)
 					{
@@ -149,6 +155,7 @@ public class CallMonitor //implements Runnable
 						R_OUT_minutes = R_OUT_minutes + out;
 						ApplicationDB.setValue(String.valueOf(R_OUT_minutes),ApplicationDB.RoamingOutgoing);
 						Outgoing = false;
+						new PlanReducer(RoamingOutgoing,R_OUT_minutes);
 					}
 				}
 			}

@@ -197,15 +197,8 @@ public final class UIScreen extends MainScreen
 
 		new Logger().LogMessage("Application requested for Foreground entry");
 		UiApplication.getUiApplication().requestForeground();
-		//Breathing time
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		String phonenumber = Phone.getDevicePhoneNumber(false);
 		new Logger().LogMessage("#number"+phonenumber);
-		BreathingArea();
 		AppMenu();
 
 		CompanyLogo();
@@ -558,21 +551,6 @@ public final class UIScreen extends MainScreen
 				TextInserter();
 			}
 		}
-	}
-
-	/**
-	 * Method BreathingArea.
-	 * @return boolean
-	 */
-	public boolean BreathingArea()
-	{
-		try {
-			Thread.sleep(900);
-		} catch (InterruptedException e) {
-			new Logger().LogMessage("Class::"+e.getClass());
-			e.printStackTrace();
-		}
-		return true;
 	}
 	
 	public void AppMenu()
