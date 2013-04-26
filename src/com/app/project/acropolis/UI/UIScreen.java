@@ -48,10 +48,6 @@ public final class UIScreen extends MainScreen
 	final String AppTitle = "Carillion Wireless Monitoring System";
 	//	final String AppTitle = "BLUE GIANT Wireless Monitoring System";
 
-	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
-			"FixAck","FixDeviceTime","FixServerTime","Incoming",
-			"Outgoing","Download","Upload","Received","Sent"};
-
 	/*Local Rates*/
 	final static double LocalVoiceRate = 0.10;//incoming free(general)
 	final static double LocalMessageRate = 0.10;//some plan 250 free after 10cents/msg
@@ -438,24 +434,6 @@ public final class UIScreen extends MainScreen
 			decimalDigit = decimalDigit.trim();
 		formated = unitDigit +"." + decimalDigit;
 		return formated;
-	}
-
-	/**
-	 * Convert seconds to minutes
-	 * @param seconds int
-	 * @return Minutes */
-	public int Seconds2Minutes(int seconds)
-	{
-		int minutes=0;
-		if(seconds == 0)
-		{
-			minutes = 0;
-		}
-		else 
-		{
-			minutes = seconds/60 + 1;
-		}
-		return minutes;
 	}
 
 	public static void TextInserter()

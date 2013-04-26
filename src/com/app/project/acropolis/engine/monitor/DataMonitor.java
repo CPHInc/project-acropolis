@@ -59,7 +59,6 @@ public class DataMonitor implements Runnable//extends TimerTask
 			MDS_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalUpload));
 			r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
 			r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
-			new Logger().LogMessage("stored values d-"+MDS_download + "\r\nu-"+MDS_upload);
 			if(!Check_NON_CAN_Operator())
 			{
 				if( !wlan.getWLANConnection() )

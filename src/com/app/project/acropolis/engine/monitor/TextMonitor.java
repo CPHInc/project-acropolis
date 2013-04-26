@@ -82,69 +82,6 @@ public class TextMonitor //implements Runnable
 		HandleMessageConnection();
 	}
 	
-	/**
-	 * Opens javax.microedition.io.DatagramConnection server and fetch
-	 * javax.microedition.io.Datagram message container storing UDH[User Data Header],
-	 * Payload(message text), Address(receipient's number)
-	 */
-	public void HandleDatagramConnection()
-	{
-		new Logger().LogMessage(">>"+this.getClass()+"<<");
-		try{
-//			datagram_conn = (DatagramConnection) Connector.open(SMS_Server);			// 'sms://:0'
-			datagram_conn = (DatagramConnection) Connector.open(SMS_Server_noport);		// 'sms://'
-			new Logger().LogMessage("DatagramConnection open..");
-			for(;;)
-			{
-				dg_sms = datagram_conn.newDatagram(datagram_conn.getMaximumLength());	//fetch SMS
-				
-				/*RECIEVing*/
-				datagram_conn.receive(dg_sms);											//recieve SMS
-				sms_payload = dg_sms.getData();											//payload
-				sms_address = dg_sms.getAddress();
-				received++;
-				new Logger().LogMessage("SMS Received :"+received + " by @"+sms_address +
-						" content--" + new String(sms_payload));
-			
-				/*SENDing*/
-				datagram_conn.send(dg_sms);
-				sent=+1;
-				if(sent>0)
-				{
-					new Logger().LogMessage("SMS Sent :" + sent + 
-						" to :" + dg_sms.getAddress() +
-						" content:" + new String (dg_sms.getData()) );
-				}
-			}
-			
-		} catch(IOException e) {
-			new Logger().LogMessage(e.getMessage());
-			e.printStackTrace();
-			try {
-				new Thread().wait(10*1000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-		} catch(SecurityException e) {
-			e.printStackTrace();
-			new Logger().LogMessage("SMS server port denied!!!HELP");
-			new Logger().LogMessage(e.getMessage());
-			try {
-				new Thread().wait(10*1000);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-		} catch(Throwable t) {
-			t.printStackTrace();
-			new Logger().LogMessage(t.getMessage());
-			try {
-				new Thread().wait(10*1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	/** Via MessageConnection ***/
 	public void HandleMessageConnection()
 	{

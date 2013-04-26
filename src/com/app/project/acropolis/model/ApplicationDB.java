@@ -162,21 +162,4 @@ public final class ApplicationDB implements Persistable
 		}
 	}
 	
-	public void BillingCycleEngine()
-	{
-		Application.getApplication().invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				SimpleDateFormat date_format = new SimpleDateFormat("yyyyMMDD");
-				String currentDate = date_format.formatLocal(new Date().getTime());
-				if(currentDate.equalsIgnoreCase(ApplicationDB.getValue(ApplicationDB.BillDate)))
-				{
-					reset();
-					new Logger().LogMessage("value 0 billing date");
-				}
-			}
-		},100,true);
-	}
-	
 }

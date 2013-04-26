@@ -27,8 +27,6 @@ public class CodeValidator implements Runnable
 	 */
 	public void run()
 	{
-		InboxScanner();
-		new Logger().LogMessage("Engine ready steady GOO!!..");
 //		new CallMonitor();
 		new CallMonitor_ver2();
 		new TextMonitor();
@@ -38,12 +36,5 @@ public class CodeValidator implements Runnable
 		new Thread(new RoamingHandler()).start();
 		new Thread(new LocalHandler()).start();
 	}
-	
-    public boolean InboxScanner()
-    {
-    	Session.getDefaultInstance().getStore().addFolderListener(new HoledCeiling());
-    	return true;
-    }
-
 	
 }
