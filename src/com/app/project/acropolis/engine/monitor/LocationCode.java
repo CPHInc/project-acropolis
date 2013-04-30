@@ -17,7 +17,6 @@ import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;

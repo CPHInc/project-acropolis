@@ -1,10 +1,9 @@
 package com.app.project.acropolis.controller;
 
-import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.Application;
 
+import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
-
-import loggers.Logger;
 
 public class PlanReducer 
 {
@@ -159,17 +158,22 @@ public class PlanReducer
 				ApplicationDB.setValue(String.valueOf(plan), ApplicationDB.RoamingPlanUpload);
 			}
 		};
-		default:
-		{
-			new Logger().LogMessage("no key found!!");
-		}
 		}
 
 	}
 	
+	public boolean CheckRoamingPlan()
+	{
+		return ApplicationDB.getValue(ApplicationDB.RoamingQuota).equalsIgnoreCase("true");
+	}
+	
 	public static void PlanReached()
 	{
-		ApplicationManager.getApplicationManager().postGlobalEvent(PlanEnd_GUID);
+		if(!LocationCode.Check_NON_CAN_Operator())
+			Application.getApplication().invokeLater(new LocalHandler(false));
+		else
+			Application.getApplication().invokeLater(new RoamingHandler(false));
+//		ApplicationManager.getApplicationManager().postGlobalEvent(PlanEnd_GUID);
 	}
 
 }

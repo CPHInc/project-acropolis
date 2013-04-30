@@ -8,6 +8,7 @@ import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
 import net.rim.device.api.command.ReadOnlyCommandMetadata;
 import net.rim.device.api.system.Application;
+import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
@@ -20,7 +21,6 @@ import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BitmapField;
-import net.rim.device.api.ui.component.Menu;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -187,6 +187,9 @@ public final class UIScreen extends MainScreen
 	{        
 		super(MainScreen.FIELD_VCENTER|MainScreen.FIELD_HCENTER|
 				MainScreen.VERTICAL_SCROLL|MainScreen.USE_ALL_WIDTH);
+		//testing global handler
+		ApplicationManager.getApplicationManager().postGlobalEvent(0xde15415aec6cfa55L);
+		
 		Application.getApplication().setAcceptEvents(true);
 		DeriveApplicationFont();
 		setTitle(AppTitle);		//if required

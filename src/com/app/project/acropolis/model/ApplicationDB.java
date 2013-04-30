@@ -1,13 +1,9 @@
 package com.app.project.acropolis.model;
 
-import java.util.Date;
 import java.util.Vector;
 
 import loggers.DBLogger;
-import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
-import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Application;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 import net.rim.device.api.util.Persistable;
@@ -160,6 +156,7 @@ public final class ApplicationDB implements Persistable
 			vector.setElementAt((String)Phone.getDevicePhoneNumber(true),ApplicationDB.PhoneNumber);
 			persist.setContents(vector);
 		}
+		new DBLogger().LogMessage("full monty");
 	}
 	
 }

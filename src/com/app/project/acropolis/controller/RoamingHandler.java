@@ -9,8 +9,6 @@ import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.system.Application;
-import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
@@ -73,8 +71,11 @@ public class RoamingHandler implements Runnable
 
 	int computationCounter = 0;
 
-	public RoamingHandler()
+	boolean looper = false;
+	
+	public RoamingHandler(boolean loop)
 	{
+		looper = loop;
 		new Logger().LogMessage(">>RoamingHandler<<");
 	}
 
@@ -84,7 +85,42 @@ public class RoamingHandler implements Runnable
 	 */
 	public void run() 
 	{
-		for(;;)
+		if(looper)
+		{
+			for(;;)
+			{
+				if(Check_NON_CAN_Operator())
+				{
+					switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
+					{
+					case 0:	//Radio OFF
+					{
+						try {
+							new Logger().LogMessage("Radio OFF");
+							new Logger().LogMessage("woke up ..");
+							Thread.sleep(1*20*1000);
+							new Logger().LogMessage("sleeping ..");
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					};
+					case 1:
+					{
+						new Logger().LogMessage("Radio ON");
+						new Logger().LogMessage("woke up ..");
+						CollectedData();
+						new Logger().LogMessage("sleeping ..");
+						try {
+							Thread.sleep(16*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					};
+					}
+				}
+			}
+		}
+		else
 		{
 			if(Check_NON_CAN_Operator())
 			{
@@ -92,26 +128,12 @@ public class RoamingHandler implements Runnable
 				{
 				case 0:	//Radio OFF
 				{
-					try {
-						new Logger().LogMessage("Radio OFF");
-						new Logger().LogMessage("woke up ..");
-						Thread.sleep(1*20*1000);
-						new Logger().LogMessage("sleeping ..");
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
+					new Logger().LogMessage("Radio OFF");
 				};
 				case 1:
 				{
 					new Logger().LogMessage("Radio ON");
-					new Logger().LogMessage("woke up ..");
 					CollectedData();
-					new Logger().LogMessage("sleeping ..");
-					try {
-						Thread.sleep(16*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 				};
 				}
 			}

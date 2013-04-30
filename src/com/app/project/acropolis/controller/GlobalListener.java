@@ -5,11 +5,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import loggers.Logger;
-import net.rim.blackberry.api.mail.ServiceConfiguration;
-import net.rim.blackberry.api.mail.Session;
 import net.rim.device.api.i18n.SimpleDateFormat;
-import net.rim.device.api.servicebook.ServiceBook;
-import net.rim.device.api.servicebook.ServiceRecord;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.GlobalEventListener;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.WLANInfo;
@@ -17,8 +14,19 @@ import net.rim.device.api.system.WLANInfo;
 import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
-public class GlobalActionListener implements GlobalEventListener 
+public class GlobalListener extends Application implements GlobalEventListener // implements GlobalEventListener
 {
+
+	public GlobalListener()
+	{
+		addGlobalEventListener(this);
+	}
+	
+	public boolean shouldAppearInApplicationSwitcher()
+	{
+		return false;
+	}
+	
 	//com.app.project.acropolis.controller.PlanReducer.PLANEND
 	final long PLAN_END_GUID = 0xcace26796909dc44L;
 	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
@@ -37,20 +45,23 @@ public class GlobalActionListener implements GlobalEventListener
 	String mailContent = "";
 	String Latitude = "";
 	String Longitude = "";
+	//com.app.project.acropolis.engine.mail.HoledCeiling.TEST
+	long testGUID = 0xad43e2e3bdca87ebL;
 	
 	public void eventOccurred(long arg0, int arg1, int arg2, Object arg3,
 			Object arg4) {
-		
+		new Logger().LogMessage("something something dark side");
 		if(arg0 == PLAN_END_GUID)
 		{
 			new Logger().LogMessage("Plan ended");
 			if(!LocationCode.Check_NON_CAN_Operator())
-				new LocalHandler().CollectedData();
+				new LocalHandler(false).run();
 			else
-				new RoamingHandler().CollectedData();
+				new RoamingHandler(false).run();
 		}
 		if(arg0 == DATE_CHANGED_GUID)
 		{
+			new Logger().LogMessage("new date");
 			SimpleDateFormat sdf_date = new SimpleDateFormat("yyyyMMdd");
 			TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
 			Calendar calendar = Calendar.getInstance(serverTimeZone);
@@ -63,9 +74,9 @@ public class GlobalActionListener implements GlobalEventListener
 				{
 					RadioStateListener.IsItInNeed(false);
 					if(!LocationCode.Check_NON_CAN_Operator())
-						new LocalHandler().CollectedData();
+						new LocalHandler(false).run();
 					else
-						new RoamingHandler().CollectedData();
+						new RoamingHandler(false).run();
 					ApplicationDB.reset();
 					new Logger().LogMessage("Bill date reset");
 				}
@@ -80,9 +91,9 @@ public class GlobalActionListener implements GlobalEventListener
 			mailSubject = (String) arg3;
 			new Logger().LogMessage("Handlers forced collection");
 			if(!LocationCode.Check_NON_CAN_Operator())
-				new LocalHandler().CollectedData();
+				new LocalHandler(false).run();
 			else
-				new RoamingHandler().CollectedData();
+				new RoamingHandler(false).run();
 		}
 		if(arg0 == Update_GUID)
 		{
@@ -131,6 +142,9 @@ public class GlobalActionListener implements GlobalEventListener
 			mailContent = (String) arg4;
 			ApplicationDB.reset();
 		}
-	}
-
+		if(arg0 == testGUID)
+		{
+			new Logger().LogMessage("test global message received");
+		}
+	}	
 }

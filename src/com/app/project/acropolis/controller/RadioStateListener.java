@@ -1,11 +1,10 @@
 package com.app.project.acropolis.controller;
 
 import loggers.Logger;
+import net.rim.device.api.system.RadioStatusListener;
 
 import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
-
-import net.rim.device.api.system.RadioStatusListener;
 
 public class RadioStateListener implements RadioStatusListener 
 {
@@ -31,9 +30,9 @@ public class RadioStateListener implements RadioStatusListener
 		if(InNeed)
 		{
 			if(!LocationCode.Check_NON_CAN_Operator())
-				new LocalHandler().CollectedData();
+				new LocalHandler(false).run();
 			else
-				new RoamingHandler().CollectedData();
+				new RoamingHandler(false).run();
 			ApplicationDB.reset();
 			new Logger().LogMessage("Bill date reset");
 		}

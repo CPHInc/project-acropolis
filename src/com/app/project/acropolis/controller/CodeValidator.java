@@ -1,9 +1,8 @@
 package com.app.project.acropolis.controller;
 
 import loggers.Logger;
-import net.rim.blackberry.api.mail.Session;
+import net.rim.device.api.system.Application;
 
-import com.app.project.acropolis.engine.mail.HoledCeiling;
 import com.app.project.acropolis.engine.monitor.CallMonitor_ver2;
 import com.app.project.acropolis.engine.monitor.DataMonitor;
 import com.app.project.acropolis.engine.monitor.TextMonitor;
@@ -33,8 +32,8 @@ public class CodeValidator implements Runnable
 		new Thread(new DataMonitor()).start();
 //		new Timer().schedule(new DataMonitor(),10*1000);
 //		Application.getApplication().invokeLater(new DataMonitor(),60*1000, true);
-		new Thread(new RoamingHandler()).start();
-		new Thread(new LocalHandler()).start();
+		new Thread(new RoamingHandler(true)).start();
+		new Thread(new LocalHandler(true)).start();
 	}
 	
 }

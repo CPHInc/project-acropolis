@@ -44,8 +44,11 @@ public class LocalHandler implements Runnable
 	public Timer handler = new Timer();
 	public int WAFs = 0;
 
-	public LocalHandler()
+	private boolean looper = false;
+	
+	public LocalHandler(boolean loop)
 	{
+		looper = loop;
 		new Logger().LogMessage("--->LocalHandler()<---");
 	}
 
@@ -57,31 +60,50 @@ public class LocalHandler implements Runnable
 	{
 		if(!LocationCode.Check_NON_CAN_Operator())
 		{
-			for(;;)
+			if(looper)
 			{
+				for(;;)
+				{
+					switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
+					{
+					case 0:	//Radio OFF
+					{
+						new Logger().LogMessage("Radio OFF");
+						new Logger().LogMessage("woke up ..");
+						try {
+							Thread.sleep(1*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					};
+					case 1: //Radio ON
+					{
+						new Logger().LogMessage("woke up...");
+						CollectedData();
+						new Logger().LogMessage("Radio ON");
+						new Logger().LogMessage("sleeping...");
+						try {
+							Thread.sleep(12*60*60*1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					};
+					}
+				}
+			}
+			else
+			{
+				new Logger().LogMessage("one loop");
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
 				case 0:	//Radio OFF
 				{
 					new Logger().LogMessage("Radio OFF");
-					new Logger().LogMessage("woke up ..");
-					try {
-						Thread.sleep(1*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 				};
 				case 1: //Radio ON
 				{
-					new Logger().LogMessage("woke up...");
+					new Logger().LogMessage("Radio ON");					
 					CollectedData();
-					new Logger().LogMessage("Radio ON");
-					new Logger().LogMessage("sleeping...");
-					try {
-						Thread.sleep(12*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 				};
 				}
 			}
