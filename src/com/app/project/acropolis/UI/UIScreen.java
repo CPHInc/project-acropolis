@@ -107,7 +107,7 @@ public final class UIScreen extends MainScreen
 	String DownloadResultString = "";
 	static String UploadString = "Uploaded (MB)";
 	String UploadResultString = "";
-	String TotalDataString = "Total (KB)";
+	String TotalDataString = "Total (MB)";
 	static String TotalResultDataString = "";
 	String TotalRunningCost = "Running Cost";
 	String TotalLocalCharges = "Monthly";
@@ -215,7 +215,7 @@ public final class UIScreen extends MainScreen
 
 		TextInserter();
 
-		Application.getApplication().invokeLater(new ScreenTextUpdater(),60*60*1000, true);
+		Application.getApplication().invokeLater(new ScreenTextUpdater(),20*1000, true);
 	}
 
 	public void DeriveApplicationFont()
@@ -423,7 +423,6 @@ public final class UIScreen extends MainScreen
 	/**
 	 * Method FormatDecimal. Trims down leading decimal to 100th unit
 	 * @param value double
-
 	 * @return xx.xx */
 	public static String FormatDecimal(double value)
 	{
@@ -431,6 +430,7 @@ public final class UIScreen extends MainScreen
 		String unitDigit = StringBreaker.split(String.valueOf(value), ".")[0];
 		unitDigit = unitDigit.trim();
 		String decimalDigit = StringBreaker.split(String.valueOf(value), ".")[1];
+new Logger().LogMessage("decimalDigit:"+decimalDigit);
 		if(decimalDigit.length()>2)
 			decimalDigit = decimalDigit.trim().substring(0,2);
 		else
@@ -451,9 +451,10 @@ public final class UIScreen extends MainScreen
 			int rcvMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived))).intValue();
 			int sntMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent))).intValue();
 			int localTotalMsg = rcvMsg+sntMsg;
-			double downData = Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalDownload)).doubleValue()/(1024*1024);
-			double upData = Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue()/(1024*1024);
-			double localTotalData = downData + upData;
+new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.LocalDownload));
+			double downData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalDownload)).doubleValue())/(1024*1024);
+			double upData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue())/(1024*1024);
+			double localTotalData = downData + upData;//MegaBytes
 			/* * Roaming * */
 			if(ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("false") || 
 					ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("0"))
@@ -479,12 +480,8 @@ public final class UIScreen extends MainScreen
 			int totalMin = localTotalMinutes + (int)roamTotalMinutes;
 			int totalMsg = localTotalMsg + (int)roamTotalMsg;
 			double totalData = localTotalData + roamTotalData;
-
-			String totalCost = FormatDecimal(
-					((outgoingMin*LocalVoiceRate) +
-							(totalMsg*LocalMessageRate) +
-							((totalData/1024)*LocalDataRate)));
-			TotalResultLocal.setText("$"+totalCost);
+new Logger().LogMessage("localTotalData:"+localTotalData);
+			
 			IncomingResultUsage.setText( String.valueOf(totalIncoming).toString() );
 			OutgoingResultUsage.setText( String.valueOf(totalOutgoing).toString() );
 			TotalResultMinsUsage.setText( String.valueOf(totalMin).toString() );
@@ -495,18 +492,23 @@ public final class UIScreen extends MainScreen
 			UploadResultUsage.setText( StringBreaker.split(String.valueOf(totalUpload), ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
 			TotalResultDataUsage.setText( StringBreaker.split(String.valueOf(totalData),".")[0]);
 
+			String localTotalCost = FormatDecimal(
+					((outgoingMin*LocalVoiceRate) +
+							(localTotalMsg*LocalMessageRate) +
+							((localTotalData)*LocalDataRate)));
+			
 			String totalRoamCost = FormatDecimal(
 					(roamTotalMinutes*RoamingVoiceRate) 
 					+ (roamTotalMsg*RoamingMessageRate)
 					+ (roamTotalData*RoamingDataRate));
+			
+			String totalCost = String.valueOf(Double.valueOf(localTotalCost).doubleValue() 
+					+ Double.valueOf(totalRoamCost).doubleValue());  
+			TotalResultLocal.setText("$"+totalCost);
 			RoamingResultMinutes.setText(StringBreaker.split(String.valueOf(roamTotalMinutes),".")[0]);
 			RoamingResultMessages.setText(StringBreaker.split(String.valueOf(roamTotalMsg),".")[0]);
 			RoamingResultData.setText(StringBreaker.split(String.valueOf(roamTotalData),".")[0]);
 			TotalResultRoaming.setText("$"+totalRoamCost);
-
-			new Logger().LogMessage("Roaming--\r\nMins->"+roamTotalMinutes+
-					"\r\nMsgs->"+roamTotalMsg+
-					"\r\nData->"+roamTotalData);
 
 			//			/* * Location/Position * */
 			//			LatitudeResultText.setText(theModel.SelectData("lat"));
