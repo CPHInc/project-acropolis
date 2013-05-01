@@ -103,9 +103,9 @@ public final class UIScreen extends MainScreen
 	String SentResultString = "";
 	String TotalMsgString = "Total Messages";
 	String TotalResultMsgString = "";
-	static String DownloadString = "Downloaded (KB)";
+	static String DownloadString = "Downloaded (MB)";
 	String DownloadResultString = "";
-	static String UploadString = "Uploaded (KB)";
+	static String UploadString = "Uploaded (MB)";
 	String UploadResultString = "";
 	String TotalDataString = "Total (KB)";
 	static String TotalResultDataString = "";
@@ -451,8 +451,8 @@ public final class UIScreen extends MainScreen
 			int rcvMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived))).intValue();
 			int sntMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent))).intValue();
 			int localTotalMsg = rcvMsg+sntMsg;
-			double downData = Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalDownload)).doubleValue()/1024;
-			double upData = Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue()/1024;
+			double downData = Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalDownload)).doubleValue()/(1024*1024);
+			double upData = Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue()/(1024*1024);
 			double localTotalData = downData + upData;
 			/* * Roaming * */
 			if(ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("false") || 
@@ -466,8 +466,8 @@ public final class UIScreen extends MainScreen
 			double roamRcvMsg = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingReceived)).doubleValue();
 			double roamSntMsg = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingSent)).doubleValue();
 			double roamTotalMsg =  roamRcvMsg + roamSntMsg;
-			double roamDownData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingDownload)).doubleValue())/1024;
-			double roamUpData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingUpload)).doubleValue())/1024;
+			double roamDownData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingDownload)).doubleValue())/(1024*1024);
+			double roamUpData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingUpload)).doubleValue())/(1024*1024);
 			double roamTotalData = roamDownData + roamUpData;
 
 			int totalIncoming = incomingMin + (int)roamInMinutes;
