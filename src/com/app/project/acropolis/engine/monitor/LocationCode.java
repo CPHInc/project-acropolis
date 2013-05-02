@@ -202,12 +202,12 @@ public class LocationCode implements Runnable
 
 	/**
 	 * Method Check_NON_CAN_Operator.
-	
 	 * @return boolean */
 	public static boolean Check_NON_CAN_Operator()
 	{
+
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		
+new Logger().LogMessage("network--"+CurrentNetworkName);		
 		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
 		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
 		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
@@ -217,6 +217,5 @@ public class LocationCode implements Runnable
 		    	
 		return NON_CANOperatorCheck;
 	 }
-	
 	
 }

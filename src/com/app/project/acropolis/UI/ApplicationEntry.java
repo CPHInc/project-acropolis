@@ -7,11 +7,11 @@ import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationManager;
+import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.ui.UiApplication;
 
 import com.app.project.acropolis.controller.CodeValidator;
-import com.app.project.acropolis.controller.GlobalListener;
 import com.app.project.acropolis.controller.RadioStateListener;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
 import com.app.project.acropolis.engine.monitor.ClockListener;
@@ -32,10 +32,11 @@ public class ApplicationEntry
 	 */
 	public static void main(String[] args)
 	{
-		while(ApplicationManager.getApplicationManager().inStartup())
+		while( ApplicationManager.getApplicationManager().inStartup() && 
+				RadioInfo.getCurrentNetworkName()!=null )
 		{
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(4*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -49,15 +50,15 @@ public class ApplicationEntry
 		}
 		MinimizedApplication theMin = MinimizedApplication.getInstance();
 		MinimizedApplication.getInstance().Initialize();
-//		theMin.setAcceptEvents(false);
+		theMin.setAcceptEvents(false);
 		theMin.enterEventDispatcher();
-		GlobalListener theEvent = new GlobalListener();
+//		GlobalListener theEvent = new GlobalListener();
 //		theEvent.setAcceptEvents(true);
-		theEvent.enterEventDispatcher();
+//		theEvent.enterEventDispatcher();
 	}
 }
 
-final class GUIApplication extends UiApplication //implements GlobalEventListener
+final class GUIApplication extends UiApplication
 {
 	static GUIApplication gui;
 	/**
@@ -67,7 +68,6 @@ final class GUIApplication extends UiApplication //implements GlobalEventListene
 	{        
 		new Logger().LogMessage("Screen pushed");
 		pushScreen(new UIScreen());
-//		addGlobalEventListener(new GlobalListener());
 	}
 
 	public boolean shouldAppearInApplicationSwitcher()
@@ -95,7 +95,6 @@ final class MinimizedApplication extends Application
 	{
 		Application.getApplication().addRadioListener((RadioStatusListener)new RadioStateListener());
 		Application.getApplication().addRealtimeClockListener(new ClockListener());	//checks bill date
-//		Application.getApplication().addGlobalEventListener(new GlobalListener());
 		new Logger().LogMessage("Engines ON");
 		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
 		InboxScanner();

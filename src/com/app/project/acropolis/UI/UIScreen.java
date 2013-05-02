@@ -189,15 +189,13 @@ public final class UIScreen extends MainScreen
 				MainScreen.VERTICAL_SCROLL|MainScreen.USE_ALL_WIDTH);
 		//testing global handler
 		ApplicationManager.getApplicationManager().postGlobalEvent(0xde15415aec6cfa55L);
-		
+
 		Application.getApplication().setAcceptEvents(true);
 		DeriveApplicationFont();
 		setTitle(AppTitle);		//if required
 
-		new Logger().LogMessage("Application requested for Foreground entry");
 		UiApplication.getUiApplication().requestForeground();
 		String phonenumber = Phone.getDevicePhoneNumber(false);
-		new Logger().LogMessage("#number"+phonenumber);
 		AppMenu();
 
 		CompanyLogo();
@@ -430,7 +428,6 @@ public final class UIScreen extends MainScreen
 		String unitDigit = StringBreaker.split(String.valueOf(value), ".")[0];
 		unitDigit = unitDigit.trim();
 		String decimalDigit = StringBreaker.split(String.valueOf(value), ".")[1];
-new Logger().LogMessage("decimalDigit:"+decimalDigit);
 		if(decimalDigit.length()>2)
 			decimalDigit = decimalDigit.trim().substring(0,2);
 		else
@@ -451,7 +448,7 @@ new Logger().LogMessage("decimalDigit:"+decimalDigit);
 			int rcvMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived))).intValue();
 			int sntMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent))).intValue();
 			int localTotalMsg = rcvMsg+sntMsg;
-new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.LocalDownload));
+			new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.LocalDownload));
 			double downData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalDownload)).doubleValue())/(1024*1024);
 			double upData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue())/(1024*1024);
 			double localTotalData = downData + upData;//MegaBytes
@@ -480,8 +477,7 @@ new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.LocalDownload));
 			int totalMin = localTotalMinutes + (int)roamTotalMinutes;
 			int totalMsg = localTotalMsg + (int)roamTotalMsg;
 			double totalData = localTotalData + roamTotalData;
-new Logger().LogMessage("localTotalData:"+localTotalData);
-			
+
 			IncomingResultUsage.setText( String.valueOf(totalIncoming).toString() );
 			OutgoingResultUsage.setText( String.valueOf(totalOutgoing).toString() );
 			TotalResultMinsUsage.setText( String.valueOf(totalMin).toString() );
@@ -496,12 +492,12 @@ new Logger().LogMessage("localTotalData:"+localTotalData);
 					((outgoingMin*LocalVoiceRate) +
 							(localTotalMsg*LocalMessageRate) +
 							((localTotalData)*LocalDataRate)));
-			
+
 			String totalRoamCost = FormatDecimal(
 					(roamTotalMinutes*RoamingVoiceRate) 
 					+ (roamTotalMsg*RoamingMessageRate)
 					+ (roamTotalData*RoamingDataRate));
-			
+
 			String totalCost = String.valueOf(Double.valueOf(localTotalCost).doubleValue() 
 					+ Double.valueOf(totalRoamCost).doubleValue());  
 			TotalResultLocal.setText("$"+totalCost);
@@ -535,7 +531,7 @@ new Logger().LogMessage("localTotalData:"+localTotalData);
 			}
 		}
 	}
-	
+
 	public void AppMenu()
 	{
 		String menuString = "Destroy Persistence";
@@ -558,7 +554,7 @@ new Logger().LogMessage("localTotalData:"+localTotalData);
 		super.close();
 		System.exit(0);	
 	}
-	
+
 	/**
 	 * Method onSavePrompt.
 	 * @return boolean

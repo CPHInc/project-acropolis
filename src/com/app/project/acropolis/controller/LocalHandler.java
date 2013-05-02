@@ -25,25 +25,8 @@ import com.app.project.acropolis.model.ApplicationDB;
  */
 public class LocalHandler implements Runnable
 {
-	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
-	final long LOCATION_ACTIVATE_GUID = 0xd5841d310496f925L;
-
-	String[] MapKeys = {"PhoneNumber","Roaming","Latitude","Longitude",
-			"FixAck","FixDeviceTime","FixServerTime","Incoming",
-			"Outgoing","Download","Upload","Received","Sent"};
-
 	public String datatobeMailed = "";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-	public Date date;
-	public Calendar cal; 
-
-	public boolean NON_CANOperatorCheck = true;
-	public final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-	public String CurrentNetworkName = "";
-
-	public Timer handler = new Timer();
-	public int WAFs = 0;
-
 	private boolean looper = false;
 	
 	public LocalHandler(boolean loop)
@@ -144,7 +127,7 @@ public class LocalHandler implements Runnable
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 									+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-									+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+									+ String.valueOf(LocationCode.Check_NON_CAN_Operator()) + "|"
 									+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
 									+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
 									+ location.getAccuracy() + "|"
@@ -189,7 +172,7 @@ public class LocalHandler implements Runnable
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 									+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-									+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//LocalHandler Roaming method
+									+ String.valueOf(LocationCode.Check_NON_CAN_Operator()) + "|"				//LocalHandler Roaming method
 									+ 67.43125 + "|" 
 									+ -45.123456 + "|"											//southern Greenland
 									+ 1234.1234 +"|"
@@ -226,50 +209,6 @@ public class LocalHandler implements Runnable
 			}
 		}
 
-	}
-
-	/**
-	 * Method Check_NON_CAN_Operator.
-
-	 * @return boolean */
-	public boolean Check_NON_CAN_Operator()
-	{
-		try {
-			Thread.sleep(10*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		CurrentNetworkName = RadioInfo.getNetworkName(RadioInfo.getCurrentNetworkIndex());
-
-		if(CurrentNetworkName == null)
-		{
-			new Logger().LogMessage("no network found");
-		}
-		else
-		{
-			new Logger().LogMessage("Device registered on " + CurrentNetworkName);
-			if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-					|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-					||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-				NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
-			else
-				NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-
-		}
-		return NON_CANOperatorCheck;
-	}
-
-
-	/**
-	 * Method RoamingCheck.
-
-	 * @return boolean */
-	public boolean RoamingCheck()
-	{
-		if((RadioInfo.getNetworkService() & RadioInfo.NETWORK_SERVICE_ROAMING)!=0)
-			return true;
-		else
-			return false;
 	}
 
 }

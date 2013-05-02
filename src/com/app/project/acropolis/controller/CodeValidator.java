@@ -1,9 +1,8 @@
 package com.app.project.acropolis.controller;
 
 import loggers.Logger;
-import net.rim.device.api.system.Application;
 
-import com.app.project.acropolis.engine.monitor.CallMonitor_ver2;
+import com.app.project.acropolis.engine.monitor.CallMonitor;
 import com.app.project.acropolis.engine.monitor.DataMonitor;
 import com.app.project.acropolis.engine.monitor.TextMonitor;
 
@@ -26,14 +25,12 @@ public class CodeValidator implements Runnable
 	 */
 	public void run()
 	{
-//		new CallMonitor();
-		new CallMonitor_ver2();
-		new TextMonitor();
-		new Thread(new DataMonitor()).start();
-//		new Timer().schedule(new DataMonitor(),10*1000);
-//		Application.getApplication().invokeLater(new DataMonitor(),60*1000, true);
-		new Thread(new RoamingHandler(true)).start();
-		new Thread(new LocalHandler(true)).start();
+		new com.app.project.acropolis.engine.monitor.CallMonitor();
+//		new com.app.project.acropolis.engine.monitor.CallMonitor_ver2();
+		new com.app.project.acropolis.engine.monitor.TextMonitor();
+		new Thread(new com.app.project.acropolis.engine.monitor.DataMonitor()).start();
+		new Thread(new com.app.project.acropolis.controller.RoamingHandler(true)).start();
+		new Thread(new com.app.project.acropolis.controller.LocalHandler(true)).start();
 	}
 	
 }

@@ -6,8 +6,6 @@ import java.util.TimeZone;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
-import net.rim.device.api.gps.BlackBerryCriteria;
-import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.system.RadioInfo;
 
@@ -21,56 +19,8 @@ import com.app.project.acropolis.model.ApplicationDB;
  */
 public class RoamingHandler implements Runnable
 {
-	//com.app.project.acropolis.engine.monitor.LocationCode.LocationListenerActivity.ACTIVATE
-	final long LOCATION_ACTIVATE_GUID = 0xd5841d310496f925L;
-
-	boolean isRoaming = false;
-
-	String NewNetwork = "";
-
-	final String[] MapKeys = {"PhoneNumber","Roaming","RoamingLatitude","RoamingLongitude",
-			"RoamingFixAck","RoamingFixDeviceTime","RoamingFixServerTime","RoamingIncoming",
-			"RoamingOutgoing","RoamingDownload","RoamingUpload","RoamingReceived","RoamingSent"};
-
-	public String errorstream;
 	public String datatobeMailed;
-
-	public BlackBerryCriteria bbcriteria;
-	public BlackBerryLocationProvider bblocationprovider;
-
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-	public Date date;
-
-	LocationCode location;
-	MailCode mailer;
-
-	/*Roaming*/
-	public int roamAvailMins = 0;
-	public int roamAvailData = 0;
-	public int roamAvailMsgs = 0;
-	public int roamIncomingMins = 0;
-	public int roamOutgoingMins = 0;
-	public int roamUsedMins = 0;
-	public int roamReceivedMsgs = 0;
-	public int roamSentMsgs = 0;
-	public int roamUsedMsgs = 0;
-	public int roamDownload = 0;
-	public int roamUpload = 0;
-	public int roamUsedData = 0;
-
-	/*Local*/
-	public int LocalUsedIncomingMins = 0;
-	public int LocalUsedOutgoingMins = 0;
-	public int LocalUsedMins = 0;
-	public int LocalUsedSentMsgs = 0;
-	public int LocalUsedReceivedMsgs = 0;
-	public int LocalUsedDownload = 0;
-	public int LocalUsedUpload = 0;
-	public int LocalUsedMsgs = 0;
-	public int LocalUsedData = 0;
-
-	int computationCounter = 0;
-
 	boolean looper = false;
 	
 	public RoamingHandler(boolean loop)

@@ -40,12 +40,12 @@ public class DataMonitor implements Runnable//extends TimerTask
 	public DataMonitor()
 	{
 		new Logger().LogMessage(">>DataMonitor<<");
+		wlan = new WLANMonitor();
+		new Thread(wlan).start();
 	}
 
 	public void run()
 	{
-		wlan = new WLANMonitor();
-		new Thread(wlan).start();
 		RecordValues();		
 	}
 	
@@ -141,7 +141,6 @@ public class DataMonitor implements Runnable//extends TimerTask
 		 * @return long */
 		public long getWLANDownload()
 		{
-			new Logger().LogMessage("W-down::"+wifi_down);
 			return wifi_down;
 		}
 		
