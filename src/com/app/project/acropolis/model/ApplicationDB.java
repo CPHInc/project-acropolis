@@ -2,7 +2,10 @@ package com.app.project.acropolis.model;
 
 import java.util.Vector;
 
+import com.app.project.acropolis.engine.monitor.LocationCode;
+
 import loggers.DBLogger;
+import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
@@ -154,9 +157,14 @@ public final class ApplicationDB implements Persistable
 				vector.addElement("0");
 			}
 			vector.setElementAt((String)Phone.getDevicePhoneNumber(true),ApplicationDB.PhoneNumber);
+			if(LocationCode.Check_NON_CAN_Operator())
+				vector.setElementAt("true", ApplicationDB.Roaming);
+			else
+				vector.setElementAt("false", ApplicationDB.Roaming);
 			persist.setContents(vector);
+			persist.forceCommit();
 		}
-		new DBLogger().LogMessage("full monty");
+		new Logger().LogMessage("full monty");
 	}
 	
 }

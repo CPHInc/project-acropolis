@@ -3,7 +3,6 @@ package com.app.project.acropolis.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.Timer;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -47,6 +46,7 @@ public class LocalHandler implements Runnable
 			{
 				for(;;)
 				{
+					ApplicationDB.setValue("false",ApplicationDB.Roaming);
 					switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 					{
 					case 0:	//Radio OFF
@@ -66,7 +66,7 @@ public class LocalHandler implements Runnable
 						new Logger().LogMessage("Radio ON");
 						new Logger().LogMessage("sleeping...");
 						try {
-							Thread.sleep(12*60*60*1000);
+							Thread.sleep(1*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -76,7 +76,7 @@ public class LocalHandler implements Runnable
 			}
 			else
 			{
-				new Logger().LogMessage("one loop");
+				new Logger().LogMessage("unique instance");
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
 				case 0:	//Radio OFF
@@ -95,6 +95,7 @@ public class LocalHandler implements Runnable
 
 	public void CollectedData()
 	{
+		setInProcess(true);
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getDefault();
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
@@ -123,6 +124,7 @@ public class LocalHandler implements Runnable
 					ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
 					ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Latitude);
 					ApplicationDB.setValue(String.valueOf(location.getLongitude()),ApplicationDB.Longitude);
+					
 					//data monitor addition
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
@@ -185,7 +187,7 @@ public class LocalHandler implements Runnable
 					new MailCode().DebugMail(datatobeMailed);
 					location.StopTracking();
 					location.ResetTracking();
-
+					
 					break;
 				}
 
@@ -208,7 +210,19 @@ public class LocalHandler implements Runnable
 				}
 			}
 		}
-
+		setInProcess(false);
+		
+	}
+	
+	static boolean _inProcess = false;
+	public static boolean getInProcess()
+	{
+		return _inProcess;
 	}
 
+	public static void setInProcess(boolean inProcess)
+	{
+		inProcess = _inProcess;
+	}
+	
 }

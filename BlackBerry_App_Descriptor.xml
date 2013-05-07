@@ -9,7 +9,7 @@
     </Icons>
   </Resources>
   <KeywordResources KeywordResourceBundleName="" KeywordResourceBundleRelativePath="" KeywordResourceBundleClassName="" KeywordResourceBundleKey=""/>
-  <Compile OutputCompilerMessages="true" ConvertImages="true" CreateWarningForNoExportedRoutine="true" CompressResources="false" AliasList="">
+  <Compile OutputCompilerMessages="false" ConvertImages="true" CreateWarningForNoExportedRoutine="true" CompressResources="false" AliasList="">
     <PreprocessorDefines/>
   </Compile>
   <Packaging PreBuildStep="" PostBuildStep="" CleanStep="" OutputFileName="Project_Acropolis_SVN_debugger" OutputFolder="deliverables" GenerateALXFile="true">
@@ -21,6 +21,10 @@
   </HiddenProperties>
   <AlternateEntryPoints>
     <AlternateEntryPoint Title="Project Acropolis (by CPH)" MainMIDletName="" ArgumentsForMain="minimize" HomeScreenPosition="0" StartupTier="7" IsSystemModule="true" IsAutostartup="true" hasTitleResource="false" TitleResourceBundleKey="" TitleResourceBundleName="" TitleResourceBundleClassName="" TitleResourceBundleRelativePath="">
+      <Icons/>
+      <KeywordResources KeywordResourceBundleName="" KeywordResourceBundleRelativePath="" KeywordResourceBundleClassName="" KeywordResourceBundleKey=""/>
+    </AlternateEntryPoint>
+    <AlternateEntryPoint Title="GlobalApplicationWorker" MainMIDletName="" ArgumentsForMain="global" HomeScreenPosition="0" StartupTier="7" IsSystemModule="true" IsAutostartup="true" hasTitleResource="false" TitleResourceBundleKey="" TitleResourceBundleName="" TitleResourceBundleClassName="" TitleResourceBundleRelativePath="">
       <Icons/>
       <KeywordResources KeywordResourceBundleName="" KeywordResourceBundleRelativePath="" KeywordResourceBundleClassName="" KeywordResourceBundleKey=""/>
     </AlternateEntryPoint>

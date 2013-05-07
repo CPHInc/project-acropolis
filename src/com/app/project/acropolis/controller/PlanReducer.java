@@ -162,10 +162,10 @@ public class PlanReducer
 
 	}
 	
-	public boolean CheckRoamingPlan()
-	{
-		return ApplicationDB.getValue(ApplicationDB.RoamingQuota).equalsIgnoreCase("true");
-	}
+//	public boolean CheckRoamingPlan()
+//	{
+//		return ApplicationDB.getValue(ApplicationDB.RoamingQuota).equalsIgnoreCase("true");
+//	}
 	
 	public static void PlanReached()
 	{

@@ -39,8 +39,9 @@ public class RoamingHandler implements Runnable
 		{
 			for(;;)
 			{
-				if(Check_NON_CAN_Operator())
+				if(LocationCode.Check_NON_CAN_Operator())
 				{
+					ApplicationDB.setValue("true",ApplicationDB.Roaming);
 					switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 					{
 					case 0:	//Radio OFF
@@ -61,7 +62,7 @@ public class RoamingHandler implements Runnable
 						CollectedData();
 						new Logger().LogMessage("sleeping ..");
 						try {
-							Thread.sleep(16*60*60*1000);
+							Thread.sleep(1*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -72,7 +73,7 @@ public class RoamingHandler implements Runnable
 		}
 		else
 		{
-			if(Check_NON_CAN_Operator())
+			if(LocationCode.Check_NON_CAN_Operator())
 			{
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
@@ -92,6 +93,7 @@ public class RoamingHandler implements Runnable
 
 	public void CollectedData()
 	{
+		setInProcess(true);
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getDefault();
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
@@ -103,7 +105,7 @@ public class RoamingHandler implements Runnable
 		 * 				(also adds 1/4 minute to 6 minutes on each iteration) 
 		 */
 		location.run();
-		for(int a=0;a<14;a++)
+		for(int a=0;a<20;a++)
 		{
 			if( RadioInfo.getCurrentNetworkName()!=null )
 			{
@@ -124,16 +126,16 @@ public class RoamingHandler implements Runnable
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 									+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-									+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+									+ "true" + "|"
 									+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
 									+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
 									+ location.getAccuracy() + "|"
-									+ "Down:"+ ApplicationDB.getValue(ApplicationDB.LocalDownload) + "|"
-									+ "Up:" + ApplicationDB.getValue(ApplicationDB.LocalUpload) + "|"
-									+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalReceived) + "|" 
-									+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalSent) + "|"
-									+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
-									+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
+									+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+									+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+									+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+									+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+									+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+									+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
 					new MailCode().DebugMail(datatobeMailed);
 					location.StopTracking();
 					location.ResetTracking();
@@ -169,16 +171,16 @@ public class RoamingHandler implements Runnable
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 									+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-									+ String.valueOf(Check_NON_CAN_Operator()) + "|"				//LocalHandler Roaming method
+									+"true" + "|"				//LocalHandler Roaming method
 									+ 67.43125 + "|" 
 									+ -45.123456 + "|"											//southern Greenland
 									+ 1234.1234 +"|"
-									+ "Down:"+ ApplicationDB.getValue(ApplicationDB.LocalDownload) + "|"
-									+ "Up:" + ApplicationDB.getValue(ApplicationDB.LocalUpload) + "|"
-									+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalReceived) + "|" 
-									+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalSent) + "|"
-									+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
-									+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
+									+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+									+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+									+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+									+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+									+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+									+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
 					new MailCode().DebugMail(datatobeMailed);
 					location.StopTracking();
 					location.ResetTracking();
@@ -205,36 +207,18 @@ public class RoamingHandler implements Runnable
 				}
 			}
 		}
-
+		setInProcess(false);
+	}
+	
+	static boolean _inProcess = false;
+	public static boolean getInProcess()
+	{
+		return _inProcess;
 	}
 
-	/**
-	 * Method Check_NON_CAN_Operator.
-
-	 * @return boolean */
-	public boolean Check_NON_CAN_Operator()
+	public static void setInProcess(boolean inProcess)
 	{
-		try {
-			Thread.sleep(10*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		boolean NON_CANOperatorCheck = true;
-
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-
-		String CurrentNetworkName = "";
-
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-				|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-				||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
-		else
-			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-
-		return NON_CANOperatorCheck;
+		inProcess = _inProcess;
 	}
 
 }

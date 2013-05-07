@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.microedition.location.AddressInfo;
 import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
@@ -53,7 +54,7 @@ public class LocationCode implements Runnable
 	public static  boolean NON_CANOperatorCheck = true;
 	public final static  String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 	public static  String CurrentNetworkName = "";
-
+	Location _Location;
 	/**
 	 * Method run.
 	 * @see java.lang.Runnable#run()
@@ -105,7 +106,7 @@ public class LocationCode implements Runnable
 			TimeZone timezone = TimeZone.getDefault();
 			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime());  	//GMT time for server
 			
-			new MailCode().SendMail("");
+			new MailCode().DebugMail("");
 			errorstream = "#1.0.1|ErrorStream|"+  Phone.getDevicePhoneNumber(false) + "|"
 			+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
 			+ String.valueOf(Check_NON_CAN_Operator()) + "|"
@@ -117,7 +118,7 @@ public class LocationCode implements Runnable
 
 		return retval;
 	}
-	
+	QualifiedCoordinates qc;
 	/**
 	 * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
 	 * @version $Revision: 1.0 $
@@ -132,10 +133,12 @@ public class LocationCode implements Runnable
 		{
 			if (location.isValid()) 
 			{
+				_Location = location;
 				longitude = location.getQualifiedCoordinates().getLongitude();
 				latitude = location.getQualifiedCoordinates().getLatitude();
-				QualifiedCoordinates qc = location.getQualifiedCoordinates();
+				qc = location.getQualifiedCoordinates();
 				accuracy = qc.getHorizontalAccuracy();
+				new Logger().LogMessage("AddressINFO::"+location.getAddressInfo().toString());
 			}
 		}
 		/**
@@ -171,6 +174,11 @@ public class LocationCode implements Runnable
 	public  void ResetTracking()
 	{
 		bblocationprovider.reset();
+	}
+
+	public Location getLocation()
+	{
+		return _Location;
 	}
 	
 	/**

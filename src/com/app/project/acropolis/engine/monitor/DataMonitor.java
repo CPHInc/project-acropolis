@@ -65,7 +65,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 			DB_MDS_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalUpload));
 			r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
 			r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
-			if(!Check_NON_CAN_Operator())
+			if(!LocationCode.Check_NON_CAN_Operator())
 			{
 				if( !wlan.getWLANConnection() )
 				{//on MDS
@@ -161,29 +161,5 @@ public class DataMonitor implements Runnable//extends TimerTask
 		}
 		
 	}
-	
-	/**
-	 * Method Check_NON_CAN_Operator.
-	 * @return boolean
-	 */
-	public boolean Check_NON_CAN_Operator()
-	{
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-		    	
-		String CurrentNetworkName = "";
-		    	
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//local
-		else
-			NON_CANOperatorCheck = true;				// ROAMING
-		    	
-		return NON_CANOperatorCheck;
-	 }
 	
 }

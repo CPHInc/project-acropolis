@@ -48,90 +48,6 @@ public class MailCode
 	}
 	
 	/**
-	 * 
-	 * @param stream_coordinates
-	 */
-	public void SendMail(String stream_coordinates) 
-	{
-		if(Session.getDefaultInstance().getServiceConfiguration().getEmailAddress() == null)
-		{
-			new Logger().LogMessage("No e-mail");
-		}
-		else
-		{
-	    	String toMail_debug = "rohan@cellphonehospitalinc.com";
-	    	String toMailName_debug = "rohan";
-	    	String toMail_server = "postmaster@cellphonehospitalinc.com";
-	    	String toMailName_server = "postmaster";
-	    	String fromMail2;
-	    	String fromMailName2;
-	    	Session session2;
-	    	Address fromadd2;
-	    	Address toadd_server;
-	    	Address toadd_debug;
-	    	
-	    	TextBodyPart mailbody2;
-	    	Message message2;
-	    	
-	    	session2 = Session.getDefaultInstance();
-	    	if(session2 == null)
-	    	{
-	    		Application.getApplication().invokeAndWait(new Runnable()
-	    		{
-	    			public void run()
-	    			{    			
-		    			Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
-								"and start the application manually from Application Menu");
-						System.exit(0);
-	    			}
-	    		});
-	    	}
-	    	
-	    	Folder[] folders = session2.getStore().list(Folder.OUTBOX);
-	    	Folder sentfolder = folders[0];
-	    	message2 = new Message(sentfolder);
-			
-	    	try{
-	    		fromMail2 = session2.getServiceConfiguration().getEmailAddress().toLowerCase();
-	    		fromMailName2 = session2.getServiceConfiguration().getName().toLowerCase();
-	    		if(fromMail2.equalsIgnoreCase(""))
-	    		{
-	    			Application.getApplication().invokeAndWait(new Runnable()
-	    			{
-	    				public void run()
-	    				{
-	    					Dialog.alert("ERROR -- No E-Mail account found on device \r\n Please add an account " +
-	    							"and start the application manually from Application Menu");
-	    					System.exit(0);
-	    				}
-	    			});
-	    		}
-	    		
-	    		fromadd2 = new Address(fromMail2,fromMailName2);
-	    		toadd_server = new Address(toMail_server,toMailName_server);
-	    		toadd_debug = new Address(toMail_debug,toMailName_debug);
-			
-	    		message2.setSubject(" ");														//Subject
-	    		message2.setFrom(fromadd2);																//Sender address	(BB mail account)
-	    		message2.addRecipients(Message.RecipientType.TO, new Address[] {toadd_server,toadd_debug});		//sending to		(rohan & ashwin)
-	    		
-	    		message2.setContent(stream_coordinates); 
-	    		
-	    		Transport.send(message2);
-	    		new Logger().LogMessage("Mail sent");
-	    		sentfolder.deleteMessage(message2, true);
-	    		
-			} catch(AddressException e) {
-	    		e.printStackTrace();
-	    		System.err.print(e.getMessage());
-	    	} catch(MessagingException e) {
-	    		e.printStackTrace();
-	    		System.err.print(e.getMessage());
-	    	}
-		}
-	}
-
-	/**
 	 * debug mail ---> rohan@cellphonehospitalinc.com
 	 *
 	 * @param data
@@ -190,7 +106,7 @@ public class MailCode
 				
 				Transport.send(debug_message);
 				new Logger().LogMessage("DEBUG Mail sent");
-				outbox[0].deleteMessage(debug_message, true);
+//				outbox[0].deleteMessage(debug_message, true);
 			} catch (AddressException e) {
 				new Logger().LogMessage(e.getMessage());
 				e.printStackTrace();

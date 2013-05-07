@@ -21,6 +21,7 @@ import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.XYEdges;
 import net.rim.device.api.ui.component.BitmapField;
+import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.container.GridFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
@@ -28,8 +29,10 @@ import net.rim.device.api.ui.decor.Border;
 import net.rim.device.api.ui.decor.BorderFactory;
 import net.rim.device.api.util.StringProvider;
 
+import com.app.project.acropolis.controller.LocalHandler;
 import com.app.project.acropolis.controller.RoamingHandler;
 import com.app.project.acropolis.controller.StringBreaker;
+import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
 /**
@@ -49,15 +52,15 @@ public final class UIScreen extends MainScreen
 	//	final String AppTitle = "BLUE GIANT Wireless Monitoring System";
 
 	/*Local Rates*/
-	final static double LocalVoiceRate = 0.10;//incoming free(general)
-	final static double LocalMessageRate = 0.10;//some plan 250 free after 10cents/msg
-	final static double LocalDataRate = 0.06;//500MB free after 6cent/MB
+	final static double LocalVoiceRate = 0.10;		//incoming free(general)
+	final static double LocalMessageRate = 0.10;	//some plan 250 free after 10cents/msg
+	final static double LocalDataRate = 0.06;		//500MB free after 6cent/MB
 
 	/*Roaming Rates (Outside Canada)*/
 	final static double RoamingVoiceRate = 2.00;
 	final static double RoamingMessageRate = 0.60;
 	final static double RoamingDataRate = 5.00;
-
+	
 	/*Long Distance Rates*/
 	final double LongDistanceVoiceRate = 0.20;
 	final double LongDistanceMessageRate = 0.0;
@@ -127,6 +130,8 @@ public final class UIScreen extends MainScreen
 	GridFieldManager MessageGrid = new GridFieldManager(Rows,Columns,GridFieldManager.USE_ALL_WIDTH);
 	GridFieldManager DataGrid = new GridFieldManager(Rows,Columns, GridFieldManager.USE_ALL_WIDTH);
 
+	public static RichTextField Country = new RichTextField(); 
+	
 	String companyName = "Carillion";
 	String companyCopyrightString = companyName + "\u00A9 Copyrights protected"; 
 	BitmapField LogoField;
@@ -195,9 +200,10 @@ public final class UIScreen extends MainScreen
 		setTitle(AppTitle);		//if required
 
 		UiApplication.getUiApplication().requestForeground();
-		String phonenumber = Phone.getDevicePhoneNumber(false);
 		AppMenu();
 
+		add(Country);
+		
 		CompanyLogo();
 		add(RunningCostText);
 		ChargesGrid();
@@ -448,7 +454,6 @@ public final class UIScreen extends MainScreen
 			int rcvMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalReceived))).intValue();
 			int sntMsg = (Integer.valueOf(ApplicationDB.getValue(ApplicationDB.LocalSent))).intValue();
 			int localTotalMsg = rcvMsg+sntMsg;
-			new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.LocalDownload));
 			double downData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalDownload)).doubleValue())/(1024*1024);
 			double upData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue())/(1024*1024);
 			double localTotalData = downData + upData;//MegaBytes
@@ -534,12 +539,15 @@ public final class UIScreen extends MainScreen
 
 	public void AppMenu()
 	{
-		String menuString = "Destroy Persistence";
+		String menuResetString = "Reset Monitored Data";
 		String menuRefreshString = "Refresh Values";
-		int menuOrdinal = 0x230000;
+		String menuManualString = "Manual Server Communication";
+		int menuResetOrdinal = 0x230000;
 		int menuRefreshOrdinal = 0x250000;
-		int menuPriority = 0;
+		int menuManualOrdinal = 0x270000;
+		int menuResetPriority = 0;
 		int menuRefreshPriority = 1;
+		int menuManualPriority = 2;
 		MenuItem refreshScreen = new MenuItem(new StringProvider(menuRefreshString),menuRefreshOrdinal,menuRefreshPriority);
 		refreshScreen.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
@@ -547,6 +555,39 @@ public final class UIScreen extends MainScreen
 			}
 		}));
 		addMenuItem(refreshScreen);
+		
+		MenuItem resetData = new MenuItem(new StringProvider(menuResetString),menuResetOrdinal,menuResetPriority);
+		resetData.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata,Object context) {
+				ApplicationDB.reset();
+				new ScreenTextUpdater().run();
+			}
+		}));
+		addMenuItem(resetData);
+		
+		
+		MenuItem manualData = new MenuItem(new StringProvider(menuManualString),menuManualOrdinal,menuManualPriority);
+		manualData.setCommand(new Command(new CommandHandler() {
+			public void execute(ReadOnlyCommandMetadata metadata,Object context) {
+				if(!LocationCode.Check_NON_CAN_Operator())
+				{
+//					Application _instance = MinimizedApplication.getInstance();
+//					_instance.invokeLater(new LocalHandler(false));
+					if(!LocalHandler.getInProcess())
+						new Thread(new LocalHandler(false)).start();
+					else
+						Dialog.alert("Application connected to server");
+				}
+				else
+				{
+					if(!RoamingHandler.getInProcess())
+						new Thread(new RoamingHandler(false)).start();
+					else
+						Dialog.alert("Application connected to server");
+				}
+			}
+		}));
+		addMenuItem(manualData);
 	}
 
 	public void close()

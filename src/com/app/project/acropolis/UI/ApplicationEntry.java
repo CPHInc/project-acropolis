@@ -7,14 +7,17 @@ import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationManager;
-import net.rim.device.api.system.RadioInfo;
+import net.rim.device.api.system.GlobalEventListener;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.ui.UiApplication;
 
 import com.app.project.acropolis.controller.CodeValidator;
+import com.app.project.acropolis.controller.LocalHandler;
 import com.app.project.acropolis.controller.RadioStateListener;
+import com.app.project.acropolis.controller.RoamingHandler;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
 import com.app.project.acropolis.engine.monitor.ClockListener;
+import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
 /**
@@ -26,36 +29,68 @@ import com.app.project.acropolis.model.ApplicationDB;
 
 public class ApplicationEntry
 {
+	final static String GUI = "gui";
+	final static String Global = "global";
+	
 	/**
 	 * Method main.
 	 * @param args String[]
 	 */
 	public static void main(String[] args)
 	{
-		while( ApplicationManager.getApplicationManager().inStartup() && 
-				RadioInfo.getCurrentNetworkName()!=null )
+		while( ApplicationManager.getApplicationManager().inStartup() )
 		{
 			try {
-				Thread.sleep(4*1000);
+				Thread.sleep(30*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		new Logger().LogMessage("ON");
-		if(args!=null&&args[0].equals("gui")&&args.length>0)
+		if(args!=null&&args[0].equals(GUI)&&args.length>0)
 		{
 			GUIApplication theApp = GUIApplication.getInstance();
 			theApp.setAcceptEvents(true);
 			theApp.enterEventDispatcher();
 		}
+		if(args!=null&&args[0].equals(Global)&&args.length>0)
+		{
+			GlobalAction theAction = new GlobalAction();
+			theAction.enterEventDispatcher();
+		}
 		MinimizedApplication theMin = MinimizedApplication.getInstance();
 		MinimizedApplication.getInstance().Initialize();
 		theMin.setAcceptEvents(false);
 		theMin.enterEventDispatcher();
-//		GlobalListener theEvent = new GlobalListener();
-//		theEvent.setAcceptEvents(true);
-//		theEvent.enterEventDispatcher();
 	}
+}
+
+final class GlobalAction extends Application implements GlobalEventListener
+{
+	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
+	final long Request_GUID = 0x1a63da98018f9e28L;
+	
+	public GlobalAction()
+	{
+		Application.getApplication().addGlobalEventListener(this);
+	}
+	
+	public void eventOccurred(long guid, int data0, int data1, Object object0,
+			Object object1) {
+		if(guid == Request_GUID)
+		{
+			new Logger().LogMessage("Handlers forced collection");
+			if(!LocationCode.Check_NON_CAN_Operator())
+				new LocalHandler(false).run();
+			else
+				new RoamingHandler(false).run();
+		}
+	}
+	
+	public boolean shouldAppearInApplicationSwitcher()
+	{
+		return false;
+	}
+	
 }
 
 final class GUIApplication extends UiApplication

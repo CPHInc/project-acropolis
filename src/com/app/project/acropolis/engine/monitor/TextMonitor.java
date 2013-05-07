@@ -112,7 +112,7 @@ public class TextMonitor //implements Runnable
 				msg_rcv = conn.receive();
 				new Logger().LogMessage("Receiving message..");				
 				
-				if(!Check_NON_CAN_Operator())
+				if(!LocationCode.Check_NON_CAN_Operator())
 				{
 					if(msg_rcv instanceof TextMessage)
 					{
@@ -189,7 +189,7 @@ public class TextMonitor //implements Runnable
 			final int msg_out = 1;
 			new Logger().LogMessage(">>--"+this.getClass()+"--<<");
 			new Logger().LogMessage("Sending message");
-			if(!Check_NON_CAN_Operator())
+			if(!LocationCode.Check_NON_CAN_Operator())
 			{
 				if(message instanceof TextMessage)
 				{
@@ -252,27 +252,4 @@ public class TextMonitor //implements Runnable
 		}
 	}
 	
-	/**
-	 * Method Check_NON_CAN_Operator.
-	 * @return boolean
-	 */
-	public boolean Check_NON_CAN_Operator()
-	{
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-		    	
-		String CurrentNetworkName = "";
-		    	
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//local
-		else
-			NON_CANOperatorCheck = true;				// ROAMING
-		    	
-		return NON_CANOperatorCheck;
-	 }
 }

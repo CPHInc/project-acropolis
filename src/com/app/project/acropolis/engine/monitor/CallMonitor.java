@@ -112,7 +112,7 @@ public class CallMonitor //implements Runnable
 			int in = 0;
 			if(CallConnected)
 			{
-				if(!Check_NON_CAN_Operator())
+				if(!LocationCode.Check_NON_CAN_Operator())
 				{
 					if(Incoming)
 					{
@@ -289,29 +289,5 @@ public class CallMonitor //implements Runnable
     	}
     	return minutes;
     }
-	
-	/**
-	 * Method Check_NON_CAN_Operator.
-	 * @return boolean
-	 */
-	public boolean Check_NON_CAN_Operator()
-	{
-		boolean NON_CANOperatorCheck = true;
-   	
-		final String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
-		    	
-		String CurrentNetworkName = "";
-		    	
-		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-		
-		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
-			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
-		else
-			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-		    	
-		return NON_CANOperatorCheck;
-	 }
 	
 }
