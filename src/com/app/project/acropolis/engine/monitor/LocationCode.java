@@ -175,11 +175,6 @@ public class LocationCode implements Runnable
 	{
 		bblocationprovider.reset();
 	}
-
-	public Location getLocation()
-	{
-		return _Location;
-	}
 	
 	/**
 	 * Method getLatitude.
@@ -215,7 +210,6 @@ public class LocationCode implements Runnable
 	{
 
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
-new Logger().LogMessage("network--"+CurrentNetworkName);		
 		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
 		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
 		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )

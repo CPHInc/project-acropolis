@@ -66,7 +66,7 @@ public class LocalHandler implements Runnable
 						new Logger().LogMessage("Radio ON");
 						new Logger().LogMessage("sleeping...");
 						try {
-							Thread.sleep(1*60*60*1000);
+							Thread.sleep(12*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}

@@ -60,7 +60,7 @@ public final class UIScreen extends MainScreen
 	final static double RoamingVoiceRate = 2.00;
 	final static double RoamingMessageRate = 0.60;
 	final static double RoamingDataRate = 5.00;
-	
+
 	/*Long Distance Rates*/
 	final double LongDistanceVoiceRate = 0.20;
 	final double LongDistanceMessageRate = 0.0;
@@ -131,7 +131,7 @@ public final class UIScreen extends MainScreen
 	GridFieldManager DataGrid = new GridFieldManager(Rows,Columns, GridFieldManager.USE_ALL_WIDTH);
 
 	public static RichTextField Country = new RichTextField(); 
-	
+
 	String companyName = "Carillion";
 	String companyCopyrightString = companyName + "\u00A9 Copyrights protected"; 
 	BitmapField LogoField;
@@ -203,7 +203,7 @@ public final class UIScreen extends MainScreen
 		AppMenu();
 
 		add(Country);
-		
+
 		CompanyLogo();
 		add(RunningCostText);
 		ChargesGrid();
@@ -555,7 +555,7 @@ public final class UIScreen extends MainScreen
 			}
 		}));
 		addMenuItem(refreshScreen);
-		
+
 		MenuItem resetData = new MenuItem(new StringProvider(menuResetString),menuResetOrdinal,menuResetPriority);
 		resetData.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata,Object context) {
@@ -564,15 +564,13 @@ public final class UIScreen extends MainScreen
 			}
 		}));
 		addMenuItem(resetData);
-		
-		
+
+
 		MenuItem manualData = new MenuItem(new StringProvider(menuManualString),menuManualOrdinal,menuManualPriority);
 		manualData.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata,Object context) {
 				if(!LocationCode.Check_NON_CAN_Operator())
 				{
-//					Application _instance = MinimizedApplication.getInstance();
-//					_instance.invokeLater(new LocalHandler(false));
 					if(!LocalHandler.getInProcess())
 						new Thread(new LocalHandler(false)).start();
 					else

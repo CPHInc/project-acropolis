@@ -91,7 +91,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 				}
 			}
 			try {
-				Thread.sleep(60*1000);
+				Thread.sleep(4*60*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

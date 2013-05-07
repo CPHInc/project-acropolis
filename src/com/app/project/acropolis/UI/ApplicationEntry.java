@@ -2,12 +2,14 @@ package com.app.project.acropolis.UI;
 
 import loggers.Logger;
 import net.rim.blackberry.api.mail.Session;
+import net.rim.blackberry.api.mail.event.DefaultSessionListener;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.GlobalEventListener;
+import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.ui.UiApplication;
 
@@ -41,7 +43,10 @@ public class ApplicationEntry
 		while( ApplicationManager.getApplicationManager().inStartup() )
 		{
 			try {
-				Thread.sleep(30*1000);
+				if(RadioInfo.getCurrentNetworkName()!=null)
+					break;
+				else
+					Thread.sleep(5*60*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -76,9 +81,9 @@ final class GlobalAction extends Application implements GlobalEventListener
 	
 	public void eventOccurred(long guid, int data0, int data1, Object object0,
 			Object object1) {
+		new Logger().LogMessage("GUID::"+guid);
 		if(guid == Request_GUID)
 		{
-			new Logger().LogMessage("Handlers forced collection");
 			if(!LocationCode.Check_NON_CAN_Operator())
 				new LocalHandler(false).run();
 			else

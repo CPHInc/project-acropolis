@@ -62,7 +62,7 @@ public class RoamingHandler implements Runnable
 						CollectedData();
 						new Logger().LogMessage("sleeping ..");
 						try {
-							Thread.sleep(1*60*60*1000);
+							Thread.sleep(16*60*60*1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
