@@ -84,7 +84,6 @@ public class RoamingHandler extends TimerTask//implements Runnable
 
 	public void CollectedData()
 	{
-		setInProcess(true);
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getDefault();
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
@@ -198,18 +197,6 @@ public class RoamingHandler extends TimerTask//implements Runnable
 				}
 			}
 		}
-		setInProcess(false);
-	}
-
-	static boolean _inProcess = false;
-	public static boolean getInProcess()
-	{
-		return _inProcess;
-	}
-
-	public static void setInProcess(boolean inProcess)
-	{
-		inProcess = _inProcess;
 	}
 
 }

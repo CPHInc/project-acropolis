@@ -1,24 +1,24 @@
 package com.app.project.acropolis.UI;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 import loggers.Logger;
 import net.rim.blackberry.api.mail.Session;
-import net.rim.blackberry.api.mail.event.DefaultSessionListener;
 import net.rim.blackberry.api.phone.Phone;
+import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.GlobalEventListener;
 import net.rim.device.api.system.RadioInfo;
-import net.rim.device.api.system.RadioStatusListener;
 import net.rim.device.api.ui.UiApplication;
 
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.LocalHandler;
-import com.app.project.acropolis.controller.RadioStateListener;
 import com.app.project.acropolis.controller.RoamingHandler;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
-import com.app.project.acropolis.engine.monitor.ClockListener;
 import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
@@ -72,6 +72,8 @@ final class GlobalAction extends Application implements GlobalEventListener
 {
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
+	final long DateChange_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 
 	public GlobalAction()
 	{
@@ -87,6 +89,31 @@ final class GlobalAction extends Application implements GlobalEventListener
 				new LocalHandler(false).run();
 			else
 				new RoamingHandler(false).run();
+		}
+		if(guid == DateChange_GUID)
+		{
+			TimeZone timezone = TimeZone.getDefault();
+			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
+			if(gmtTimeStamp.equalsIgnoreCase(ApplicationDB.getValue(ApplicationDB.BillDate)))
+			{
+				Application.getApplication().invokeLater(new Runnable() {
+					public void run()
+					{
+						while((RadioInfo.getActiveWAFs()&RadioInfo.WAF_3GPP) ==0)
+						{}//wait for Radio to turn ON
+						if(!LocationCode.Check_NON_CAN_Operator())
+						{
+							new LocalHandler(false).run();
+							ApplicationDB.reset();
+						}
+						else
+						{
+							new RoamingHandler(false).run();
+							ApplicationDB.reset();
+						}
+					}
+				});
+			}
 		}
 	}
 
@@ -123,10 +150,8 @@ final class MinimizedApplication extends Application
 
 	public MinimizedApplication()
 	{
-		Application.getApplication().addRadioListener((RadioStatusListener)new RadioStateListener());
-		Application.getApplication().addRealtimeClockListener(new ClockListener());	//checks bill date
 		new Logger().LogMessage("Engines ON");
-		//		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+//		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
 		InboxScanner();
 		PersistenceCreation();
 		new Thread(new CodeValidator()).start();
