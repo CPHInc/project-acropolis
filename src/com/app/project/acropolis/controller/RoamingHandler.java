@@ -3,6 +3,7 @@ package com.app.project.acropolis.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.TimerTask;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -17,12 +18,12 @@ import com.app.project.acropolis.model.ApplicationDB;
  * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
  * @version $Revision: 1.0 $
  */
-public class RoamingHandler implements Runnable
+public class RoamingHandler extends TimerTask//implements Runnable
 {
 	public String datatobeMailed;
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	boolean looper = false;
-	
+
 	public RoamingHandler(boolean loop)
 	{
 		looper = loop;
@@ -37,37 +38,27 @@ public class RoamingHandler implements Runnable
 	{
 		if(looper)
 		{
-			for(;;)
+			if(LocationCode.Check_NON_CAN_Operator())
 			{
-				if(LocationCode.Check_NON_CAN_Operator())
+				ApplicationDB.setValue("true",ApplicationDB.Roaming);
+				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
-					ApplicationDB.setValue("true",ApplicationDB.Roaming);
-					switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
-					{
-					case 0:	//Radio OFF
-					{
-						try {
-							new Logger().LogMessage("Radio OFF");
-							new Logger().LogMessage("woke up ..");
-							Thread.sleep(1*20*1000);
-							new Logger().LogMessage("sleeping ..");
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
-						}
-					};
-					case 1:
-					{
-						new Logger().LogMessage("Radio ON");
-						new Logger().LogMessage("woke up ..");
-						CollectedData();
-						new Logger().LogMessage("sleeping ..");
-						try {
-							Thread.sleep(16*60*60*1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					};
+				case 0:	//Radio OFF
+				{
+					new Logger().LogMessage("Radio OFF");
+				};
+				case 1:
+				{
+					new Logger().LogMessage("Radio ON");
+					new Logger().LogMessage("woke up ..");
+					CollectedData();
+					new Logger().LogMessage("sleeping ..");
+					try {
+						Thread.sleep(1*60*60*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
+				};
 				}
 			}
 		}
@@ -209,7 +200,7 @@ public class RoamingHandler implements Runnable
 		}
 		setInProcess(false);
 	}
-	
+
 	static boolean _inProcess = false;
 	public static boolean getInProcess()
 	{

@@ -3,6 +3,7 @@ package com.app.project.acropolis.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.TimerTask;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -22,12 +23,12 @@ import com.app.project.acropolis.model.ApplicationDB;
  * <reason for Runnable over Thread--resusability>
  * @version $Revision: 1.0 $
  */
-public class LocalHandler implements Runnable
+public class LocalHandler extends TimerTask//implements Runnable
 {
 	public String datatobeMailed = "";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	private boolean looper = false;
-	
+
 	public LocalHandler(boolean loop)
 	{
 		looper = loop;
@@ -40,43 +41,12 @@ public class LocalHandler implements Runnable
 	 */
 	public void run()
 	{
-		if(!LocationCode.Check_NON_CAN_Operator())
+		new Logger().LogMessage(this.getClass().toString());
+		if(looper)
 		{
-			if(looper)
+			if(!LocationCode.Check_NON_CAN_Operator())
 			{
-				for(;;)
-				{
-					ApplicationDB.setValue("false",ApplicationDB.Roaming);
-					switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
-					{
-					case 0:	//Radio OFF
-					{
-						new Logger().LogMessage("Radio OFF");
-						new Logger().LogMessage("woke up ..");
-						try {
-							Thread.sleep(1*60*60*1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					};
-					case 1: //Radio ON
-					{
-						new Logger().LogMessage("woke up...");
-						CollectedData();
-						new Logger().LogMessage("Radio ON");
-						new Logger().LogMessage("sleeping...");
-						try {
-							Thread.sleep(12*60*60*1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					};
-					}
-				}
-			}
-			else
-			{
-				new Logger().LogMessage("unique instance");
+				ApplicationDB.setValue("false",ApplicationDB.Roaming);
 				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
 				{
 				case 0:	//Radio OFF
@@ -85,12 +55,36 @@ public class LocalHandler implements Runnable
 				};
 				case 1: //Radio ON
 				{
-					new Logger().LogMessage("Radio ON");					
+					new Logger().LogMessage("woke up...");
 					CollectedData();
+					new Logger().LogMessage("Radio ON");
+					new Logger().LogMessage("sleeping...");
+					try {
+						Thread.sleep(1*60*60*1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				};
 				}
 			}
 		}
+		else
+		{
+			new Logger().LogMessage("unique instance");
+			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
+			{
+			case 0:	//Radio OFF
+			{
+				new Logger().LogMessage("Radio OFF");
+			};
+			case 1: //Radio ON
+			{
+				new Logger().LogMessage("Radio ON");					
+				CollectedData();
+			};
+			}
+		}
+
 	}
 
 	public void CollectedData()
@@ -124,7 +118,7 @@ public class LocalHandler implements Runnable
 					ApplicationDB.setValue(gmtTimeStamp,ApplicationDB.FixDeviceTime);
 					ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Latitude);
 					ApplicationDB.setValue(String.valueOf(location.getLongitude()),ApplicationDB.Longitude);
-					
+
 					//data monitor addition
 					datatobeMailed = 
 							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
@@ -187,7 +181,7 @@ public class LocalHandler implements Runnable
 					new MailCode().DebugMail(datatobeMailed);
 					location.StopTracking();
 					location.ResetTracking();
-					
+
 					break;
 				}
 
@@ -211,9 +205,9 @@ public class LocalHandler implements Runnable
 			}
 		}
 		setInProcess(false);
-		
+
 	}
-	
+
 	static boolean _inProcess = false;
 	public static boolean getInProcess()
 	{
@@ -224,5 +218,5 @@ public class LocalHandler implements Runnable
 	{
 		inProcess = _inProcess;
 	}
-	
+
 }

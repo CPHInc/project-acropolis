@@ -12,6 +12,7 @@ import net.rim.device.api.system.ApplicationManager;
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.system.Display;
+import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.FontFamily;
@@ -219,7 +220,7 @@ public final class UIScreen extends MainScreen
 
 		TextInserter();
 
-		Application.getApplication().invokeLater(new ScreenTextUpdater(),20*1000, true);
+		Application.getApplication().invokeLater(new ScreenTextUpdater(),100, true);
 	}
 
 	public void DeriveApplicationFont()
@@ -458,11 +459,20 @@ public final class UIScreen extends MainScreen
 			double upData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.LocalUpload)).doubleValue())/(1024*1024);
 			double localTotalData = downData + upData;//MegaBytes
 			/* * Roaming * */
-			if(ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("false") || 
-					ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("0"))
-				roamResultText.setText("No");
-			else if(ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("true"))
-				roamResultText.setText("Yes");
+			if(RadioInfo.getCurrentNetworkName()!=null)
+			{
+				//				if(ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("false") || 
+				//						ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("0"))
+				if(!LocationCode.Check_NON_CAN_Operator())
+					roamResultText.setText("No");
+				//				else if(ApplicationDB.getValue(ApplicationDB.Roaming).equalsIgnoreCase("true"))
+				else
+					roamResultText.setText("Yes");
+			}
+			else
+			{
+				roamResultText.setText("Fetching Roaming fix");
+			}
 			double roamInMinutes = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingIncoming)).doubleValue();
 			double roamOutMinutes = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingOutgoing)).doubleValue();
 			double roamTotalMinutes =  roamInMinutes + roamOutMinutes;
@@ -541,13 +551,10 @@ public final class UIScreen extends MainScreen
 	{
 		String menuResetString = "Reset Monitored Data";
 		String menuRefreshString = "Refresh Values";
-		String menuManualString = "Manual Server Communication";
 		int menuResetOrdinal = 0x230000;
 		int menuRefreshOrdinal = 0x250000;
-		int menuManualOrdinal = 0x270000;
 		int menuResetPriority = 0;
 		int menuRefreshPriority = 1;
-		int menuManualPriority = 2;
 		MenuItem refreshScreen = new MenuItem(new StringProvider(menuRefreshString),menuRefreshOrdinal,menuRefreshPriority);
 		refreshScreen.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata, Object context) {
@@ -564,28 +571,6 @@ public final class UIScreen extends MainScreen
 			}
 		}));
 		addMenuItem(resetData);
-
-
-		MenuItem manualData = new MenuItem(new StringProvider(menuManualString),menuManualOrdinal,menuManualPriority);
-		manualData.setCommand(new Command(new CommandHandler() {
-			public void execute(ReadOnlyCommandMetadata metadata,Object context) {
-				if(!LocationCode.Check_NON_CAN_Operator())
-				{
-					if(!LocalHandler.getInProcess())
-						new Thread(new LocalHandler(false)).start();
-					else
-						Dialog.alert("Application connected to server");
-				}
-				else
-				{
-					if(!RoamingHandler.getInProcess())
-						new Thread(new RoamingHandler(false)).start();
-					else
-						Dialog.alert("Application connected to server");
-				}
-			}
-		}));
-		addMenuItem(manualData);
 	}
 
 	public void close()

@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.microedition.location.AddressInfo;
 import javax.microedition.location.Criteria;
 import javax.microedition.location.Location;
 import javax.microedition.location.LocationException;
@@ -18,6 +17,7 @@ import net.rim.device.api.gps.BlackBerryCriteria;
 import net.rim.device.api.gps.BlackBerryLocationProvider;
 import net.rim.device.api.gps.GPSInfo;
 import net.rim.device.api.i18n.SimpleDateFormat;
+import net.rim.device.api.system.Application;
 import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.engine.mail.MailCode;
@@ -36,12 +36,12 @@ public class LocationCode implements Runnable
 	private  double longitude = 0;
 	private  float accuracy = 0;
 	private  boolean roaming = false;
-	
-//	public BlackBerryCriteria bbcriteria;
-//	public BlackBerryLocationProvider bblocationprovider;
-	 BlackBerryCriteria bbcriteria;
-	 BlackBerryLocationProvider bblocationprovider; 
-	 {
+
+	//	public BlackBerryCriteria bbcriteria;
+	//	public BlackBerryLocationProvider bblocationprovider;
+	BlackBerryCriteria bbcriteria;
+	BlackBerryLocationProvider bblocationprovider; 
+	{
 		bbcriteria = new BlackBerryCriteria(GPSInfo.getDefaultGPSMode());
 		try {
 			bblocationprovider =(BlackBerryLocationProvider)LocationProvider.getInstance(bbcriteria);
@@ -50,7 +50,7 @@ public class LocationCode implements Runnable
 		}
 	}
 	public  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-	
+
 	public static  boolean NON_CANOperatorCheck = true;
 	public final static  String CanadianOperators[] = {"Rogers Wireless" , "Telus" , "Bell"};
 	public static  String CurrentNetworkName = "";
@@ -64,7 +64,7 @@ public class LocationCode implements Runnable
 		new Logger().LogMessage(">>LocationCode<<");
 		CurrentLocation();
 	}
-	 boolean searchInProgress = false;
+	boolean searchInProgress = false;
 	/**
 	 * Method CurrentLocation.
 	 * @return boolean */
@@ -105,14 +105,14 @@ public class LocationCode implements Runnable
 			String recordedTimeStamp = sdf.format(calendar.getTime());	
 			TimeZone timezone = TimeZone.getDefault();
 			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime());  	//GMT time for server
-			
+
 			new MailCode().DebugMail("");
 			errorstream = "#1.0.1|ErrorStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-			+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-			+ String.valueOf(Check_NON_CAN_Operator()) + "|"
-			+ 0.0 + "|" 
-			+ 0.0 + "|"
-			+ 0.0 +"##";
+					+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+					+ String.valueOf(Check_NON_CAN_Operator()) + "|"
+					+ 0.0 + "|" 
+					+ 0.0 + "|"
+					+ 0.0 +"##";
 			retval = false;
 		}
 
@@ -145,13 +145,13 @@ public class LocationCode implements Runnable
 		 * Method providerStateChanged.
 		 * @param provider LocationProvider
 		 * @param newState int
-		
+
 		 * @see javax.microedition.location.LocationListener#providerStateChanged(LocationProvider, int) */
 		public void providerStateChanged(LocationProvider provider, int newState) {
 			// no-op
 		}
 	}
-	
+
 	/**
 	 * Method PauseTracking.
 	 * @param interval int
@@ -160,43 +160,43 @@ public class LocationCode implements Runnable
 	{
 		bblocationprovider.pauseLocationTracking(interval);
 	}
-	
+
 	public  void ResumeTracking()
 	{
 		bblocationprovider.resumeLocationTracking();
 	}
-	
+
 	public  void StopTracking()
 	{
 		bblocationprovider.stopLocationTracking();
 	}
-	
+
 	public  void ResetTracking()
 	{
 		bblocationprovider.reset();
 	}
-	
+
 	/**
 	 * Method getLatitude.
-	
+
 	 * @return double */
 	public  double getLatitude()
 	{
 		return latitude;
 	}
-	
+
 	/**
 	 * Method getLongitude.
-	
+
 	 * @return double */
 	public  double getLongitude()
 	{
 		return longitude;
 	}
-	
+
 	/**
 	 * Method getAccuracy.
-	
+
 	 * @return double */
 	public  double getAccuracy()
 	{
@@ -208,16 +208,17 @@ public class LocationCode implements Runnable
 	 * @return boolean */
 	public static boolean Check_NON_CAN_Operator()
 	{
-
+		while(RadioInfo.getCurrentNetworkName()==null)
+		{}//stay here
 		CurrentNetworkName = RadioInfo.getCurrentNetworkName();
 		if( CurrentNetworkName.equalsIgnoreCase(CanadianOperators[0]) 
-		  			|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
-		   			||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
+				|| CurrentNetworkName.equalsIgnoreCase(CanadianOperators[1])
+				||CurrentNetworkName.equalsIgnoreCase(CanadianOperators[2]) )
 			NON_CANOperatorCheck = false;				//if Current Operator is CANADIAN then **FALSE**
 		else
 			NON_CANOperatorCheck = true;				//if Current Operator is not CANADIAN then **TRUE** hence ROAMING
-		    	
+
 		return NON_CANOperatorCheck;
-	 }
-	
+	}
+
 }

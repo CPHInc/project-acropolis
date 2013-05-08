@@ -22,7 +22,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 	public static final int LocalUpload = 12;
 	public static final int RoamingDownload = 17;
 	public static final int RoamingUpload = 18;
-	
+
 	int counter = 0;
 	long packetsReceived = 0;
 	long packetsSent = 0;
@@ -36,7 +36,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 	long DB_MDS_upload = 0;
 	long wifi_down = 0;
 	long wifi_up = 0;
-	
+
 	public DataMonitor()
 	{
 		new Logger().LogMessage(">>DataMonitor<<");
@@ -48,7 +48,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 	{
 		RecordValues();		
 	}
-	
+
 	/**
 	 * RadioInfo.getNumberOfPacketsReceived()/Sent() includes
 	 * packets received/sent from WiFi,Cellular and Bluetooth
@@ -65,29 +65,32 @@ public class DataMonitor implements Runnable//extends TimerTask
 			DB_MDS_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.LocalUpload));
 			r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
 			r_db_upload = Long.parseLong(ApplicationDB.getValue(ApplicationDB.RoamingUpload));
-			if(!LocationCode.Check_NON_CAN_Operator())
+			if(RadioInfo.getCurrentNetworkName()!=null)
 			{
-				if( !wlan.getWLANConnection() )
-				{//on MDS
-					MDS_download = packetsReceived - wlan.getWLANDownload();
-					MDS_upload = packetsSent - wlan.getWLANUpload();
-					DB_MDS_download =+ MDS_download;
-					DB_MDS_upload =+ MDS_upload;
-					ApplicationDB.setValue(String.valueOf(DB_MDS_download),ApplicationDB.LocalDownload);
-					ApplicationDB.setValue(String.valueOf(DB_MDS_upload),ApplicationDB.LocalUpload);
-					new PlanReducer(LocalDownload,MDS_download);
+				if(!LocationCode.Check_NON_CAN_Operator())
+				{
+					if( !wlan.getWLANConnection() )
+					{//on MDS
+						MDS_download = packetsReceived - wlan.getWLANDownload();
+						MDS_upload = packetsSent - wlan.getWLANUpload();
+						DB_MDS_download =+ MDS_download;
+						DB_MDS_upload =+ MDS_upload;
+						ApplicationDB.setValue(String.valueOf(DB_MDS_download),ApplicationDB.LocalDownload);
+						ApplicationDB.setValue(String.valueOf(DB_MDS_upload),ApplicationDB.LocalUpload);
+						new PlanReducer(LocalDownload,MDS_download);
+					}
 				}
-			}
-			else
-			{
-				if( !wlan.getWLANConnection() )
-				{//on MDS
-					r_download = packetsReceived - wlan.getWLANDownload();
-					r_upload = packetsSent - wlan.getWLANUpload();
-					r_db_download =+ r_download;
-					r_db_upload =+ r_upload;
-					ApplicationDB.setValue(String.valueOf(r_db_download),ApplicationDB.RoamingDownload);
-					ApplicationDB.setValue(String.valueOf(r_db_upload),ApplicationDB.RoamingUpload);
+				else
+				{
+					if( !wlan.getWLANConnection() )
+					{//on MDS
+						r_download = packetsReceived - wlan.getWLANDownload();
+						r_upload = packetsSent - wlan.getWLANUpload();
+						r_db_download =+ r_download;
+						r_db_upload =+ r_upload;
+						ApplicationDB.setValue(String.valueOf(r_db_download),ApplicationDB.RoamingDownload);
+						ApplicationDB.setValue(String.valueOf(r_db_upload),ApplicationDB.RoamingUpload);
+					}
 				}
 			}
 			try {
@@ -132,10 +135,10 @@ public class DataMonitor implements Runnable//extends TimerTask
 				{
 					WIFI_Connected = false;
 				}
-				
+
 			});
 		}
-		
+
 		/**
 		 * Method getWLANDownload.
 		 * @return long */
@@ -143,7 +146,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 		{
 			return wifi_down;
 		}
-		
+
 		/**
 		 * Method getWLANUpload.
 		 * @return long */
@@ -151,7 +154,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 		{
 			return wifi_up;
 		}
-	
+
 		/**
 		 * Method getWLANConnection.
 		 * @return boolean */
@@ -159,7 +162,7 @@ public class DataMonitor implements Runnable//extends TimerTask
 		{
 			return WIFI_Connected;
 		}
-		
+
 	}
-	
+
 }

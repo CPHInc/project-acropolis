@@ -33,7 +33,7 @@ public class ApplicationEntry
 {
 	final static String GUI = "gui";
 	final static String Global = "global";
-	
+
 	/**
 	 * Method main.
 	 * @param args String[]
@@ -46,14 +46,14 @@ public class ApplicationEntry
 				if(RadioInfo.getCurrentNetworkName()!=null)
 					break;
 				else
-					Thread.sleep(5*60*1000);
+					Thread.sleep(60*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		if(args!=null&&args[0].equals(GUI)&&args.length>0)
 		{
-			GUIApplication theApp = GUIApplication.getInstance();
+			GUIApplication theApp = new GUIApplication();
 			theApp.setAcceptEvents(true);
 			theApp.enterEventDispatcher();
 		}
@@ -62,8 +62,7 @@ public class ApplicationEntry
 			GlobalAction theAction = new GlobalAction();
 			theAction.enterEventDispatcher();
 		}
-		MinimizedApplication theMin = MinimizedApplication.getInstance();
-		MinimizedApplication.getInstance().Initialize();
+		MinimizedApplication theMin = new MinimizedApplication();
 		theMin.setAcceptEvents(false);
 		theMin.enterEventDispatcher();
 	}
@@ -73,12 +72,12 @@ final class GlobalAction extends Application implements GlobalEventListener
 {
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
-	
+
 	public GlobalAction()
 	{
 		Application.getApplication().addGlobalEventListener(this);
 	}
-	
+
 	public void eventOccurred(long guid, int data0, int data1, Object object0,
 			Object object1) {
 		new Logger().LogMessage("GUID::"+guid);
@@ -90,12 +89,12 @@ final class GlobalAction extends Application implements GlobalEventListener
 				new RoamingHandler(false).run();
 		}
 	}
-	
+
 	public boolean shouldAppearInApplicationSwitcher()
 	{
 		return false;
 	}
-	
+
 }
 
 final class GUIApplication extends UiApplication
@@ -114,15 +113,6 @@ final class GUIApplication extends UiApplication
 	{
 		return true;
 	}
-	
-	public synchronized static GUIApplication getInstance()
-	{
-		if(gui==null)
-		{
-			gui = new GUIApplication();
-		}
-		return (gui);
-	}
 
 }
 
@@ -136,30 +126,10 @@ final class MinimizedApplication extends Application
 		Application.getApplication().addRadioListener((RadioStatusListener)new RadioStateListener());
 		Application.getApplication().addRealtimeClockListener(new ClockListener());	//checks bill date
 		new Logger().LogMessage("Engines ON");
-		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+		//		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
 		InboxScanner();
 		PersistenceCreation();
-		new CodeValidator().run();
-	}
-
-	public synchronized static MinimizedApplication getInstance()
-	{	
-		if(_instance==null)
-		{
-			_instance = new MinimizedApplication();
-		}
-		return (_instance);
-	}
-
-	public void Initialize()
-	{
-		synchronized(this)
-		{
-			if(!_initialize)
-			{
-				_initialize = true;
-			}
-		}
+		new Thread(new CodeValidator()).start();
 	}
 
 	public boolean shouldAppearInApplicationSwitcher()
