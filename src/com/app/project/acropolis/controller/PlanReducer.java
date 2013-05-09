@@ -1,8 +1,5 @@
 package com.app.project.acropolis.controller;
 
-import net.rim.device.api.system.Application;
-
-import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
 public class PlanReducer 
@@ -169,10 +166,7 @@ public class PlanReducer
 	
 	public static void PlanReached()
 	{
-		if(!LocationCode.Check_NON_CAN_Operator())
-			Application.getApplication().invokeLater(new LocalHandler(false));
-		else
-			Application.getApplication().invokeLater(new RoamingHandler(false));
+		new ServerChannel();
 //		ApplicationManager.getApplicationManager().postGlobalEvent(PlanEnd_GUID);
 	}
 

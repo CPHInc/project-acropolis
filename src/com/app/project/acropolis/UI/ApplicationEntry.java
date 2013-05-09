@@ -16,10 +16,8 @@ import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.UiApplication;
 
 import com.app.project.acropolis.controller.CodeValidator;
-import com.app.project.acropolis.controller.LocalHandler;
-import com.app.project.acropolis.controller.RoamingHandler;
+import com.app.project.acropolis.controller.ServerChannel;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
-import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
 /**
@@ -82,16 +80,19 @@ final class GlobalAction extends Application implements GlobalEventListener
 
 	public void eventOccurred(long guid, int data0, int data1, Object object0,
 			Object object1) {
-		new Logger().LogMessage("GUID::"+guid);
+		
 		if(guid == Request_GUID)
 		{
-			if(!LocationCode.Check_NON_CAN_Operator())
-				new LocalHandler(false).run();
-			else
-				new RoamingHandler(false).run();
+			Application.getApplication().invokeLater(new Runnable() {
+				public void run()
+				{
+					new ServerChannel();
+				}
+			});
 		}
 		if(guid == DateChange_GUID)
 		{
+			new Logger().LogMessage("Date Chane\r\nGUID::"+guid);
 			TimeZone timezone = TimeZone.getDefault();
 			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
 			if(gmtTimeStamp.equalsIgnoreCase(ApplicationDB.getValue(ApplicationDB.BillDate)))
@@ -101,16 +102,8 @@ final class GlobalAction extends Application implements GlobalEventListener
 					{
 						while((RadioInfo.getActiveWAFs()&RadioInfo.WAF_3GPP) ==0)
 						{}//wait for Radio to turn ON
-						if(!LocationCode.Check_NON_CAN_Operator())
-						{
-							new LocalHandler(false).run();
-							ApplicationDB.reset();
-						}
-						else
-						{
-							new RoamingHandler(false).run();
-							ApplicationDB.reset();
-						}
+						new ServerChannel();
+						ApplicationDB.reset();
 					}
 				});
 			}

@@ -3,7 +3,6 @@ package com.app.project.acropolis.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.TimerTask;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -14,81 +13,14 @@ import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
-
-/**
- * @author Rohan Kumar Mahendroo <rohan.mahendroo@gmail.com>
- * 
- * Gathers and arranges codes from LocationCode class and MailCode class
- * 
- * <reason for Runnable over Thread--resusability>
- * @version $Revision: 1.0 $
- */
-public class LocalHandler extends TimerTask//implements Runnable
+public class ServerChannel 
 {
-	public String datatobeMailed = "";
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-	private boolean looper = false;
+	public String datatobeMailed = "";
 
-	public LocalHandler(boolean loop)
+	public ServerChannel()
 	{
-		looper = loop;
-		new Logger().LogMessage("--->LocalHandler()<---");
-	}
-
-	/**
-	 * Method run.
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run()
-	{
-		new Logger().LogMessage(this.getClass().toString());
-		if(looper)
-		{
-			if(!LocationCode.Check_NON_CAN_Operator())
-			{
-				ApplicationDB.setValue("false",ApplicationDB.Roaming);
-				switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
-				{
-				case 0:	//Radio OFF
-				{
-					new Logger().LogMessage("Radio OFF");
-				};
-				case 1: //Radio ON
-				{
-					new Logger().LogMessage("woke up...");
-					CollectedData();
-					new Logger().LogMessage("Radio ON");
-					new Logger().LogMessage("sleeping...");
-					try {
-						Thread.sleep(1*60*60*1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				};
-				}
-			}
-		}
-		else
-		{
-			new Logger().LogMessage("unique instance");
-			switch ( ((RadioInfo.getActiveWAFs() & RadioInfo.WAF_3GPP)!=0 ? 1:0) )
-			{
-			case 0:	//Radio OFF
-			{
-				new Logger().LogMessage("Radio OFF");
-			};
-			case 1: //Radio ON
-			{
-				new Logger().LogMessage("Radio ON");					
-				CollectedData();
-			};
-			}
-		}
-
-	}
-
-	public void CollectedData()
-	{
+		new Logger().LogMessage("ServerChannel");
 		/*if in ROAMING detect and locate co-ordinates and send data*/
 		TimeZone timezone = TimeZone.getDefault();
 		String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
@@ -118,27 +50,48 @@ public class LocalHandler extends TimerTask//implements Runnable
 					ApplicationDB.setValue(String.valueOf(location.getLatitude()),ApplicationDB.Latitude);
 					ApplicationDB.setValue(String.valueOf(location.getLongitude()),ApplicationDB.Longitude);
 
-					//data monitor addition
-					datatobeMailed = 
-							"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
-									+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
-									+ String.valueOf(LocationCode.Check_NON_CAN_Operator()) + "|"
-									+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
-									+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
-									+ location.getAccuracy() + "|"
-									+ "Down:"+ ApplicationDB.getValue(ApplicationDB.LocalDownload) + "|"
-									+ "Up:" + ApplicationDB.getValue(ApplicationDB.LocalUpload) + "|"
-									+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalReceived) + "|" 
-									+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalSent) + "|"
-									+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
-									+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
-					new MailCode().DebugMail(datatobeMailed);
-					location.StopTracking();
-					location.ResetTracking();
+					if(!LocationCode.Check_NON_CAN_Operator())
+					{
+						//data monitor addition
+						datatobeMailed = 
+								"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+										+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+										+ String.valueOf(LocationCode.Check_NON_CAN_Operator()) + "|"
+										+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
+										+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
+										+ location.getAccuracy() + "|"
+										+ "Down:"+ ApplicationDB.getValue(ApplicationDB.LocalDownload) + "|"
+										+ "Up:" + ApplicationDB.getValue(ApplicationDB.LocalUpload) + "|"
+										+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalReceived) + "|" 
+										+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalSent) + "|"
+										+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
+										+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
+						new MailCode().DebugMail(datatobeMailed);
+						location.StopTracking();
+						location.ResetTracking();
+					}
+					else
+					{
+						datatobeMailed = 
+								"#1.0.1|DataStream|"+  Phone.getDevicePhoneNumber(false) + "|"
+										+ gmtTimeStamp + "|" + recordedTimeStamp + "|" 
+										+ "true" + "|"
+										+ ApplicationDB.getValue(ApplicationDB.Latitude) + "|" 
+										+ ApplicationDB.getValue(ApplicationDB.Longitude) + "|"
+										+ location.getAccuracy() + "|"
+										+ "Down:"+ ApplicationDB.getValue(ApplicationDB.RoamingDownload) + "|"
+										+ "Up:" + ApplicationDB.getValue(ApplicationDB.RoamingUpload) + "|"
+										+ "Received Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingReceived) + "|" 
+										+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.RoamingSent) + "|"
+										+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.RoamingIncoming) + "|"
+										+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.RoamingOutgoing) + "##";
+						new MailCode().DebugMail(datatobeMailed);
+						location.StopTracking();
+						location.ResetTracking();
 
+					}
 					break;
 				}
-
 				else if(a==8)
 				{
 
@@ -205,6 +158,7 @@ public class LocalHandler extends TimerTask//implements Runnable
 		}
 
 	}
+
 
 
 }
