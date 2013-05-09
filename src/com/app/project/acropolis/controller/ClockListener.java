@@ -6,24 +6,27 @@ import com.app.project.acropolis.engine.monitor.LocationCode;
 
 public class ClockListener implements RealtimeClockListener 
 {
-
-	boolean wasRoaming = false;
+	final int na = 0;
+	final int roaming = 2;
+	final int local = 1;
+	int wasRoaming = 0;
 	
 	public void clockUpdated() {
 		if(LocationCode.Check_NON_CAN_Operator())
 		{
+			wasRoaming = roaming;
 			//entered roaming
-			new ServerChannel();
-			wasRoaming = true;
+			new ServerChannel().run();
 		}
 		else
 		{
-			if(wasRoaming)
+			if(wasRoaming == roaming)
 			{
-				new ServerChannel();
-				wasRoaming = false;//flashed
+				wasRoaming = local;
+				new ServerChannel().run();
 			}
 		}
+		wasRoaming = na;//flashed
 	}
 	
 }

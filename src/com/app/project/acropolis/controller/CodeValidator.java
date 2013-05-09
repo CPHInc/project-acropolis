@@ -41,15 +41,7 @@ public class CodeValidator implements Runnable
 		{
 			e.printStackTrace();
 		}
-		new ServerChannel();
-		
-		Application.getApplication().invokeLater(new Runnable() {
-			public void run()
-			{
-				new ServerChannel();
-			}
-		}, 11*60*1000, true);
-
+		new ServerChannel().start();
 	}
 
 }

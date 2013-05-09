@@ -215,7 +215,7 @@ public final class UIScreen extends MainScreen
 
 		TextInserter();
 
-		Application.getApplication().invokeLater(new ScreenTextUpdater(),100, true);
+		Application.getApplication().invokeLater(new ScreenTextUpdater(),10*1000, true);
 	}
 
 	public void DeriveApplicationFont()

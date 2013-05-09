@@ -15,6 +15,7 @@ import net.rim.device.api.system.GlobalEventListener;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.UiApplication;
 
+import com.app.project.acropolis.controller.ClockListener;
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.ServerChannel;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
@@ -144,9 +145,10 @@ final class MinimizedApplication extends Application
 	public MinimizedApplication()
 	{
 		new Logger().LogMessage("Engines ON");
-//		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
 		InboxScanner();
 		PersistenceCreation();
+//		this.addRealtimeClockListener(new ClockListener());
 		new Thread(new CodeValidator()).start();
 	}
 
