@@ -5,7 +5,6 @@ import java.util.TimeZone;
 
 import loggers.Logger;
 import net.rim.blackberry.api.mail.Session;
-import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.i18n.SimpleDateFormat;
 import net.rim.device.api.synchronization.SyncEventListener;
 import net.rim.device.api.synchronization.SyncManager;
@@ -15,7 +14,6 @@ import net.rim.device.api.system.GlobalEventListener;
 import net.rim.device.api.system.RadioInfo;
 import net.rim.device.api.ui.UiApplication;
 
-import com.app.project.acropolis.controller.ClockListener;
 import com.app.project.acropolis.controller.CodeValidator;
 import com.app.project.acropolis.controller.ServerChannel;
 import com.app.project.acropolis.engine.mail.HoledCeiling;
@@ -145,7 +143,7 @@ final class MinimizedApplication extends Application
 	public MinimizedApplication()
 	{
 		new Logger().LogMessage("Engines ON");
-		SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
+		//SyncManager.getInstance().addSyncEventListener(new RestoreEventListener());
 		InboxScanner();
 		PersistenceCreation();
 //		this.addRealtimeClockListener(new ClockListener());
@@ -169,9 +167,7 @@ final class MinimizedApplication extends Application
 	 */
 	public boolean PersistenceCreation()
 	{
-		ApplicationDB.setValue(Phone.getDevicePhoneNumber(true),ApplicationDB.PhoneNumber);
-		new Logger().LogMessage(ApplicationDB.getValue(ApplicationDB.PhoneNumber));
-		return true;
+		return ApplicationDB.isEmpty();
 	}
 
 	/**

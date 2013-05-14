@@ -2,8 +2,6 @@ package com.app.project.acropolis.model;
 
 import java.util.Vector;
 
-import com.app.project.acropolis.engine.monitor.LocationCode;
-
 import loggers.DBLogger;
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -11,15 +9,17 @@ import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 import net.rim.device.api.util.Persistable;
 
+import com.app.project.acropolis.engine.monitor.LocationCode;
+
 /**
  */
 public final class ApplicationDB implements Persistable
 {
 	static final long KEY = 0xeff98108be81b2b8L;
-//	static final long KEY = 0x81a1a23d4b2ed297L;
+	//	static final long KEY = 0x81a1a23d4b2ed297L;
 	//KEY === com.app.project.acropolis.model.ApplicationDB.version1
 	static PersistentObject persist;
-	
+
 	public static final int PhoneNumber = 0;
 	public static final int Roaming = 1;
 	public static final int Latitude = 2;
@@ -53,10 +53,10 @@ public final class ApplicationDB implements Persistable
 	public static final int RoamingPlanSent = 30;
 	public static final int RoamingPlanDownload = 31;
 	public static final int RoamingPlanUpload = 32;
-	
+
 	final static int VectorSize = 33;
 	public static Vector appVector = new Vector(VectorSize);
-	
+
 	public ApplicationDB()
 	{
 		new DBLogger().LogMessage(">>-ApplicationDatabase-<<");
@@ -68,26 +68,19 @@ public final class ApplicationDB implements Persistable
 				for(int i=0;i<appVector.capacity();++i)
 				{
 					appVector.addElement(new String("0"));
-//						appVector.setElementAt(new String("0"),i);
+					//						appVector.setElementAt(new String("0"),i);
 				}
 				persist.setContents(appVector);
-	 			persist.commit();
+				persist.commit();
 			}
 			else
 			{
 				appVector = (Vector)persist.getContents();
 			}
 		}
-	
+
 	}
-	
-	public static boolean destroyOld()
-	{
-		long oldkey = 0x3a090f86b9137748L;
-		PersistentStore.destroyPersistentObject(oldkey);
-		return true;
-	}
-	
+
 	/**
 	 * Method setValue.
 	 * @param value String
@@ -99,17 +92,6 @@ public final class ApplicationDB implements Persistable
 		persist = PersistentStore.getPersistentObject(KEY);
 		synchronized(persist)
 		{
-			destroyOld();
-			if(persist.getContents()==null)
-			{
-				for(int i=0;i<appVector.capacity();++i)
-				{
-					appVector.addElement(new String("0"));
-//					appVector.setElementAt(new String("0"),i);
-				}
-				persist.setContents(appVector);
-	 			persist.commit();
-			}
 			Vector vector = (Vector)persist.getContents();
 			vector.setElementAt(value,id);
 			persist.setContents(vector);
@@ -117,7 +99,7 @@ public final class ApplicationDB implements Persistable
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Method getValue.
 	 * @param id int
@@ -129,24 +111,37 @@ public final class ApplicationDB implements Persistable
 		persist = PersistentStore.getPersistentObject(KEY);
 		synchronized(persist)
 		{
-			destroyOld();
-			if(persist.getContents()==null)
-			{
-				for(int i=0;i<appVector.capacity();++i)
-				{
-					appVector.addElement(new String("0"));
-//					appVector.setElementAt(new String("0"),i);
-				}
-				persist.setContents(appVector);
-	 			persist.commit();
-			}
 			Vector vector = (Vector) persist.getContents();
 			data = (String) vector.elementAt(id);
 		}
 		return data;
 	}
-	
+
 	public static void reset()
+	{
+		setDumbValues();
+		new Logger().LogMessage("full monty");
+	}
+
+	public static boolean isEmpty()
+	{
+		boolean empty = false;
+		destroyOld();
+		persist = PersistentStore.getPersistentObject(KEY);
+		synchronized(persist)
+		{
+			if(persist.getContents()==null)
+			{
+				setDumbValues();
+				empty=true;
+			}
+			else
+				empty=false;
+		}
+		return empty;
+	}
+
+	public static void setDumbValues()
 	{
 		persist = PersistentStore.getPersistentObject(KEY);
 		synchronized(persist)
@@ -164,7 +159,14 @@ public final class ApplicationDB implements Persistable
 			persist.setContents(vector);
 			persist.forceCommit();
 		}
-		new Logger().LogMessage("full monty");
+	}
+
+	public static boolean destroyOld()
+	{
+		//new key = 0xeff98108be81b2b8 <--vector
+		long oldkey = 0x3a090f86b9137748L;	//<--MultiMap
+		PersistentStore.destroyPersistentObject(oldkey);
+		return true;
 	}
 	
 }

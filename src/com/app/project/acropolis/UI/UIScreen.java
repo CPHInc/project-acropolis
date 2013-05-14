@@ -2,6 +2,7 @@ package com.app.project.acropolis.UI;
 
 import java.util.Timer;
 
+import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
@@ -430,11 +431,15 @@ public final class UIScreen extends MainScreen
 		String unitDigit = StringBreaker.split(String.valueOf(value), ".")[0];
 		unitDigit = unitDigit.trim();
 		String decimalDigit = StringBreaker.split(String.valueOf(value), ".")[1];
+		if(decimalDigit.equals("0"))
+			decimalDigit = "00";
 		if(decimalDigit.length()>2)
 			decimalDigit = decimalDigit.trim().substring(0,2);
 		else
 			decimalDigit = decimalDigit.trim();
 		formated = unitDigit +"." + decimalDigit;
+		new Logger().LogMessage("Decimal::"+decimalDigit);
+		new Logger().LogMessage(formated);
 		return formated;
 	}
 
@@ -498,11 +503,15 @@ public final class UIScreen extends MainScreen
 			UploadResultUsage.setText( StringBreaker.split(String.valueOf(totalUpload), ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
 			TotalResultDataUsage.setText( StringBreaker.split(String.valueOf(totalData),".")[0]);
 
-			String localTotalCost = FormatDecimal(
+			double templocalTotalCost = 
 					((outgoingMin*LocalVoiceRate) +
 							(localTotalMsg*LocalMessageRate) +
-							((localTotalData)*LocalDataRate)));
+							((localTotalData)*LocalDataRate));
 
+			new Logger().LogMessage("D_templocalCost::"+templocalTotalCost);
+			
+			String localTotalCost = FormatDecimal(templocalTotalCost);
+			
 			String totalRoamCost = FormatDecimal(
 					(roamTotalMinutes*RoamingVoiceRate) 
 					+ (roamTotalMsg*RoamingMessageRate)
