@@ -159,7 +159,7 @@ public class ServerChannel extends Thread
 				}
 			}
 			try {
-				Thread.sleep(2*60*60*1000);
+				Thread.sleep(5*60*60*1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

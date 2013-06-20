@@ -40,7 +40,7 @@ public final class ApplicationDB implements Persistable
 	public static final int RoamingDownload = 17;
 	public static final int RoamingUpload = 18;
 	public static final int RoamingQuota = 19;
-	public static final int BillDate = 20;
+	public static final int BillDate = 20;	//dd
 	public static final int PlanIncoming = 21;
 	public static final int PlanOutgoing = 22;
 	public static final int PlanReceived = 23;

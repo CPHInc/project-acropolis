@@ -1,12 +1,6 @@
 package com.app.project.acropolis.controller;
 
-import java.util.Timer;
-
-import net.rim.device.api.system.Application;
-
 import loggers.Logger;
-
-import com.app.project.acropolis.engine.monitor.DataMonitor;
 
 /**
  * All the Engines, Handlers, Runnable are passed and verified
@@ -32,7 +26,7 @@ public class CodeValidator implements Runnable
 		new com.app.project.acropolis.engine.monitor.TextMonitor();
 
 		//		Thread handling
-		Thread _dataMonitor = new Thread(new DataMonitor());
+		Thread _dataMonitor = new Thread(new com.app.project.acropolis.engine.monitor.DataMonitor());
 		_dataMonitor.setPriority(Thread.NORM_PRIORITY);
 		_dataMonitor.start();
 		try{

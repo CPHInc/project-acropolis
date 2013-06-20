@@ -70,8 +70,8 @@ final class GlobalAction extends Application implements GlobalEventListener
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
 	final long DateChange_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-
+	private SimpleDateFormat sdf = new SimpleDateFormat("dd");
+	private String dbBillDate = "";
 	public GlobalAction()
 	{
 		Application.getApplication().addGlobalEventListener(this);
@@ -94,7 +94,9 @@ final class GlobalAction extends Application implements GlobalEventListener
 			new Logger().LogMessage("Date Chane\r\nGUID::"+guid);
 			TimeZone timezone = TimeZone.getDefault();
 			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
-			if(gmtTimeStamp.equalsIgnoreCase(ApplicationDB.getValue(ApplicationDB.BillDate)))
+			dbBillDate = ApplicationDB.getValue(ApplicationDB.BillDate);
+			dbBillDate = dbBillDate.substring(dbBillDate.length()-2, dbBillDate.length());
+			if(gmtTimeStamp.equalsIgnoreCase(dbBillDate))
 			{
 				Application.getApplication().invokeLater(new Runnable() {
 					public void run()

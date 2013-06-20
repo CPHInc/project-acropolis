@@ -2,7 +2,6 @@ package com.app.project.acropolis.UI;
 
 import java.util.Timer;
 
-import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.device.api.command.Command;
 import net.rim.device.api.command.CommandHandler;
@@ -438,8 +437,6 @@ public final class UIScreen extends MainScreen
 		else
 			decimalDigit = decimalDigit.trim();
 		formated = unitDigit +"." + decimalDigit;
-		new Logger().LogMessage("Decimal::"+decimalDigit);
-		new Logger().LogMessage(formated);
 		return formated;
 	}
 
@@ -473,24 +470,24 @@ public final class UIScreen extends MainScreen
 			{
 				roamResultText.setText("Fetching Roaming fix");
 			}
-			double roamInMinutes = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingIncoming)).doubleValue();
-			double roamOutMinutes = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingOutgoing)).doubleValue();
-			double roamTotalMinutes =  roamInMinutes + roamOutMinutes;
-			double roamRcvMsg = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingReceived)).doubleValue();
-			double roamSntMsg = Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingSent)).doubleValue();
-			double roamTotalMsg =  roamRcvMsg + roamSntMsg;
+			int roamInMinutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingIncoming)).intValue();
+			int roamOutMinutes = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingOutgoing)).intValue();
+			int roamTotalMinutes =  roamInMinutes + roamOutMinutes;
+			int roamRcvMsg = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingReceived)).intValue();
+			int roamSntMsg = Integer.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingSent)).intValue();
+			int roamTotalMsg =  roamRcvMsg + roamSntMsg;
 			double roamDownData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingDownload)).doubleValue())/(1024*1024);
 			double roamUpData = (Double.valueOf(ApplicationDB.getValue(ApplicationDB.RoamingUpload)).doubleValue())/(1024*1024);
 			double roamTotalData = roamDownData + roamUpData;
 
-			int totalIncoming = incomingMin + (int)roamInMinutes;
-			int totalOutgoing = outgoingMin + (int)roamOutMinutes;
+			int totalIncoming = incomingMin + roamInMinutes;
+			int totalOutgoing = outgoingMin + roamOutMinutes;
 			double totalDownload = downData + roamDownData;
 			double totalUpload = upData + roamUpData;
-			int totalReceived = rcvMsg + (int)roamRcvMsg;
-			int totalSent = sntMsg + (int)roamSntMsg;
-			int totalMin = localTotalMinutes + (int)roamTotalMinutes;
-			int totalMsg = localTotalMsg + (int)roamTotalMsg;
+			int totalReceived = rcvMsg + roamRcvMsg;
+			int totalSent = sntMsg + roamSntMsg;
+			int totalMin = localTotalMinutes + roamTotalMinutes;
+			int totalMsg = localTotalMsg + roamTotalMsg;
 			double totalData = localTotalData + roamTotalData;
 
 			IncomingResultUsage.setText( String.valueOf(totalIncoming).toString() );
@@ -503,13 +500,11 @@ public final class UIScreen extends MainScreen
 			UploadResultUsage.setText( StringBreaker.split(String.valueOf(totalUpload), ".")[0] );//+ " " + strBreak.split(upData, ".")[1]);
 			TotalResultDataUsage.setText( StringBreaker.split(String.valueOf(totalData),".")[0]);
 
-			double templocalTotalCost = 
-					((outgoingMin*LocalVoiceRate) +
+			double	templocalTotalCost = 
+					(outgoingMin*LocalVoiceRate) +
 							(localTotalMsg*LocalMessageRate) +
-							((localTotalData)*LocalDataRate));
+							(localTotalData*LocalDataRate);
 
-			new Logger().LogMessage("D_templocalCost::"+templocalTotalCost);
-			
 			String localTotalCost = FormatDecimal(templocalTotalCost);
 			
 			String totalRoamCost = FormatDecimal(
