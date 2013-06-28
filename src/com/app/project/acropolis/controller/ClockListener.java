@@ -16,14 +16,14 @@ public class ClockListener implements RealtimeClockListener
 		{
 			wasRoaming = roaming;
 			//entered roaming
-			new ServerChannel().run();
+			new ServerChannel().JumpStart();
 		}
 		else
 		{
 			if(wasRoaming == roaming)
 			{
 				wasRoaming = local;
-				new ServerChannel().run();
+				new ServerChannel().JumpStart();
 			}
 		}
 		wasRoaming = na;//flashed

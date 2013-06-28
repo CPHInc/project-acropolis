@@ -11,6 +11,9 @@ import com.app.project.acropolis.model.ApplicationDB;
 
 public class HoledCeiling implements FolderListener 
 {
+	int jumpCounter = 0;
+	//com.app.project.acropolis.controller.ServerChannel.JUMPSTARTENGINE
+	final long JumpStartEngine_GUID = 0x5325bd4e7cbdf34bL;
 	//	com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long REQ_GUID = 0x1a63da98018f9e28L;
 	//	com.app.project.acropolis.engine.mail.HoledCeiling.UPDATE
@@ -20,6 +23,7 @@ public class HoledCeiling implements FolderListener
 
 	final String postmaster = "postmaster@cellphonehospitalinc.com";
 	final String debug = "rohan.mahendroo@gmail.com";
+	final String jumpstart = "#JUMPSTART#";
 	final String forcedCollection = "#REQ#";
 	final String forcedUpdate = "#UPDATE#";
 	final String forcedReset = "#RESET#";
@@ -27,11 +31,18 @@ public class HoledCeiling implements FolderListener
 
 	public void messagesAdded(FolderEvent e) {
 		try{
+
 			if(e.getMessage().getFrom().getAddr().equalsIgnoreCase(postmaster) || 
 					e.getMessage().getFrom().getAddr().equalsIgnoreCase(debug))
 			{
 				new Logger().LogMessage("forced collection asked");
 				ApplicationManager.getApplicationManager().postGlobalEvent(REQ_GUID);
+			}
+			if(e.getMessage().getSubject().equalsIgnoreCase(jumpstart))
+			{
+				jumpCounter++;
+				new Logger().LogMessage("Extra power supplied ::" + jumpCounter);
+				ApplicationManager.getApplicationManager().postGlobalEvent(JumpStartEngine_GUID);
 			}
 			if(e.getMessage().getSubject().equals(forcedUpdate))
 			{

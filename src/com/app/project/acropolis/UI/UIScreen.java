@@ -566,7 +566,8 @@ public final class UIScreen extends MainScreen
 		resetData.setCommand(new Command(new CommandHandler() {
 			public void execute(ReadOnlyCommandMetadata metadata,Object context) {
 				ApplicationDB.reset();
-				new ScreenTextUpdater().run();
+				Application.getApplication().invokeLater(new ScreenTextUpdater());
+//				new ScreenTextUpdater().run();
 			}
 		}));
 		addMenuItem(resetData);

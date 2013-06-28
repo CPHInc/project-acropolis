@@ -35,7 +35,6 @@ public class LocationCode implements Runnable
 	private  double latitude = 0;
 	private  double longitude = 0;
 	private  float accuracy = 0;
-	private  boolean roaming = false;
 
 	//	public BlackBerryCriteria bbcriteria;
 	//	public BlackBerryLocationProvider bblocationprovider;

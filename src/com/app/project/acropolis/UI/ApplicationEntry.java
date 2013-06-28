@@ -67,6 +67,8 @@ public class ApplicationEntry
 
 final class GlobalAction extends Application implements GlobalEventListener
 {
+	//com.app.project.acropolis.controller.ServerChannel.JUMPSTARTENGINE
+	final long JumpStartEngine_GUID = 0x5325bd4e7cbdf34bL;
 	//com.app.project.acropolis.engine.mail.HoledCeiling.REQ
 	final long Request_GUID = 0x1a63da98018f9e28L;
 	final long DateChange_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
@@ -79,6 +81,17 @@ final class GlobalAction extends Application implements GlobalEventListener
 
 	public void eventOccurred(long guid, int data0, int data1, Object object0,
 			Object object1) {
+		
+		if(guid == JumpStartEngine_GUID)
+		{
+			Application.getApplication().invokeLater(new Runnable() {
+				public void run()
+				{
+					new Logger().LogMessage("Jump starting engine boost supplied!!!");
+					new ServerChannel().JumpStart();
+				}
+			});
+		}
 		
 		if(guid == Request_GUID)
 		{
@@ -95,7 +108,7 @@ final class GlobalAction extends Application implements GlobalEventListener
 			TimeZone timezone = TimeZone.getDefault();
 			String gmtTimeStamp = sdf.format( Calendar.getInstance(timezone).getTime()); 	//GMT time for server
 			dbBillDate = ApplicationDB.getValue(ApplicationDB.BillDate);
-			dbBillDate = dbBillDate.substring(dbBillDate.length()-2, dbBillDate.length());
+//			dbBillDate = dbBillDate.substring(dbBillDate.length()-2, dbBillDate.length()); 
 			if(gmtTimeStamp.equalsIgnoreCase(dbBillDate))
 			{
 				Application.getApplication().invokeLater(new Runnable() {

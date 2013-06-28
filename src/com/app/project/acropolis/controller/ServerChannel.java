@@ -3,6 +3,7 @@ package com.app.project.acropolis.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.TimerTask;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -13,15 +14,19 @@ import com.app.project.acropolis.engine.mail.MailCode;
 import com.app.project.acropolis.engine.monitor.LocationCode;
 import com.app.project.acropolis.model.ApplicationDB;
 
-public class ServerChannel extends Thread
+public class ServerChannel //extends TimerTask//implements Runnable//extends Thread
 {
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public String datatobeMailed = "";
 
-	public void run()
+	public ServerChannel()
 	{
 		new Logger().LogMessage("ServerChannel");
-		for(;;)
+	}
+
+	public void JumpStart()
+	{
+		while(true)
 		{
 			/*if in ROAMING detect and locate co-ordinates and send data*/
 			TimeZone timezone = TimeZone.getDefault();
@@ -105,7 +110,6 @@ public class ServerChannel extends Thread
 							e.printStackTrace();
 						}
 					}
-
 					else if(a==13)
 					{
 						TimeZone serverTimeZone = TimeZone.getTimeZone("GMT-04:00");
@@ -164,7 +168,5 @@ public class ServerChannel extends Thread
 				e.printStackTrace();
 			}
 		}
-
 	}
-
 }

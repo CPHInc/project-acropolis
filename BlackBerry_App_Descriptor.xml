@@ -12,7 +12,7 @@
   <Compile OutputCompilerMessages="false" ConvertImages="true" CreateWarningForNoExportedRoutine="true" CompressResources="false" AliasList="">
     <PreprocessorDefines/>
   </Compile>
-  <Packaging PreBuildStep="" PostBuildStep="" CleanStep="" OutputFileName="Project_Acropolis_SVN_debugger" OutputFolder="deliverables" GenerateALXFile="true">
+  <Packaging PreBuildStep="" PostBuildStep="" CleanStep="" OutputFileName="Project_Acropolis" OutputFolder="deliverables" GenerateALXFile="true">
     <AlxFiles/>
   </Packaging>
   <HiddenProperties>
