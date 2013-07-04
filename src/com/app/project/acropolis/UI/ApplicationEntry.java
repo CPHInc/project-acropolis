@@ -74,6 +74,8 @@ final class GlobalAction extends Application implements GlobalEventListener
 	final long DateChange_GUID = net.rim.device.api.util.DateTimeUtilities.GUID_DATE_CHANGED;
 	private SimpleDateFormat sdf = new SimpleDateFormat("dd");
 	private String dbBillDate = "";
+	private int jumpstart_counter = 0;
+	
 	public GlobalAction()
 	{
 		Application.getApplication().addGlobalEventListener(this);
@@ -84,10 +86,11 @@ final class GlobalAction extends Application implements GlobalEventListener
 		
 		if(guid == JumpStartEngine_GUID)
 		{
+			jumpstart_counter++;
 			Application.getApplication().invokeLater(new Runnable() {
 				public void run()
 				{
-					new Logger().LogMessage("Jump starting engine boost supplied!!!");
+					new Logger().LogMessage("Jump starting engine boost supplied!!! ::" + jumpstart_counter);
 					new ServerChannel().JumpStart();
 				}
 			});
@@ -133,7 +136,7 @@ final class GlobalAction extends Application implements GlobalEventListener
 
 final class GUIApplication extends UiApplication
 {
-	static GUIApplication gui;
+//	static GUIApplication gui;
 	/**
 	 * Creates a new LocationApplication object, checks for SDCard support in the device else exits and creates/opens DataBase
 	 */
@@ -152,8 +155,8 @@ final class GUIApplication extends UiApplication
 
 final class MinimizedApplication extends Application
 {
-	static MinimizedApplication _instance;
-	boolean _initialize = false;
+//	static MinimizedApplication _instance;
+//	boolean _initialize = false;
 
 	public MinimizedApplication()
 	{

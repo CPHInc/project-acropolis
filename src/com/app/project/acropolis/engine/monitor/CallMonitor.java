@@ -3,7 +3,6 @@ import loggers.Logger;
 import net.rim.blackberry.api.phone.AbstractPhoneListener;
 import net.rim.blackberry.api.phone.Phone;
 import net.rim.blackberry.api.phone.PhoneCall;
-import net.rim.device.api.system.RadioInfo;
 
 import com.app.project.acropolis.controller.PlanReducer;
 import com.app.project.acropolis.model.ApplicationDB;

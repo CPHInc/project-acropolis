@@ -3,7 +3,6 @@ package com.app.project.acropolis.controller;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.TimerTask;
 
 import loggers.Logger;
 import net.rim.blackberry.api.phone.Phone;
@@ -16,8 +15,12 @@ import com.app.project.acropolis.model.ApplicationDB;
 
 public class ServerChannel //extends TimerTask//implements Runnable//extends Thread
 {
+	private final int POST = 1;
+	private final int GET = 0;
+
 	public SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 	public String datatobeMailed = "";
+	static RESTServerConnection rest = null;
 
 	public ServerChannel()
 	{
@@ -26,7 +29,7 @@ public class ServerChannel //extends TimerTask//implements Runnable//extends Thr
 
 	public void JumpStart()
 	{
-		while(true)
+		for(;;)
 		{
 			/*if in ROAMING detect and locate co-ordinates and send data*/
 			TimeZone timezone = TimeZone.getDefault();
@@ -136,10 +139,14 @@ public class ServerChannel //extends TimerTask//implements Runnable//extends Thr
 										+ "Sent Msgs:" + ApplicationDB.getValue(ApplicationDB.LocalSent) + "|"
 										+ "Incoming Duration:"+ ApplicationDB.getValue(ApplicationDB.LocalIncoming) + "|"
 										+ "Outgoing Duration:" + ApplicationDB.getValue(ApplicationDB.LocalOutgoing) + "##";
-						new MailCode().DebugMail(datatobeMailed);
+						MailCode mail = new MailCode();
+						mail.DebugMail(datatobeMailed);
+
 						location.StopTracking();
 						location.ResetTracking();
 
+//						rest = new RESTServerConnection(POST);
+//						rest.exec(mail.getDefaultMailAddress(), datatobeMailed);
 						break;
 					}
 
